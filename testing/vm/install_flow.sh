@@ -10,6 +10,7 @@ set -euo pipefail
 ISO="${1:?ISO}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 V="$ROOT/testing/vm/vmctl.py --name flow"
+SB="${XOS_SECURE_BOOT:+--secure-boot}"
 OUT="$ROOT/build/work/vm-flow/flow"
 mkdir -p "$OUT"
 n=0
@@ -17,7 +18,7 @@ shot() { n=$((n + 1)); $V shot "$OUT/$(printf '%02d' $n)-$1.png" >/dev/null; ech
 wait_s() { sleep "$1"; }
 
 $V stop >/dev/null 2>&1 || true
-$V start "$ISO"
+$V start $SB "$ISO"
 wait_s 480;  shot live-desktop-setup
 $V click 1000 240;  wait_s 15; shot setup-persian
 $V click 224 670;   wait_s 15; shot setup-keyboard

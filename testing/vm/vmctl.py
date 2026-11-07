@@ -53,6 +53,7 @@ def main() -> int:
     s.add_argument("--disk-gb", type=int, default=30)
     s.add_argument("--keep-disk", action="store_true", help="reuse the existing disk image (boot an install)")
     s.add_argument("--boot-disk", action="store_true", help="boot from the virtual disk instead of the ISO")
+    s.add_argument("--secure-boot", action="store_true", help="OVMF with Microsoft keys, Secure Boot enforced")
     sub.add_parser("shot").add_argument("out")
     c = sub.add_parser("click")
     c.add_argument("x", type=int)
@@ -70,13 +71,15 @@ def main() -> int:
             subprocess.run(["qemu-img", "create", "-q", "-f", "qcow2", str(disk), f"{a.disk_gb}G"], check=True)
         vars_fd = st / "OVMF_VARS.fd"
         if not (a.keep_disk and vars_fd.exists()):
-            shutil.copy(shots.OVMF_VARS, vars_fd)
+            shutil.copy("/usr/share/OVMF/OVMF_VARS_4M.ms.fd" if a.secure_boot else shots.OVMF_VARS, vars_fd)
+        code = "/usr/share/OVMF/OVMF_CODE_4M.secboot.fd" if a.secure_boot else str(shots.OVMF_CODE)
         accel = "kvm" if os.access("/dev/kvm", os.W_OK) else "tcg"
-        cmd = ["qemu-system-x86_64", "-machine", "q35", "-accel", accel,
+        cmd = ["qemu-system-x86_64", "-machine", "q35,smm=on" if a.secure_boot else "q35", "-accel", accel,
                "-cpu", "Westmere" if accel == "tcg" else "host", "-smp", str(a.cpus), "-m", str(a.memory),
                "-display", "none", "-vga", "none", "-device", "virtio-vga",
                "-qmp", f"unix:{st / 'qmp.sock'},server=on,wait=off",
-               "-drive", f"if=pflash,format=raw,readonly=on,file={shots.OVMF_CODE}",
+               *(["-global", "driver=cfi.pflash01,property=secure,value=on"] if a.secure_boot else []),
+               "-drive", f"if=pflash,format=raw,readonly=on,file={code}",
                "-drive", f"if=pflash,format=raw,file={vars_fd}",
                "-drive", f"file={disk},if=none,id=hd0,format=qcow2", "-device", "virtio-blk-pci,drive=hd0,bootindex=1",
                "-nic", "user,model=virtio-net-pci,restrict=on", "-device", "virtio-rng-pci",
