@@ -9,3 +9,12 @@ k theme __aurorae__svg__XOS-Dark
 k ButtonsOnLeft XIA
 k ButtonsOnRight ""
 test -f /usr/share/aurorae/themes/XOS-Dark/decoration.svg
+
+# X-OS login screen
+mkdir -p /etc/sddm.conf.d
+printf '[Theme]\nCurrent=xos\nCursorTheme=breeze_cursors\n' > /etc/sddm.conf.d/10-xos.conf
+test -f /usr/share/sddm/themes/xos/Main.qml
+
+# Lock screen uses the X-OS wallpaper
+kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image \
+    --group General --key Image "file:///usr/share/wallpapers/X-OS/x-os-dark.svg"

@@ -42,6 +42,11 @@ for d in symbolic apps brand; do
     [[ -d "$SRC/icons/xos/$d" ]] && cp -r "$SRC/icons/xos/$d" "$DEST/usr/share/xos/icons/xos/"
 done
 inst 0644 "$SRC/build/tmpfiles/xos.conf" usr/lib/tmpfiles.d/xos.conf
+# Boot experience: GRUB theme (installed systems) and Plymouth splash
+rm -rf "$DEST/usr/share/grub/themes/xos" "$DEST/usr/share/plymouth/themes/xos"
+mkdir -p "$DEST/usr/share/grub/themes" "$DEST/usr/share/plymouth/themes"
+cp -r "$SRC/themes/boot/grub/xos" "$DEST/usr/share/grub/themes/xos"
+cp -r "$SRC/themes/boot/plymouth/xos" "$DEST/usr/share/plymouth/themes/xos"
 
 # Desktop variant: dock, setup wizard, installer.
 if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
@@ -68,6 +73,10 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     chmod 0755 "$DEST/usr/bin/xos-windows-app"
     inst 0644 "$SRC/compatibility/gui/xos-windows-app.desktop" usr/share/applications/xos-windows-app.desktop
     inst 0644 "$SRC/compatibility/gui/mimeapps.list" etc/xdg/mimeapps.list
+    # Login screen (SDDM theme) — selected in build/hooks/chroot/40-desktop-defaults.sh
+    rm -rf "$DEST/usr/share/sddm/themes/xos"
+    mkdir -p "$DEST/usr/share/sddm/themes"
+    cp -r "$SRC/themes/sddm/xos" "$DEST/usr/share/sddm/themes/xos"
     # Window decoration (KWin Aurorae themes XOS-Dark / XOS-Light)
     for t in "$SRC"/themes/decoration/*/; do
         n="$(basename "$t")"

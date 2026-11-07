@@ -194,6 +194,9 @@ stage_iso() {
     mkdir -p "$STAGING/boot/grub" "$STAGING/.disk" "$XOS_OUT"
     sed -e "s/@VERSION@/$XOS_VERSION/g" -e "s/@VARIANT@/$XOS_VARIANT/g" \
         "$XOS_ROOT/build/grub/grub.cfg.in" > "$STAGING/boot/grub/grub.cfg"
+    rm -rf "$STAGING/boot/grub/themes"
+    mkdir -p "$STAGING/boot/grub/themes"
+    cp -r "$XOS_ROOT/themes/boot/grub/xos" "$STAGING/boot/grub/themes/xos"
     echo "$XOS_NAME $XOS_VERSION ($XOS_CODENAME) $XOS_VARIANT amd64 $(date -u +%Y%m%d)" > "$STAGING/.disk/info"
     touch "$STAGING/.disk/xos-live"
 

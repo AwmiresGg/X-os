@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=X-OS
+Description=X-OS boot splash: the X-OS mark with a quiet progress indicator
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/xos
+ScriptFile=/usr/share/plymouth/themes/xos/xos.script

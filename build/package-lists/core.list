@@ -21,6 +21,9 @@ efibootmgr
 shim-signed
 grub-efi-amd64-signed
 mokutil
+# boot splash (X-OS Plymouth theme; plymouth-label renders text for password prompts)
+plymouth
+plymouth-label
 
 # base userland
 sudo

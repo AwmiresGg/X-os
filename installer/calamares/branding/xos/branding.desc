@@ -13,7 +13,7 @@ strings:
     shortProductName:    "X-OS"
     version:             "0.1.0-dev"
     shortVersion:        "0.1"
-    versionedName:       "X-OS 0.1 (development build)"
+    versionedName:       "X-OS 0.1"
     shortVersionedName:  "X-OS 0.1"
     bootloaderEntryName: "X-OS"
     productUrl:          "https://github.com/AwmiresGg/X-os"
@@ -25,11 +25,12 @@ images:
     productIcon:         "logo.svg"
     productWelcome:      "welcome.svg"
 
+stylesheet:              "stylesheet.qss"
 slideshow:               "show.qml"
 slideshowAPI:            2
 
 style:
    SidebarBackground:        "#121417"
-   SidebarText:              "#EEF0FF"
+   SidebarText:              "#9AA1AB"
    SidebarTextCurrent:       "#FFFFFF"
    SidebarBackgroundCurrent: "#17524C"
