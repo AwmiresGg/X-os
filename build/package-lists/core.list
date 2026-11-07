@@ -17,6 +17,10 @@ grub-efi-amd64-bin
 grub-pc-bin
 grub2-common
 efibootmgr
+# Secure Boot: Microsoft-signed shim, Debian-signed GRUB (also used by the installer)
+shim-signed
+grub-efi-amd64-signed
+mokutil
 
 # base userland
 sudo

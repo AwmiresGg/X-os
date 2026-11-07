@@ -40,7 +40,7 @@ check_paths() {
 check_host() {
     [[ $EUID -eq 0 ]] || die "must run as root (debootstrap and chroot need it)"
     local missing=()
-    for t in debootstrap mksquashfs xorriso grub-mkrescue chroot mountpoint; do
+    for t in debootstrap mksquashfs xorriso chroot mountpoint mkfs.vfat mcopy; do
         command -v "$t" >/dev/null || missing+=("$t")
     done
     [[ -d /usr/lib/grub/i386-pc ]] || missing+=("grub-pc-bin")
@@ -189,20 +189,63 @@ in_chroot_pkglist() {
 
 stage_iso() {
     [[ -f "$STAGING/live/filesystem.squashfs" ]] || die "run the squash stage first"
+    [[ -f "$CHROOT/usr/lib/shim/shimx64.efi.signed" && -f "$CHROOT/usr/lib/grub/x86_64-efi-signed/gcdx64.efi.signed" ]] \
+        || die "shim-signed / grub-efi-amd64-signed missing in the image (core.list)"
     mkdir -p "$STAGING/boot/grub" "$STAGING/.disk" "$XOS_OUT"
     sed -e "s/@VERSION@/$XOS_VERSION/g" -e "s/@VARIANT@/$XOS_VARIANT/g" \
         "$XOS_ROOT/build/grub/grub.cfg.in" > "$STAGING/boot/grub/grub.cfg"
-    cp "$XOS_ROOT/boot/grub-theme/background.png" "$STAGING/boot/grub/background.png" 2>/dev/null || true
     echo "$XOS_NAME $XOS_VERSION ($XOS_CODENAME) $XOS_VARIANT amd64 $(date -u +%Y%m%d)" > "$STAGING/.disk/info"
     touch "$STAGING/.disk/xos-live"
-    (cd "$STAGING" && find live boot .disk -type f ! -name md5sum.txt -print0 | sort -z \
+
+    # GRUB modules from the image's own (Debian) GRUB: they must match the signed core exactly.
+    # Under Secure Boot GRUB refuses to load modules; everything needed is built into gcdx64.
+    rm -rf "$STAGING/boot/grub/x86_64-efi" "$STAGING/boot/grub/i386-pc"
+    cp -r "$CHROOT/usr/lib/grub/x86_64-efi" "$STAGING/boot/grub/x86_64-efi"
+    cp -r "$CHROOT/usr/lib/grub/i386-pc" "$STAGING/boot/grub/i386-pc"
+    rm -f "$STAGING"/boot/grub/*/*.image "$STAGING"/boot/grub/*/*.module
+
+    # --- UEFI + Secure Boot: Microsoft-signed shim -> Debian-signed GRUB -> signed kernel.
+    local efidir="$XOS_WORK/efi" efiimg="$STAGING/boot/grub/efi.img"
+    rm -rf "$efidir"
+    mkdir -p "$efidir/EFI/BOOT" "$efidir/EFI/debian"
+    cp "$CHROOT/usr/lib/shim/shimx64.efi.signed" "$efidir/EFI/BOOT/BOOTX64.EFI"
+    cp "$CHROOT/usr/lib/shim/mmx64.efi.signed" "$efidir/EFI/BOOT/mmx64.efi"
+    cp "$CHROOT/usr/lib/grub/x86_64-efi-signed/gcdx64.efi.signed" "$efidir/EFI/BOOT/grubx64.efi"
+    local stub
+    stub=$'search --no-floppy --file --set=root /.disk/xos-live\nset prefix=($root)/boot/grub\nconfigfile $prefix/grub.cfg\n'
+    printf '%s' "$stub" > "$efidir/EFI/debian/grub.cfg"
+    printf '%s' "$stub" > "$efidir/EFI/BOOT/grub.cfg"
+    rm -f "$efiimg"
+    # shim + MokManager + signed GRUB need ~7 MB; 10 MB leaves room
+    mkfs.vfat -C -n XOS_EFI "$efiimg" 10240 >/dev/null
+    mcopy -s -i "$efiimg" "$efidir/EFI" ::/
+    # the same tree on the ISO itself (some firmware reads EFI files from the ISO9660 view)
+    cp -r "$efidir/EFI" "$STAGING/"
+
+    # --- BIOS: El Torito core image built by the image's GRUB (prefix /boot/grub on the ISO).
+    in_chroot grub-mkimage -O i386-pc-eltorito -p /boot/grub -o /tmp/xos-bios.img \
+        biosdisk iso9660 part_msdos part_gpt normal configfile search search_fs_file \
+        linux echo test ls cat serial terminal
+    mv "$CHROOT/tmp/xos-bios.img" "$STAGING/boot/grub/bios.img"
+    cp "$CHROOT/usr/lib/grub/i386-pc/boot_hybrid.img" "$XOS_WORK/boot_hybrid.img"
+
+    (cd "$STAGING" && find live boot .disk EFI -type f ! -name md5sum.txt -print0 | sort -z \
         | xargs -0 md5sum > md5sum.txt)
 
     local iso="$XOS_OUT/x-os-$XOS_VERSION-$XOS_VARIANT-amd64.iso"
-    log "iso: building $iso"
-    # grub-mkrescue produces a hybrid image: El Torito BIOS + EFI system partition,
-    # bootable from optical media and from USB sticks (isohybrid MBR/GPT).
-    grub-mkrescue -o "$iso" "$STAGING" -- -volid "XOS_$(echo "$XOS_VERSION" | tr -c 'A-Za-z0-9\n' '_' | cut -c1-20)"
+    local volid
+    volid="XOS_$(echo "$XOS_VERSION" | tr -c 'A-Za-z0-9\n' '_' | cut -c1-20)"
+    log "iso: building $iso (BIOS + UEFI with Secure Boot)"
+    rm -f "$iso"
+    # Hybrid image: El Torito BIOS + El Torito EFI, plus an MBR/GPT with the EFI image as an
+    # appended ESP partition so the same file works dd'ed to a USB stick.
+    xorriso -as mkisofs -iso-level 3 -full-iso9660-filenames -joliet -joliet-long -rational-rock \
+        -volid "$volid" \
+        -eltorito-boot boot/grub/bios.img -no-emul-boot -boot-load-size 4 -boot-info-table \
+        --grub2-boot-info --grub2-mbr "$XOS_WORK/boot_hybrid.img" \
+        -eltorito-alt-boot -e --interval:appended_partition_2:all:: -no-emul-boot \
+        -append_partition 2 0xef "$efiimg" -appended_part_as_gpt \
+        -o "$iso" "$STAGING"
     (cd "$XOS_OUT" && sha256sum "$(basename "$iso")" > "$(basename "$iso").sha256")
     log "iso: done -> $iso ($(du -h "$iso" | cut -f1))"
 }

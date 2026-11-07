@@ -37,7 +37,7 @@
 - Dual boot / "Install alongside" not yet tested (needs a VM disk with Windows installed).
 - Calamares' own Persian translation shows raw `%1` / `TextLabel` in two strings (upstream).
 - Calamares window does not mirror to RTL (upstream behaviour).
-- No Secure Boot (unsigned GRUB on the ISO).
+- Secure Boot on the **installed** system (grub-install with shim-signed) not yet tested in the VM.
 
 ## Acceptance criteria (gate E)
 - [ ] Automatic, manual and alongside install on virtual disks, each booting afterwards

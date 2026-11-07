@@ -13,6 +13,7 @@ Test levels: **U** unit tested · **I** integration tested · **VM** VM tested �
 |---|---|---|
 | Reproducible ISO build pipeline (Debian 13, core variant), re-runnable stages | VM | `build/build.sh`; built 3× this session |
 | Hybrid ISO boots on **UEFI** (OVMF) and **BIOS** (SeaBIOS) | VM | `testing/results/*-{bios,uefi}-*.json` |
+| **Secure Boot**: Microsoft-signed shim → Debian-signed GRUB → signed kernel; boots with Secure Boot enforced (OVMF + Microsoft keys) | VM | `testing/results/*-uefi-sb-*.json` |
 | Live session at **2 GiB** and **4 GiB** RAM | VM | same |
 | systemd reaches `running`, no failed units | VM | self-test `systemd` |
 | NetworkManager: wired DHCP, online | VM | self-test `network-manager`, `connectivity` (isolated network) |
@@ -38,7 +39,7 @@ Test levels: **U** unit tested · **I** integration tested · **VM** VM tested �
 Desktop ISO, top bar, launcher, notifications, Control Center UI, Disk Manager
 write operations, Bluetooth/VPN/Audio/Display managers, File Manager theming,
 X-Store, Gaming, Security Center, snapshots/recovery, AI assistant, installer,
-Plymouth/GRUB theme, Secure Boot signing. See `ROADMAP.md`.
+Plymouth/GRUB theme. See `ROADMAP.md`.
 
 ## Never tested (needs a person with hardware)
 
@@ -50,7 +51,6 @@ no physical hardware and no KVM (see `ENVIRONMENT.md`).
 
 | Severity | Issue |
 |---|---|
-| High (blocks Secure Boot PCs) | GRUB on the ISO is unsigned; machines with Secure Boot enabled will refuse to boot it. Workaround: disable Secure Boot. Fix planned: Debian shim-signed + signed GRUB. |
 | Medium | Dock hand-over: rising circle overlaps the notch shoulder by a few px for ~100 ms. |
 | Medium | Builds are not bit-reproducible (mirror moves; no SOURCE_DATE_EPOCH). |
 | Low | Boot menu is text-only; no boot splash. |

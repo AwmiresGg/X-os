@@ -3,7 +3,7 @@
 # مهاجرت از ویندوز به X-OS — راهنمای قدم‌به‌قدم
 
 > ⚠️ **وضعیت فعلی: نسخهٔ در حال توسعه (INTERNAL TESTING).**
-> X-OS هنوز روی هیچ رایانهٔ واقعی آزمایش نشده و از Secure Boot پشتیبانی نمی‌کند.
+> X-OS هنوز روی هیچ رایانهٔ واقعی آزمایش نشده است. (Secure Boot پشتیبانی می‌شود.)
 > **فعلاً فقط قدم‌های ۱ تا ۵ (امتحان بدون نصب) را انجام دهید.** قدم ۶ (نصب) را تا وقتی
 > وضعیت در `releases/STATE.md` به «INSTALLER VERIFIED» نرسیده انجام ندهید.
 
@@ -52,7 +52,7 @@ Get-FileHash .\x-os-0.1.0-dev-desktop-amd64.iso -Algorithm SHA256
 1. **Fast Startup ویندوز را خاموش کنید:**
    `Control Panel → Power Options → Choose what the power buttons do →`
    تیک `Turn on fast startup` را بردارید.
-2. **Secure Boot را موقتاً خاموش کنید** (X-OS هنوز امضای Secure Boot ندارد) — در تنظیمات UEFI/BIOS.
+2. **Secure Boot را خاموش نکنید** — X-OS با بوت‌لودر امضاشده بالا می‌آید.
 3. فلش را وصل کنید، رایانه را ری‌استارت کنید و کلید **منوی بوت** را چند بار بزنید:
 
 | برند | کلید منوی بوت |

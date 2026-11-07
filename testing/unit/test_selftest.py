@@ -91,3 +91,18 @@ class DesktopSessionTests(unittest.TestCase):
             status, detail = selftest.check_desktop_session(timeout=0.01)
         self.assertEqual(status, "FAIL")
         self.assertIn("Autologin failed", detail)
+
+
+class SecureBootTests(unittest.TestCase):
+    def test_states(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as t:
+            var = Path(t) / "SecureBoot"
+            with mock.patch.object(selftest, "SB_VAR", var), \
+                 mock.patch.object(selftest.Path, "is_dir", return_value=True):
+                var.write_bytes(b"\x06\x00\x00\x00\x01")
+                self.assertEqual(selftest.check_secure_boot()[0], "PASS")
+                self.assertIn("enabled", selftest.check_secure_boot()[1])
+                var.write_bytes(b"\x06\x00\x00\x00\x00")
+                self.assertEqual(selftest.check_secure_boot()[1], "disabled")

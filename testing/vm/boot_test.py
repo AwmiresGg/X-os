@@ -32,6 +32,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OVMF_CODE = Path("/usr/share/OVMF/OVMF_CODE_4M.fd")
 OVMF_VARS = Path("/usr/share/OVMF/OVMF_VARS_4M.fd")
+# Secure Boot: SMM-protected firmware + variables with Microsoft's keys enrolled (SB enforced)
+OVMF_CODE_SB = Path("/usr/share/OVMF/OVMF_CODE_4M.secboot.fd")
+OVMF_VARS_SB = Path("/usr/share/OVMF/OVMF_VARS_4M.ms.fd")
 
 
 class _Quiet(http.server.SimpleHTTPRequestHandler):
@@ -48,7 +51,7 @@ def start_http() -> tuple[http.server.ThreadingHTTPServer, int]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("iso")
-    ap.add_argument("--firmware", choices=["bios", "uefi"], default="bios")
+    ap.add_argument("--firmware", choices=["bios", "uefi", "uefi-sb"], default="bios")
     ap.add_argument("--memory", type=int, default=2048, help="MiB")
     ap.add_argument("--cpus", type=int, default=2)
     ap.add_argument("--cpu-model", default="max",
@@ -71,7 +74,8 @@ def main() -> int:
     serial_log = log_dir / f"{iso.stem}-{a.firmware}-{a.memory}M-{stamp}.serial.log"
 
     srv, port = start_http()
-    cmd = ["qemu-system-x86_64", "-machine", "q35", "-accel", accel,
+    machine = "q35,smm=on" if a.firmware == "uefi-sb" else "q35"
+    cmd = ["qemu-system-x86_64", "-machine", machine, "-accel", accel,
            "-cpu", a.cpu_model if accel == "tcg" else "host",
            "-smp", str(a.cpus), "-m", str(a.memory),
            "-display", "none", "-serial", f"file:{serial_log}", "-monitor", "none",
@@ -86,10 +90,13 @@ def main() -> int:
         disk = tmp / "disk.qcow2"
         subprocess.run(["qemu-img", "create", "-q", "-f", "qcow2", str(disk), f"{a.disk_gb}G"], check=True)
         cmd += ["-drive", f"file={disk},if=virtio,format=qcow2"]
-    if a.firmware == "uefi":
+    if a.firmware in ("uefi", "uefi-sb"):
+        sb = a.firmware == "uefi-sb"
         vars_copy = tmp / "OVMF_VARS.fd"
-        shutil.copy(OVMF_VARS, vars_copy)
-        cmd += ["-drive", f"if=pflash,format=raw,readonly=on,file={OVMF_CODE}",
+        shutil.copy(OVMF_VARS_SB if sb else OVMF_VARS, vars_copy)
+        if sb:
+            cmd += ["-global", "driver=cfi.pflash01,property=secure,value=on"]
+        cmd += ["-drive", f"if=pflash,format=raw,readonly=on,file={OVMF_CODE_SB if sb else OVMF_CODE}",
                 "-drive", f"if=pflash,format=raw,file={vars_copy}"]
 
     print(f"[boot-test] {iso.name} firmware={a.firmware} mem={a.memory}M accel={accel} log={serial_log}")

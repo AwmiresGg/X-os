@@ -7,7 +7,6 @@
 **Tests:** shellcheck (warnings gate); end-to-end build of core ISO; VM boot test
 
 **Known issues / limitations:**
-- No Secure Boot yet: grub-mkrescue's GRUB is unsigned. Plan: ship Debian shim-signed + grub-efi-amd64-signed.
 - Build is not bit-reproducible (timestamps, package versions float with the mirror). Plan: snapshot.debian.org pinning + SOURCE_DATE_EPOCH.
 
 **Acceptance criteria:**

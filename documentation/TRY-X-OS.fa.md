@@ -42,7 +42,8 @@ GitHub خودش ISO را می‌سازد:
 2. **Rufus** را از `rufus.ie` بگیر → فلش را انتخاب کن → ISO → START →
    وقتی پرسید **«Write in DD Image mode»** را انتخاب کن.
 3. در ویندوز **Fast Startup** را خاموش کن (Control Panel → Power Options → Choose what the power buttons do).
-4. **Secure Boot** را موقتاً در BIOS/UEFI خاموش کن (X-OS هنوز امضای Secure Boot ندارد).
+4. **Secure Boot لازم نیست خاموش شود.** X-OS با زنجیره‌ی امضاشده (shim مایکروسافت + GRUB و کرنل امضاشده‌ی Debian) بوت می‌شود.
+   اگر کامپیوترت باز هم اجازه نداد، فقط آن‌وقت Secure Boot را موقتاً خاموش کن.
 5. ری‌استارت و کلید منوی بوت: Dell `F12` · HP `F9` · Lenovo `F12` · ASUS `F8`/`Esc` · Acer `F12` · MSI `F11`.
 6. فلش (گزینه‌ی `UEFI:`) را انتخاب کن → **Try without installing**.
 7. وای‌فای، صدا، تصویر، تاچ‌پد، بلوتوث، نور صفحه و باتری را امتحان کن و نتیجه را برایم بفرست.

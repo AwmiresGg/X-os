@@ -144,6 +144,20 @@ def check_desktop_session(timeout: int = 420):
     return "FAIL", "no graphical user session; sddm log: " + " | ".join(log.splitlines()[-12:])
 
 
+SB_VAR = Path("/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c")
+
+
+def check_secure_boot():
+    """Informational: reports the firmware's Secure Boot state (never a failure by itself)."""
+    if not Path("/sys/firmware/efi").is_dir():
+        return "SKIP", "BIOS boot (no Secure Boot)"
+    try:
+        data = SB_VAR.read_bytes()
+    except OSError:
+        return "SKIP", "Secure Boot variable not available"
+    return "PASS", "enabled (booted through signed shim + GRUB + kernel)" if data[-1:] == b"\x01" else "disabled"
+
+
 def check_firewall():
     if not shutil.which("ufw"):
         return "FAIL", "ufw not installed"
@@ -200,6 +214,7 @@ def run(mode: str = "report", out_dir: Path = Path("/var/log")) -> dict:
         "network-manager": check_network_manager,
         "connectivity": check_connectivity,
         "firewall": check_firewall,
+        "secure-boot": check_secure_boot,
         "desktop-session": check_desktop_session,
         "hardware": lambda: check_hardware(hw),
         "disk-tools": check_disk_tools,
