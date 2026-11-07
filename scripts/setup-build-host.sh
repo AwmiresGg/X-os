@@ -12,5 +12,8 @@ if [[ ${1:-} == --check ]]; then
     echo "missing packages: ${missing[*]:-none}"; exit 0
 fi
 [[ $EUID -eq 0 ]] || { echo "run as root to install packages" >&2; exit 1; }
-((${#missing[@]})) && DEBIAN_FRONTEND=noninteractive apt-get install -y "${missing[@]}"
+if ((${#missing[@]})); then
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y "${missing[@]}"
+fi
 echo "build host ready"

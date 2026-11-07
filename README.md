@@ -15,6 +15,12 @@ for old and new PCs, and a safety-first installer and recovery story.
 
 ![X-OS shell: menu bar, dock and Control Center (offscreen render, demo data)](documentation/images/shell-dark-control-center.png)
 
+## Try it
+
+**فارسی:** [documentation/TRY-X-OS.fa.md](documentation/TRY-X-OS.fa.md) — download the ISO from the
+[build-iso workflow](https://github.com/AwmiresGg/X-os/actions/workflows/build-iso.yml) (Artifacts), then try it in
+VirtualBox (EFI on, 4 GB RAM) or from a USB stick with *Try without installing*.
+
 ## Quick start (developers)
 
 ```bash
