@@ -72,6 +72,14 @@ class LoginAndInstallerTests(unittest.TestCase):
         welcome = yaml.safe_load((ROOT / "installer/calamares/modules/welcome.conf").read_text())
         self.assertNotIn("internet", welcome["requirements"]["required"])
 
+    def test_fstab_tmp_options_are_maps(self):
+        # Calamares' fstab job calls .get() on tmpOptions[ssd|default] when the root disk is an
+        # SSD; a string there crashed every install on SSD/NVMe ("Bad main script file").
+        conf = yaml.safe_load((ROOT / "installer/calamares/modules/fstab.conf").read_text())
+        for key in ("default", "ssd"):
+            self.assertIsInstance(conf["tmpOptions"][key], dict, key)
+            self.assertIn("tmpfs", conf["tmpOptions"][key])
+
     def test_menu_text_is_ascii(self):
         # Under Secure Boot GRUB draws with its built-in font, which lacks dashes and bullets.
         cfg = (ROOT / "build/grub/grub.cfg.in").read_text()
