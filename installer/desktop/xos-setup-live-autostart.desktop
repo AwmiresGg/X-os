@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=X-OS Setup
+Exec=sh -c '[ -d /run/live/medium ] && exec xos-setup-gui'
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

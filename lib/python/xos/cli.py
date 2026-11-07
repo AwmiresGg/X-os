@@ -202,3 +202,59 @@ def selftest_main(argv=None) -> int:
         if mode == "poweroff":
             subprocess.run(["systemctl", "--no-block", "poweroff"], check=False)
     return 0 if report["overall"] == "PASS" else 1
+
+
+# --------------------------------------------------------------------------- xos-setup
+PENDING = Path("/var/lib/xos/browsers-pending")
+
+
+def setup_main(argv=None) -> int:
+    from . import browsers, setup
+    ap = argparse.ArgumentParser(prog="xos-setup", description="Apply X-OS Setup choices")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("apply-target", help="installer: apply choices inside the installed system (root)")
+    sub.add_parser("firstboot", help="service: retry browser downloads once online (root)")
+    sub.add_parser("user-apply", help="first login: keyboard layouts, theme, wallpaper (user)")
+    sub.add_parser("wifi-list", help="visible Wi-Fi networks as JSON")
+    a = ap.parse_args(argv)
+
+    if a.cmd == "wifi-list":
+        print(json.dumps(setup.wifi_networks(), ensure_ascii=False, indent=2))
+        return 0
+
+    path = setup.TARGET_CHOICES_PATH
+    if not path.exists():
+        print(f"no setup choices at {path}; nothing to do")
+        return 0
+    c = setup.load(path)
+
+    if a.cmd == "user-apply":
+        marker = Path.home() / ".config/xos/setup-applied"
+        if marker.exists():
+            return 0
+        for line in setup.run_all(setup.keyboard_session_commands(c) + setup.appearance_commands(c)):
+            print(line)
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        marker.write_text("1\n")
+        return 0
+
+    if os.geteuid() != 0:
+        print("must run as root", file=sys.stderr)
+        return 1
+    if a.cmd == "apply-target":
+        for line in setup.run_all(setup.target_system_commands(c)):
+            print(line)
+        wanted = list(c.browsers)
+    else:
+        wanted = PENDING.read_text().split() if PENDING.exists() else []
+        if not wanted:
+            return 0
+    installed, failed, log = browsers.install(wanted)
+    print("\n".join(log))
+    print(f"browsers installed: {installed or '-'}; failed: {failed or '-'}")
+    PENDING.parent.mkdir(parents=True, exist_ok=True)
+    if failed:
+        PENDING.write_text(" ".join(failed) + "\n")   # xos-firstboot.service retries when online
+    else:
+        PENDING.unlink(missing_ok=True)
+    return 0   # never fail the installation because a download failed

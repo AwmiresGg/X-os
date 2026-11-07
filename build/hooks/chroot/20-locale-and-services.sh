@@ -12,6 +12,7 @@ systemctl enable systemd-timesyncd.service || true
 systemctl enable bluetooth.service 2>/dev/null || true
 systemctl enable xos-selftest.service
 systemctl enable xos-profile-boot.service
+systemctl enable xos-live-session.service
 
 # Firewall: deny incoming, allow outgoing. Enabled on first boot by ufw.service.
 if command -v ufw >/dev/null; then

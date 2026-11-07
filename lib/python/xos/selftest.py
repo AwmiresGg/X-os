@@ -105,6 +105,31 @@ def check_connectivity():
     return ("PASS", f"{url} -> HTTP {out}") if rc == 0 and out.startswith(("2", "3")) else ("FAIL", f"{url}: {out[-200:]}")
 
 
+def check_desktop_session(timeout: int = 420):
+    """Desktop images: a graphical (Wayland/X11) user session must come up.
+
+    Waits because a cold Plasma start is slow on old PCs and in emulation. On
+    failure the display manager's log is attached so the cause is visible on the
+    serial console.
+    """
+    if not Path("/usr/lib/systemd/system/sddm.service").exists():
+        return "SKIP", "no display manager (core image)"
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        _, out = _sh("loginctl", "list-sessions", "--no-legend")
+        for line in out.splitlines():
+            sid = line.split()[0] if line.split() else ""
+            if not sid:
+                continue
+            _, props = _sh("loginctl", "show-session", sid, "-p", "Type", "-p", "Class", "-p", "State", "-p", "Name")
+            p = dict(kv.split("=", 1) for kv in props.splitlines() if "=" in kv)
+            if p.get("Type") in ("wayland", "x11") and p.get("Class") == "user":
+                return "PASS", f"{p['Type']} session for {p.get('Name')} ({p.get('State')})"
+        time.sleep(5)
+    _, log = _sh("journalctl", "-b", "-u", "sddm", "--no-pager", "-o", "cat", "-n", "12")
+    return "FAIL", "no graphical user session; sddm log: " + " | ".join(log.splitlines()[-12:])
+
+
 def check_firewall():
     if not shutil.which("ufw"):
         return "FAIL", "ufw not installed"
@@ -160,6 +185,7 @@ def run(mode: str = "report", out_dir: Path = Path("/var/log")) -> dict:
         "network-manager": check_network_manager,
         "connectivity": check_connectivity,
         "firewall": check_firewall,
+        "desktop-session": check_desktop_session,
         "hardware": lambda: check_hardware(hw),
         "disk-tools": check_disk_tools,
         "wifi": lambda: check_wifi(hw),

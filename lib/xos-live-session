@@ -1,0 +1,28 @@
+#!/bin/sh
+# Live USB session only (ConditionPathExists=/run/live/medium in the unit):
+# auto-login the live user into Plasma (Wayland), no password, no screen lock.
+# Changes land in the live session's RAM overlay; an installed system never runs this.
+set -eu
+user=$(sed -n 's/.*live-config\.username=\([a-z_][a-z0-9_-]*\).*/\1/p' /proc/cmdline)
+user=${user:-xos}
+id "$user" >/dev/null 2>&1 || exit 0
+
+# Debian live-config's default password uses DES crypt, which libxcrypt rejects;
+# an empty password (as on other distributions' live media) keeps logins possible.
+passwd -d "$user" >/dev/null
+
+session=plasma.desktop
+grep -q 'xos.session=x11' /proc/cmdline && session=plasmax11.desktop
+cat > /etc/sddm.conf <<CONF
+[Autologin]
+User=$user
+Session=$session
+Relogin=false
+CONF
+
+mkdir -p /etc/xdg
+cat > /etc/xdg/kscreenlockerrc <<CONF
+[Daemon]
+Autolock=false
+LockOnResume=false
+CONF

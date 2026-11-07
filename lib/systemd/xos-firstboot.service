@@ -1,0 +1,13 @@
+[Unit]
+Description=X-OS first boot: finish browser downloads chosen during setup
+ConditionPathExists=/var/lib/xos/browsers-pending
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/xos-setup firstboot
+TimeoutStartSec=1800
+
+[Install]
+WantedBy=multi-user.target

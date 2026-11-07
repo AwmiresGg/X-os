@@ -6,7 +6,6 @@ libgl1-mesa-dri
 xwayland
 # KDE Plasma foundation (Wayland session) - kept close to the minimal meta-package
 kde-plasma-desktop
-plasma-workspace-wayland
 kwin-wayland
 sddm
 sddm-theme-breeze
@@ -42,7 +41,7 @@ kwrite
 ark
 gwenview
 okular
-spectacle
+kde-spectacle
 kcalc
 haruna
 firefox-esr
@@ -59,3 +58,14 @@ fonts-inter
 fonts-noto-core
 fonts-noto-color-emoji
 fonts-jetbrains-mono
+
+# X-OS Setup wizard + installer
+calamares
+os-prober
+python3-pyside6.qtquick
+python3-pyside6.qtqml
+python3-pyside6.qtgui
+qml6-module-qtquick-templates
+qml6-module-qtquick-effects
+fonts-vazirmatn
+kde-config-sddm

@@ -51,6 +51,9 @@ def main() -> int:
     ap.add_argument("--firmware", choices=["bios", "uefi"], default="bios")
     ap.add_argument("--memory", type=int, default=2048, help="MiB")
     ap.add_argument("--cpus", type=int, default=2)
+    ap.add_argument("--cpu-model", default="max",
+                    help="QEMU CPU model under TCG. Desktop images need one without AVX2 (e.g. Westmere): "
+                         "QEMU 8.2's TCG mis-emulates the AVX2 gathers Mesa llvmpipe generates.")
     ap.add_argument("--timeout", type=int, default=1500, help="seconds")
     ap.add_argument("--disk-gb", type=int, default=8, help="blank virtual disk (0 = none)")
     ap.add_argument("--evidence", default=str(ROOT / "testing/results"))
@@ -69,7 +72,7 @@ def main() -> int:
 
     srv, port = start_http()
     cmd = ["qemu-system-x86_64", "-machine", "q35", "-accel", accel,
-           "-cpu", "max" if accel == "tcg" else "host",
+           "-cpu", a.cpu_model if accel == "tcg" else "host",
            "-smp", str(a.cpus), "-m", str(a.memory),
            "-display", "none", "-serial", f"file:{serial_log}", "-monitor", "none",
            "-no-reboot",
@@ -125,7 +128,7 @@ def main() -> int:
     Path(a.evidence).mkdir(parents=True, exist_ok=True)
     evidence = {
         "iso": iso.name, "iso_sha256": _sha256(iso), "firmware": a.firmware, "memory_mib": a.memory,
-        "cpus": a.cpus, "accelerator": accel, "date_utc": stamp, "elapsed_seconds": elapsed,
+        "cpus": a.cpus, "cpu_model": a.cpu_model if accel == "tcg" else "host", "accelerator": accel, "date_utc": stamp, "elapsed_seconds": elapsed,
         "selftest_result": result or "TIMEOUT", "clean_poweroff": clean_shutdown,
         "selftest_lines": lines, "test_level": "VM tested (QEMU, emulated hardware)",
         "network_note": "guest network isolated; internet access not tested",

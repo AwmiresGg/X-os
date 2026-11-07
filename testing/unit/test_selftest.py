@@ -60,3 +60,34 @@ class SummaryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DesktopSessionTests(unittest.TestCase):
+    def test_detects_wayland_user_session(self):
+        def _sh(*cmd, timeout=60):
+            if cmd[:2] == ("loginctl", "list-sessions"):
+                return 0, "3 1000 xos seat0 tty2\nc1 102 sddm seat0 tty1\n"
+            if cmd[:2] == ("loginctl", "show-session"):
+                return 0, ("Type=wayland\nClass=user\nState=active\nName=xos" if cmd[2] == "3"
+                           else "Type=wayland\nClass=greeter\nState=online\nName=sddm")
+            raise AssertionError(cmd)
+        with mock.patch.object(selftest, "_sh", _sh), \
+             mock.patch.object(selftest.Path, "exists", return_value=True):
+            status, detail = selftest.check_desktop_session()
+        self.assertEqual(status, "PASS")
+        self.assertIn("wayland session for xos", detail)
+
+    def test_greeter_only_is_failure_with_log(self):
+        def _sh(*cmd, timeout=60):
+            if cmd[:2] == ("loginctl", "list-sessions"):
+                return 0, "c1 102 sddm seat0 tty1\n"
+            if cmd[:2] == ("loginctl", "show-session"):
+                return 0, "Type=wayland\nClass=greeter\nState=online\nName=sddm"
+            if cmd[0] == "journalctl":
+                return 0, "Autologin failed: session not found"
+            raise AssertionError(cmd)
+        with mock.patch.object(selftest, "_sh", _sh), mock.patch.object(selftest.time, "sleep"), \
+             mock.patch.object(selftest.Path, "exists", return_value=True):
+            status, detail = selftest.check_desktop_session(timeout=0.01)
+        self.assertEqual(status, "FAIL")
+        self.assertIn("Autologin failed", detail)

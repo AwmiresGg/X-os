@@ -12,6 +12,7 @@ initramfs-tools
 # bootloaders (needed by the installer to set up GRUB on installed systems)
 grub-efi-amd64-bin
 grub-pc-bin
+grub2-common
 efibootmgr
 
 # base userland
