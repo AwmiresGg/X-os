@@ -10,10 +10,12 @@ serial --unit=0 --speed=115200
 terminal_input console serial
 terminal_output console serial
 
-# X-OS graphical menu (falls back to the text menu if anything is missing).
-# All modules used here are built into Debian's signed GRUB, so it also works with Secure Boot.
+# X-OS graphical menu. Under Secure Boot the signed GRUB runs in lockdown mode, which by design
+# refuses to load fonts from disk, so the (X-OS coloured) text menu is used instead - silently.
+set menu_color_normal=light-gray/black
+set menu_color_highlight=black/cyan
 set xos_theme=$prefix/themes/xos
-if loadfont $xos_theme/inter-18.pf2 ; then
+if [ "$lockdown" != "y" ] && loadfont $xos_theme/inter-18.pf2 ; then
     loadfont $xos_theme/inter-13.pf2
     loadfont $xos_theme/inter-semibold-28.pf2
     insmod all_video
@@ -28,9 +30,6 @@ insmod all_video
 insmod part_gpt
 insmod part_msdos
 insmod iso9660
-
-set menu_color_normal=light-gray/black
-set menu_color_highlight=white/blue
 
 set xos_live="boot=live components live-config.username=xos live-config.hostname=x-os"
 
@@ -49,12 +48,12 @@ menuentry "Try X-OS — Safe graphics" --id live-safe {
     initrd /live/initrd.img
 }
 
-menuentry "Try X-OS — Run from memory (USB can be removed)" --id live-toram {
+menuentry "Try X-OS — Run from memory" --id live-toram {
     linux /live/vmlinuz $xos_live toram quiet splash
     initrd /live/initrd.img
 }
 
-menuentry "Check this computer (hardware self-test)" --id selftest {
+menuentry "Check this computer (self-test)" --id selftest {
     linux /live/vmlinuz $xos_live xos.selftest=1 console=tty0 console=ttyS0,115200
     initrd /live/initrd.img
 }
