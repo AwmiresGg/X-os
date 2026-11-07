@@ -14,6 +14,7 @@ Window {
     required property var status
     required property var windows
     property string previewOpen: ""
+    property real previewLaunch: -1
 
     Binding { target: Theme; property: "mode"; value: win.settings.values.theme }
 
@@ -48,6 +49,7 @@ Window {
         windows: win.windows
         settings: win.settings
         status: win.status
+        debugLaunchP: win.previewLaunch
     }
     Popovers {
         visible: win.previewOpen !== ""

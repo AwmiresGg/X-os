@@ -80,7 +80,7 @@ polish second (Jakub Krehel lens). Only transform/opacity/geometry of shell chro
 | `fadeOut` | 80 ms | (0.4, 0, 1, 1) | icon leaving the circle (exit subtler than enter) |
 | `fadeIn` | 140 ms | (0, 0, 0.2, 1) | icon entering the circle |
 | `slide` | 240 ms | (0.32, 0.72, 0, 1) | circle + cradle moving to another item (reference ≈ 270 ms) |
-| `launch` | 420 ms | droplet curve (geometry.mjs) | droplet pull-out → pinch → settle, on app launch only |
+| `launch` | 460 ms | phases in `launchState` (ease-out rise to a peak at 60 %, ease-in-out settle) | droplet pull-out → pinch → settle, on app launch only |
 | `popover` | 160 ms in / 100 ms out | (0, 0, 0.2, 1) / (0.4, 0, 1, 1) | menus; scale from 0.96 at the trigger, never from 0 |
 
 Frequency gate: switching apps is frequent → fast slide, no droplet. Launch is rarer → droplet.

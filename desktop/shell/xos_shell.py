@@ -376,12 +376,37 @@ DEMO_WINDOWS = {"windows": [
 ], "active": "0b5c7e1a-2222-4a2b-9c3d-bbbbbbbbbbbb"}
 
 
+def _keep_dock_input_region(shell) -> None:
+    """Limit the dock surface's input region to the visible dock (the window is taller to
+    leave room for the launch droplet; the transparent band must not swallow clicks)."""
+    from PySide6.QtCore import QRect
+    from PySide6.QtGui import QRegion
+    dock_win = shell.property("dockWindow")
+    bar = dock_win.findChild(QObject, "dockBar") if dock_win else None
+    if not bar:
+        return
+    last = {"r": None}
+
+    def update():
+        r = bar.property("inputRect").toRect()
+        if r != last["r"]:
+            last["r"] = r
+            dock_win.setMask(QRegion(QRect(r)))
+    timer = QTimer(shell)
+    timer.timeout.connect(update)
+    timer.start(500)
+    update()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", metavar="PNG", help="render a preview with demo data and exit")
     ap.add_argument("--open", default="", help="preview: popover to show (system, battery, control)")
     ap.add_argument("--theme", default="", help="preview: dark | light")
     ap.add_argument("--opacity", type=float, default=None, help="preview: dock/menu bar opacity")
+    ap.add_argument("--launch-p", type=float, default=-1, help="preview: freeze the launch droplet at p (0..1)")
+    ap.add_argument("--simulate-launch", metavar="DIR", help="preview: open a new app window after 0.8 s and "
+                                                               "save frames of the live animation to DIR")
     a = ap.parse_args()
 
     if not a.preview:
@@ -408,10 +433,12 @@ def main() -> int:
     wayland = QGuiApplication.platformName() == "wayland"
     engine.addImportPath(str(qml / "platform" / ("wayland" if wayland and not a.preview else "fallback")))
     engine.setInitialProperties({"settings": settings, "status": status, "windows": wins,
-                                 "previewOpen": a.open})
+                                 "previewOpen": a.open, "previewLaunch": a.launch_p})
     engine.load(QUrl.fromLocalFile(str(qml / ("Preview.qml" if a.preview else "Shell.qml"))))
     if not engine.rootObjects():
         return 1
+    if not a.preview:
+        _keep_dock_input_region(engine.rootObjects()[0])
     if a.preview:
         win = engine.rootObjects()[0]
 
@@ -420,7 +447,24 @@ def main() -> int:
                 win.grabWindow().save(a.preview)
             finally:
                 app.quit()
-        QTimer.singleShot(2500, grab)
+        if a.simulate_launch:
+            out = Path(a.simulate_launch)
+            out.mkdir(parents=True, exist_ok=True)
+            launched = dict(DEMO_WINDOWS, windows=DEMO_WINDOWS["windows"] + [
+                {"id": "0b5c7e1a-4444-4a2b-9c3d-dddddddddddd", "caption": "Untitled — KWrite", "appId": "org.kde.kwrite"}],
+                active="0b5c7e1a-4444-4a2b-9c3d-dddddddddddd")
+            QTimer.singleShot(800, lambda: wins.apply(json.dumps(launched)))
+            frame = {"n": 0}
+
+            def snap():
+                win.grabWindow().copy(400, 680, 640, 220).save(str(out / f"f{frame['n']:03d}.png"))
+                frame["n"] += 1
+            t = QTimer(win)
+            t.timeout.connect(snap)
+            QTimer.singleShot(760, lambda: t.start(30))
+            QTimer.singleShot(1600, app.quit)
+        else:
+            QTimer.singleShot(2500, grab)
     return app.exec()
 
 

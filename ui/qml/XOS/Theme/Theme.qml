@@ -69,7 +69,7 @@ QtObject {
     readonly property var curveFadeIn: [0.0, 0.0, 0.2, 1.0, 1, 1]
     readonly property int durSlide: reducedMotion ? 0 : 240
     readonly property var curveSlide: [0.32, 0.72, 0.0, 1.0, 1, 1]
-    readonly property int durLaunch: reducedMotion ? 0 : 420
+    readonly property int durLaunch: reducedMotion ? 0 : 460
     readonly property var curveLaunch: [0.2, 0.0, 0.0, 1.0, 1, 1]
     readonly property int durPopoverIn: reducedMotion ? 0 : 160
     readonly property var curvePopoverIn: [0.0, 0.0, 0.2, 1.0, 1, 1]

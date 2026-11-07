@@ -173,3 +173,246 @@ export function dockPolygon(width, n, o = DEFAULTS, step = 4) {
     arc(rc, h - rc, rc, 0.5 * Math.PI, Math.PI);
     return pts.map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
 }
+
+// ======================================================================== launch droplet
+// When an app opens, its icon pulls out of the dock as a liquid droplet (the reference
+// video's metaball behaviour), pinches off, floats, and settles into the active circle
+// while the cradle opens under it. The surface is the smooth union of the icon circle
+// and the dock's top edge; its outline is traced with marching squares, so the neck,
+// the pinch-off and the separated droplet all come from one field (no special cases).
+
+/** Polynomial smooth minimum (Inigo Quilez). k = blend radius; k <= 0 is a hard min. */
+export function smin(a, b, k) {
+    if (k <= 0) return Math.min(a, b);
+    const h = Math.max(k - Math.abs(a - b), 0) / k;
+    return Math.min(a, b) - h * h * k * 0.25;
+}
+
+/**
+ * Outline of the union of a circle (cx, cy, R) and the half-plane y >= 0, blended by k,
+ * inside the box [x0, x1] x [y0, y1]. Returns { edge, loops }:
+ *   edge  - polyline entering at the left border and leaving at the right (left to right),
+ *           replacing the straight top edge of the dock over that range;
+ *   loops - closed outlines not attached to the edge (the detached droplet).
+ */
+export function gooContour(cx, cy, R, k, x0, x1, y0, y1, step) {
+    step = step || 1.5;
+    const nx = Math.max(2, Math.ceil((x1 - x0) / step));
+    const ny = Math.max(2, Math.ceil((y1 - y0) / step));
+    const sx = (x1 - x0) / nx, sy = (y1 - y0) / ny;
+    const v = new Array((nx + 1) * (ny + 1));
+    function field(x, y) {
+        const dx = x - cx, dy = y - cy;
+        return smin(Math.sqrt(dx * dx + dy * dy) - R, -y, k);
+    }
+    for (let j = 0; j <= ny; j++)
+        for (let i = 0; i <= nx; i++)
+            v[j * (nx + 1) + i] = field(x0 + i * sx, y0 + j * sy);
+    const V = function (i, j) { return v[j * (nx + 1) + i]; };
+    const hCount = nx * (ny + 1);
+    const pts = {};
+    // edge ids: horizontal (i,j)-(i+1,j) -> j*nx+i ; vertical (i,j)-(i,j+1) -> hCount + j*(nx+1)+i
+    function hEdge(i, j) {
+        const id = j * nx + i;
+        if (!(id in pts)) {
+            const a = V(i, j), b = V(i + 1, j), t = a / (a - b);
+            pts[id] = [x0 + (i + t) * sx, y0 + j * sy];
+        }
+        return id;
+    }
+    function vEdge(i, j) {
+        const id = hCount + j * (nx + 1) + i;
+        if (!(id in pts)) {
+            const a = V(i, j), b = V(i, j + 1), t = a / (a - b);
+            pts[id] = [x0 + i * sx, y0 + (j + t) * sy];
+        }
+        return id;
+    }
+    const segs = [];
+    for (let j = 0; j < ny; j++) {
+        for (let i = 0; i < nx; i++) {
+            const a = V(i, j) < 0, b = V(i + 1, j) < 0, c = V(i + 1, j + 1) < 0, d = V(i, j + 1) < 0;
+            const T = a !== b, Rt = b !== c, B = d !== c, L = a !== d;
+            const n = (T ? 1 : 0) + (Rt ? 1 : 0) + (B ? 1 : 0) + (L ? 1 : 0);
+            if (n === 0) continue;
+            if (n === 2) {
+                const e = [];
+                if (T) e.push(hEdge(i, j));
+                if (Rt) e.push(vEdge(i + 1, j));
+                if (B) e.push(hEdge(i, j + 1));
+                if (L) e.push(vEdge(i, j));
+                segs.push(e);
+            } else {           // saddle: decide with the cell centre
+                const centre = field(x0 + (i + 0.5) * sx, y0 + (j + 0.5) * sy) < 0;
+                const top = hEdge(i, j), right = vEdge(i + 1, j), bottom = hEdge(i, j + 1), left = vEdge(i, j);
+                if ((a && centre) || (!a && !centre)) { segs.push([top, right]); segs.push([bottom, left]); }
+                else { segs.push([top, left]); segs.push([right, bottom]); }
+            }
+        }
+    }
+    const at = {};
+    for (let s = 0; s < segs.length; s++)
+        for (let q = 0; q < 2; q++) (at[segs[s][q]] = at[segs[s][q]] || []).push(s);
+    const used = new Array(segs.length);
+    function walk(startKey, s0) {
+        const line = [pts[startKey]];
+        let cur = startKey, s = s0;
+        while (s !== undefined) {
+            used[s] = true;
+            const next = segs[s][0] === cur ? segs[s][1] : segs[s][0];
+            line.push(pts[next]);
+            cur = next;
+            s = undefined;
+            const cand = at[cur] || [];
+            for (let c = 0; c < cand.length; c++) if (!used[cand[c]]) { s = cand[c]; break; }
+        }
+        return line;
+    }
+    let edge = null;
+    const loops = [];
+    for (const key in at) {                 // open chains start on the box border
+        const list = at[key];
+        if (list.length === 1 && !used[list[0]]) {
+            const line = walk(Number(key), list[0]);
+            if (!edge || line.length > edge.length) edge = line;
+        }
+    }
+    for (let s = 0; s < segs.length; s++)
+        if (!used[s]) loops.push(walk(segs[s][0], s));
+    if (edge && edge[0][0] > edge[edge.length - 1][0]) edge.reverse();
+    return { edge: edge || [], loops: loops };
+}
+
+function easeOutCubic(u) { u = clamp(u, 0, 1); return 1 - (1 - u) * (1 - u) * (1 - u); }
+function easeInOutCubic(u) {
+    u = clamp(u, 0, 1);
+    return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+}
+
+/**
+ * Everything the dock draws during a launch, for progress p in [0, 1]:
+ *   cy       droplet centre (dock-local, < 0 is above the bar)
+ *   k        blend radius (liquid neck); fades to 0 before the descent so the droplet
+ *            settles into the cradle instead of merging back into the bar
+ *   goo      true while the outline comes from the field (neck / pinch-off / float)
+ *   notchT   cradle opening under the descending droplet
+ *   accent   accent-circle opacity (fades in as the droplet arrives)
+ *   tile     opacity of the app's tile left in the bar (ends at the normal "active" 0.25)
+ *   oldT     closing progress of the previous app's cradle (1 = still open)
+ */
+export const LAUNCH = Object.freeze({ peakAt: 0.6, kFadeStart: 0.5, kFadeEnd: 0.64, gooEnd: 0.66 });
+
+export function launchState(p, o = DEFAULTS) {
+    p = clamp(p, 0, 1);
+    const R = containerRadius(o);
+    const cy0 = o.height / 2, peak = -1.75 * R, cyf = floatingCentre(1, o);   // starts at the icon's rest position
+    const cy = p <= LAUNCH.peakAt
+        ? cy0 + (peak - cy0) * easeOutCubic(p / LAUNCH.peakAt)
+        : peak + (cyf - peak) * easeInOutCubic((p - LAUNCH.peakAt) / (1 - LAUNCH.peakAt));
+    const kf = clamp((p - LAUNCH.kFadeStart) / (LAUNCH.kFadeEnd - LAUNCH.kFadeStart), 0, 1);
+    return {
+        cy: cy,
+        R: R,
+        // ramps in so the first frame is the flat bar (no jump), fades before the descent
+        k: 0.9 * R * smoothstep(p / 0.15) * (1 - kf),
+        goo: p < LAUNCH.gooEnd,
+        // the cradle opens ahead of the falling droplet (fully open at p = gooEnd + 0.16)
+        notchT: smoothstep((p - LAUNCH.gooEnd) / 0.16),
+        accent: smoothstep((p - 0.8) / 0.2),
+        tile: 0.25 + 0.75 * (1 - smoothstep(p / 0.15)),
+        oldT: 1 - smoothstep(p / 0.3),
+    };
+}
+
+/**
+ * Dock outline with any number of top-edge features, sorted by x:
+ *   { notch: <notch()> }            a cradle
+ *   { edge: [[x, y], ...] }         a polyline replacing the top edge (droplet neck)
+ * plus extra closed loops (detached droplet) as separate subpaths.
+ */
+export function dockPathFeatures(width, features, loops, o = DEFAULTS) {
+    const h = o.height;
+    const rc = Math.min(o.cornerRadius, h / 2, width / 2);
+    const p = ["M " + fmt(rc) + " 0"];
+    const fs = features.filter(function (f) { return f && (f.notch || (f.edge && f.edge.length)); }).sort(function (a, b) {
+        const xa = a.notch ? a.notch.left : a.edge[0][0];
+        const xb = b.notch ? b.notch.left : b.edge[0][0];
+        return xa - xb;
+    });
+    for (let i = 0; i < fs.length; i++) {
+        const f = fs[i];
+        if (f.notch) {
+            const n = f.notch;
+            p.push("L " + fmt(n.left) + " 0");
+            p.push("A " + fmt(n.f) + " " + fmt(n.f) + " 0 0 1 " + fmt(n.tl.x) + " " + fmt(n.tl.y));
+            p.push("A " + fmt(n.N) + " " + fmt(n.N) + " 0 0 0 " + fmt(n.tr.x) + " " + fmt(n.tr.y));
+            p.push("A " + fmt(n.f) + " " + fmt(n.f) + " 0 0 1 " + fmt(n.right) + " 0");
+        } else if (f.edge.length) {
+            for (let k = 0; k < f.edge.length; k++) p.push("L " + fmt(f.edge[k][0]) + " " + fmt(f.edge[k][1]));
+        }
+    }
+    p.push("L " + fmt(width - rc) + " 0");
+    p.push("A " + fmt(rc) + " " + fmt(rc) + " 0 0 1 " + fmt(width) + " " + fmt(rc));
+    p.push("L " + fmt(width) + " " + fmt(h - rc));
+    p.push("A " + fmt(rc) + " " + fmt(rc) + " 0 0 1 " + fmt(width - rc) + " " + fmt(h));
+    p.push("L " + fmt(rc) + " " + fmt(h));
+    p.push("A " + fmt(rc) + " " + fmt(rc) + " 0 0 1 0 " + fmt(h - rc));
+    p.push("L 0 " + fmt(rc));
+    p.push("A " + fmt(rc) + " " + fmt(rc) + " 0 0 1 " + fmt(rc) + " 0");
+    p.push("Z");
+    for (let l = 0; l < (loops || []).length; l++) {
+        const loop = loops[l];
+        if (loop.length < 3) continue;
+        p.push("M " + fmt(loop[0][0]) + " " + fmt(loop[0][1]));
+        for (let k = 1; k < loop.length; k++) p.push("L " + fmt(loop[k][0]) + " " + fmt(loop[k][1]));
+        p.push("Z");
+    }
+    return p.join(" ");
+}
+
+/** Space needed above the bar's top edge for the droplet's highest point. */
+export function launchHeadroom(o = DEFAULTS) {
+    return 2.75 * containerRadius(o) + 6;
+}
+
+/** Half-width of the top-edge range the droplet field may touch (for the goo box). */
+export function gooHalfWidth(o = DEFAULTS) {
+    return containerRadius(o) * 1.9 + 4;
+}
+
+/**
+ * Full dock path during a launch at slot x (progress p), with the previous active app's
+ * cradle (oldX, or null) closing at the same time when it does not overlap.
+ */
+export function launchPath(width, x, p, oldX, o = DEFAULTS) {
+    const s = launchState(p, o);
+    const rc = Math.min(o.cornerRadius, o.height / 2, width / 2);
+    const features = [];
+    const loops = [];
+    const half = gooHalfWidth(o);
+    if (s.goo) {
+        const x0 = Math.max(rc + 0.5, x - half), x1 = Math.min(width - rc - 0.5, x + half);
+        const c = gooContour(x, s.cy, s.R, s.k, x0, x1, s.cy - s.R - 4, 3, 1.5);
+        features.push({ edge: c.edge });
+        for (let i = 0; i < c.loops.length; i++) loops.push(c.loops[i]);
+    } else {
+        const n = notch(x, s.notchT, o);
+        if (n) features.push({ notch: n });
+        loops.push(circlePoints(x, s.cy, s.R, 48));
+    }
+    if (oldX !== null && oldX !== undefined && s.oldT > 0) {
+        const on = notch(oldX, s.oldT, o);
+        const myLeft = x - half, myRight = x + half;
+        if (on && (on.right < myLeft || on.left > myRight)) features.push({ notch: on });
+    }
+    return dockPathFeatures(width, features, loops, o);
+}
+
+export function circlePoints(cx, cy, r, n) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+        const a = 2 * Math.PI * i / n;
+        out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+    }
+    return out;
+}

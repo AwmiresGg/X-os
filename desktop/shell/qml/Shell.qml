@@ -10,6 +10,7 @@ QtObject {
     required property var status
     required property var windows
     property string previewOpen: ""
+    property real previewLaunch: -1
 
     property string openMenu: ""
     property real menuX: 0
@@ -53,6 +54,7 @@ QtObject {
         visible: true
         DockBar {
             id: dockBar
+            objectName: "dockBar"
             anchors.fill: parent
             windows: shell.windows
             settings: shell.settings

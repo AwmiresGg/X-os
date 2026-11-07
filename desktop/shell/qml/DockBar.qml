@@ -42,7 +42,10 @@ Item {
     })
     readonly property var lay: Geo.layout(count, opts)
     readonly property real r: Geo.containerRadius(opts)
-    readonly property real headroom: r + opts.lift + 6
+    // room above the bar for the launch droplet; the window's input region (inputRect)
+    // excludes it, so the transparent band never blocks clicks on windows behind the dock
+    readonly property real headroom: Geo.launchHeadroom(opts)
+    readonly property rect inputRect: Qt.rect(0, headroom - r - opts.lift - 4, lay.width, barH + r + opts.lift + 4)
 
     implicitWidth: lay.width
     implicitHeight: headroom + barH
@@ -51,7 +54,7 @@ Item {
         for (let i = 0; i < apps.length; ++i) if (apps[i].active) return i
         return -1
     }
-    property real notchX: lay.xs.length ? lay.xs[Math.max(0, activeIndex)] : 0
+    property real notchX: lay.xs.length ? lay.xs[Math.min(lay.xs.length - 1, Math.max(0, activeIndex))] : 0
     Behavior on notchX {
         NumberAnimation { duration: Theme.durSlide; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.curveSlide }
     }
@@ -61,6 +64,56 @@ Item {
     }
     readonly property var notch: Geo.notch(notchX, activeT, opts)
     readonly property bool gpu: GraphicsInfo.api !== GraphicsInfo.Software && !Theme.lowResource
+
+    // ---------------------------------------------------------------- launch droplet
+    // Plays once when an app's first window appears and is focused (Theme.durLaunch).
+    // Skipped with Reduce Motion and in the low-resource profile.
+    property int launchIndex: -1
+    property real launchP: 1
+    property real launchOldX: -1
+    property real debugLaunchP: -1          // preview/tests: freeze the animation at p
+    property int debugLaunchIndex: 2
+    readonly property int effIndex: debugLaunchP >= 0 ? debugLaunchIndex : launchIndex
+    readonly property real effP: debugLaunchP >= 0 ? debugLaunchP : launchP
+    readonly property bool launching: effIndex >= 0 && effIndex < apps.length && effP < 1
+    readonly property real effOldX: debugLaunchP >= 0 ? (lay.xs.length > 1 ? lay.xs[1] : -1) : launchOldX
+    readonly property var ls: launching ? Geo.launchState(effP, opts) : null
+    readonly property string bodyPath: launching
+        ? Geo.launchPath(lay.width, lay.xs[effIndex], effP, effOldX >= 0 ? effOldX : null, opts)
+        : Geo.dockPath(lay.width, notch, opts)
+
+    NumberAnimation {
+        id: launchAnim
+        target: dock
+        property: "launchP"
+        from: 0
+        to: 1
+        duration: Theme.durLaunch           // timing curves live in Geo.launchState
+        onFinished: dock.launchIndex = -1
+    }
+    property var _prevRunning: null
+    property string _prevActive: ""
+    function startLaunch(i, oldId) {
+        if (Theme.durLaunch === 0 || Theme.lowResource) return
+        let oldX = -1
+        for (let k = 0; k < apps.length; ++k) if (apps[k].appId === oldId && k !== i) oldX = lay.xs[k]
+        launchOldX = oldX
+        launchIndex = i
+        launchP = 0
+        launchAnim.restart()
+    }
+    onAppsChanged: {
+        const now = {}
+        let launched = -1, active = ""
+        for (let i = 0; i < apps.length; ++i) {
+            now[apps[i].appId] = apps[i].running
+            if (apps[i].active) active = apps[i].appId
+            if (_prevRunning && apps[i].running && apps[i].active && !_prevRunning[apps[i].appId]) launched = i
+        }
+        if (launched >= 0) startLaunch(launched, _prevActive)
+        _prevRunning = now
+        _prevActive = active
+    }
 
     // ---------------------------------------------------------------- body
     Item {
@@ -83,7 +136,7 @@ Item {
                 strokeWidth: 1
                 strokeColor: Theme.borderStrong
                 fillColor: Qt.rgba(Theme.surface1.r, Theme.surface1.g, Theme.surface1.b, dock.cfg.dockOpacity)
-                PathSvg { path: Geo.dockPath(dock.lay.width, dock.notch, dock.opts) }
+                PathSvg { path: dock.bodyPath }
             }
         }
         // inner top highlight (glass edge), skipped in low-resource mode
@@ -96,7 +149,7 @@ Item {
                 fillColor: "transparent"
                 strokeWidth: 1
                 strokeColor: Theme.highlight
-                PathSvg { path: Geo.dockPath(dock.lay.width, dock.notch, dock.opts) }
+                PathSvg { path: dock.bodyPath }
             }
         }
         // Liquid glass: the compositor blurs what is behind the dock, following the cradle.
@@ -127,6 +180,10 @@ Item {
             readonly property real act: isTrash ? 0
                 : Geo.iconActivation(dock.lay.xs[index], dock.notchX, dock.activeT, dock.lay.pitch)
             readonly property bool hovered: hover.hovered
+            readonly property real tileOpacity: dock.ls
+                ? (index === dock.effIndex ? dock.ls.tile
+                   : (Math.abs(dock.lay.xs[index] - dock.effOldX) < 0.5 ? 1 - 0.75 * dock.ls.oldT : 1))
+                : 1 - 0.75 * Math.min(1, act * 1.4)
 
             x: dock.lay.xs[index] - dock.iconSize / 2
             y: body.y + (dock.barH - dock.iconSize) / 2 - (hovered && act < 0.5 ? 3 : 0)
@@ -150,7 +207,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 visible: slot.isTrash || (!!slot.app && slot.app.glyph !== "")
-                opacity: 1 - 0.75 * Math.min(1, slot.act * 1.4)
+                opacity: slot.isTrash ? 1 : slot.tileOpacity
                 radius: dock.iconSize * 0.24
                 color: Theme.surface2
                 border.color: Theme.borderStrong
@@ -166,7 +223,7 @@ Item {
                 visible: !slot.isTrash && !!slot.app && slot.app.glyph === ""
                 source: visible ? "image://appicon/" + slot.app.icon : ""
                 sourceSize: Qt.size(dock.iconSize * 2, dock.iconSize * 2)
-                opacity: 1 - 0.75 * Math.min(1, slot.act * 1.4)
+                opacity: slot.isTrash ? 1 : slot.tileOpacity
                 smooth: true
             }
             // running indicator (static dot — no pulsing)
@@ -221,7 +278,7 @@ Item {
         y: cy - dock.r
         width: 2 * dock.r
         height: 2 * dock.r
-        opacity: Geo.smoothstep(dock.activeT)
+        opacity: dock.launching ? 0 : Geo.smoothstep(dock.activeT)
         visible: opacity > 0.01
 
         Rectangle {
@@ -271,6 +328,67 @@ Item {
                     source: "image://appicon/" + parent.app.icon
                     sourceSize: Qt.size(width * 2, height * 2)
                 }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- launch: previous app's circle
+    Rectangle {
+        visible: !!dock.ls && dock.effOldX >= 0 && dock.ls.oldT > 0.01
+        x: dock.effOldX - dock.r
+        y: body.y + Geo.floatingCentre(1, dock.opts) - dock.r
+        width: 2 * dock.r
+        height: 2 * dock.r
+        radius: dock.r
+        color: Theme.accentDeep
+        border.color: Theme.accentGlow
+        opacity: dock.ls ? dock.ls.oldT : 0
+    }
+
+    // ---------------------------------------------------------------- launch: the droplet
+    // The droplet's glass is part of the dock path above; this item carries the app's glyph
+    // and the accent fill that fades in as it settles into the cradle.
+    Item {
+        id: droplet
+        visible: dock.launching
+        readonly property var app: dock.launching && dock.effIndex < dock.apps.length ? dock.apps[dock.effIndex] : null
+        x: (dock.launching ? dock.lay.xs[dock.effIndex] : 0) - dock.r
+        y: body.y + (dock.ls ? dock.ls.cy : 0) - dock.r
+        width: 2 * dock.r
+        height: 2 * dock.r
+        Rectangle {
+            anchors.fill: parent
+            radius: width / 2
+            color: Theme.accentDeep
+            border.width: 1
+            border.color: Theme.accentGlow
+            opacity: dock.ls ? dock.ls.accent : 0
+        }
+        Item {
+            anchors.centerIn: parent
+            width: dock.iconSize * 0.62
+            height: width
+            Glyph {
+                visible: !!droplet.app && droplet.app.glyph !== ""
+                anchors.fill: parent
+                size: parent.width
+                name: droplet.app ? droplet.app.glyph : ""
+                tint: Theme.text
+                opacity: dock.ls ? 1 - dock.ls.accent : 0
+            }
+            Glyph {
+                visible: !!droplet.app && droplet.app.glyph !== ""
+                anchors.fill: parent
+                size: parent.width
+                name: droplet.app ? droplet.app.glyph : ""
+                tint: Theme.onAccent
+                opacity: dock.ls ? dock.ls.accent : 0
+            }
+            Image {
+                visible: !!droplet.app && droplet.app.glyph === ""
+                anchors.fill: parent
+                source: visible ? "image://appicon/" + droplet.app.icon : ""
+                sourceSize: Qt.size(width * 2, height * 2)
             }
         }
     }
