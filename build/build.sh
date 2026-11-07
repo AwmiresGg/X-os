@@ -136,8 +136,10 @@ EOF
     log "configure: installing X-OS components"
     XOS_VARIANT="$XOS_VARIANT" "$XOS_ROOT/scripts/install-components.sh" "$CHROOT"
 
-    log "configure: applying overlay"
-    cp -a "$XOS_ROOT/build/overlay/." "$CHROOT/"
+    if [[ -d "$XOS_ROOT/build/overlay" ]] && [[ -n "$(ls -A "$XOS_ROOT/build/overlay")" ]]; then
+        log "configure: applying overlay"
+        cp -a "$XOS_ROOT/build/overlay/." "$CHROOT/"
+    fi
 
     local hook
     for hook in "$XOS_ROOT"/build/hooks/chroot/*.sh; do
