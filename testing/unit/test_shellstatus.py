@@ -105,3 +105,13 @@ class BrightnessTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WifiPresenceTests(unittest.TestCase):
+    def test_has_wifi(self):
+        self.assertTrue(ss.parse_has_wifi("ethernet\nwifi\nloopback\n"))
+        self.assertFalse(ss.parse_has_wifi("ethernet\nloopback\nwifi-p2p\n"))
+
+
+if __name__ == "__main__":
+    unittest.main()

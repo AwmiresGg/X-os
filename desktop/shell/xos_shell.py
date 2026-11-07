@@ -239,6 +239,8 @@ class Windows(QObject):
         self._windows: list[W.Window] = []
         self._active = ""
         self._seq = 0
+        self._menu_open = False
+        self._held = ""
         settings.changed.connect(self.changed)
         if demo:
             self.apply(json.dumps(demo))
@@ -285,8 +287,31 @@ class Windows(QObject):
         return True
 
     def apply(self, payload: str):
-        self._windows, self._active = W.parse_update(payload)
+        wins, active = W.parse_update(payload)
+        if self._menu_open and not active:
+            active = self._held          # a shell menu took keyboard focus: not a real change
+        self._windows, self._active = wins, active
         self.changed.emit()
+
+    @Slot(bool)
+    def setMenuOpen(self, is_open):
+        """Menus must not take focus away from the user's app: remember the active window
+        while a menu is open and give focus back to it when the menu closes."""
+        if is_open:
+            if not self._menu_open:
+                self._held = self._active
+            self._menu_open = True
+            return
+        self._menu_open = False
+        held = self._held
+        self._held = ""
+
+        def restore():
+            if held and not self._active and any(w.id == held for w in self._windows):
+                self.windowAction(held, "activate")
+            elif held and not self._active:
+                self.changed.emit()
+        QTimer.singleShot(200, restore)
 
     # model for QML
     @Property("QVariantList", notify=changed)
@@ -377,7 +402,7 @@ class Windows(QObject):
 # --------------------------------------------------------------------------- main
 DEMO_STATUS = {
     "battery": {"present": True, "percent": 97, "charging": False, "on_ac": False, "source": "Battery", "icon": "battery-full"},
-    "network": {"state": "connected", "kind": "wifi", "name": "Home-5G", "signal": 82, "wifi_enabled": True, "vpn": False, "icon": "wifi-3"},
+    "network": {"state": "connected", "kind": "wifi", "name": "Home-5G", "signal": 82, "wifi_enabled": True, "wifi_present": True, "vpn": False, "icon": "wifi-3"},
     "bluetooth": {"present": True, "powered": True},
     "audio": {"available": True, "volume": 62, "muted": False, "icon": "volume-medium"},
     "brightness": {"available": True, "device": "intel_backlight", "percent": 70, "maximum": 1000},
@@ -483,7 +508,10 @@ def main() -> int:
             launched = dict(DEMO_WINDOWS, windows=DEMO_WINDOWS["windows"] + [
                 {"id": "0b5c7e1a-4444-4a2b-9c3d-dddddddddddd", "caption": "Untitled — KWrite", "appId": "org.kde.kwrite"}],
                 active="0b5c7e1a-4444-4a2b-9c3d-dddddddddddd")
-            QTimer.singleShot(800, lambda: wins.apply(json.dumps(launched)))
+            # like KWin: "window added" first (old window still active), "activated" 300 ms later
+            added = dict(launched, active=DEMO_WINDOWS["active"])
+            QTimer.singleShot(800, lambda: wins.apply(json.dumps(added)))
+            QTimer.singleShot(1100, lambda: wins.apply(json.dumps(launched)))
             frame = {"n": 0}
 
             def snap():
@@ -491,8 +519,8 @@ def main() -> int:
                 frame["n"] += 1
             t = QTimer(win)
             t.timeout.connect(snap)
-            QTimer.singleShot(760, lambda: t.start(30))
-            QTimer.singleShot(1600, app.quit)
+            QTimer.singleShot(1060, lambda: t.start(30))
+            QTimer.singleShot(1900, app.quit)
         else:
             QTimer.singleShot(2500, grab)
     return app.exec()

@@ -13,6 +13,7 @@ QtObject {
     property real previewLaunch: -1
 
     property string openMenu: ""
+    onOpenMenuChanged: windows.setMenuOpen(openMenu !== "")
     property real menuX: 0
     property bool fromDock: false
     property var dockItem: null

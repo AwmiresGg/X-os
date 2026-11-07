@@ -166,8 +166,9 @@ Item {
             Column_ {
                 Item {
                     width: parent.width; height: 36
-                    Title { text: "Wi-Fi"; x: 8; anchors.verticalCenter: parent.verticalCenter }
+                    Title { text: n.wifi_present ? "Wi-Fi" : "Network"; x: 8; anchors.verticalCenter: parent.verticalCenter }
                     Toggle {
+                        visible: !!n.wifi_present
                         label: "Wi-Fi"
                         checked: !!n.wifi_enabled
                         anchors.right: parent.right; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter
@@ -254,8 +255,11 @@ Item {
                     columns: 2; spacing: 8
                     Repeater {
                         model: [
-                            { key: "wifi", glyph: n.wifi_enabled ? (n.icon || "wifi-3") : "wifi-off", label: "Wi-Fi",
-                              sub: n.state === "connected" ? n.name : (n.wifi_enabled ? "On" : "Off"), on: !!n.wifi_enabled, show: true },
+                            n.wifi_present
+                            ? { key: "wifi", glyph: n.wifi_enabled ? (n.icon || "wifi-3") : "wifi-off", label: "Wi-Fi",
+                                sub: n.state === "connected" ? n.name : (n.wifi_enabled ? "On" : "Off"), on: !!n.wifi_enabled, show: true }
+                            : { key: "net", glyph: n.icon || "network-off", label: "Network",
+                                sub: n.state === "connected" ? n.name : "Not connected", on: n.state === "connected", show: true },
                             { key: "bt", glyph: bt.powered ? "bluetooth" : "bluetooth-off", label: "Bluetooth",
                               sub: bt.powered ? "On" : "Off", on: !!bt.powered, show: !!bt.present },
                             { key: "dark", glyph: "night-light", label: "Dark Mode",
@@ -284,6 +288,7 @@ Item {
                                 onClicked: {
                                     const k = modelData.key
                                     if (k === "wifi") root.status.setWifi(!modelData.on)
+                                    else if (k === "net") { root.windows.openUrl("systemsettings:kcm_networkmanagement"); root.close() }
                                     else if (k === "bt") root.status.setBluetooth(!modelData.on)
                                     else if (k === "dark") { root.settings.set("theme", Theme.dark ? "light" : "dark"); root.status.setDark(!Theme.dark) }
                                     else if (k === "motion") root.settings.set("reducedMotion", !root.cfg.reducedMotion)

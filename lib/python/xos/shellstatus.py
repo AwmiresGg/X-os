@@ -107,6 +107,7 @@ class Network:
     name: str = ""                   # connection name / SSID
     signal: int = 0                  # Wi-Fi signal 0-100
     wifi_enabled: bool = False
+    wifi_present: bool = False       # a Wi-Fi adapter exists (radio state alone says nothing)
     vpn: bool = False
 
     def icon(self) -> str:
@@ -154,12 +155,19 @@ def parse_wifi_signal(text: str) -> int:
     return 0
 
 
+def parse_has_wifi(text: str) -> bool:
+    """`nmcli -t -f TYPE device` -> whether any Wi-Fi device exists."""
+    return any(line.strip() == "wifi" for line in text.splitlines())
+
+
 def read_network() -> Network:
     n = Network()
     rc, out = _run(["nmcli", "-t", "-f", "STATE,WIFI", "general"])
     if rc != 0:
         return n
     n.state, n.wifi_enabled = parse_nmcli_general(out)
+    _, devs = _run(["nmcli", "-t", "-f", "TYPE", "device"])
+    n.wifi_present = parse_has_wifi(devs)
     _, act = _run(["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show", "--active"])
     n.kind, n.name, n.vpn = parse_nmcli_active(act)
     if n.kind == "wifi":

@@ -93,6 +93,9 @@ Item {
     }
     property var _prevRunning: null
     property string _prevActive: ""
+    // KWin reports "window added" and "window activated" as separate events, so an app that
+    // just started running is remembered and the droplet plays when it becomes active.
+    property var _pending: ({})
     function startLaunch(i, oldId) {
         if (Theme.durLaunch === 0 || Theme.lowResource) return
         let oldX = -1
@@ -104,12 +107,19 @@ Item {
     }
     onAppsChanged: {
         const now = {}
+        const t = Date.now()
         let launched = -1, active = ""
         for (let i = 0; i < apps.length; ++i) {
-            now[apps[i].appId] = apps[i].running
-            if (apps[i].active) active = apps[i].appId
-            if (_prevRunning && apps[i].running && apps[i].active && !_prevRunning[apps[i].appId]) launched = i
+            const a = apps[i]
+            now[a.appId] = a.running
+            if (a.active) active = a.appId
+            if (_prevRunning && a.running && !_prevRunning[a.appId]) _pending[a.appId] = t
+            if (a.active && _pending[a.appId] !== undefined) {
+                if (t - _pending[a.appId] < 4000) launched = i
+                delete _pending[a.appId]
+            }
         }
+        for (const id in _pending) if (!now[id] || t - _pending[id] >= 4000) delete _pending[id]
         if (launched >= 0) startLaunch(launched, _prevActive)
         _prevRunning = now
         _prevActive = active
