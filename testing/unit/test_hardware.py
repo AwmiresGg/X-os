@@ -69,6 +69,8 @@ class HardwareTests(unittest.TestCase):
         self.fs.pci("0000:02:00.0", 0x028000, "8086", "2723", driver="iwlwifi", net="wlan0", wireless=True)
         self.fs.pci("0000:00:00.0", 0x060000, "1002", "1630")              # host bridge, no driver: fine
         self.fs.pci("0000:03:00.0", 0x010802, "144d", "a808")              # NVMe without driver: problem
+        lpc = self.fs.pci("0000:00:1f.0", 0x060100, "8086", "2918", driver="lpc_ich")
+        w(lpc / "enable", "0\n")                                          # normal for LPC bridges
         devs = {d.address: d for d in hardware.pci_devices(self.root)}
         gpu = devs["0000:05:00.0"]
         self.assertEqual(gpu.category, "Graphics adapters")
@@ -79,6 +81,7 @@ class HardwareTests(unittest.TestCase):
         self.assertEqual(devs["0000:00:00.0"].status, "ok")
         self.assertEqual(devs["0000:03:00.0"].status, "no-driver")
         self.assertEqual(devs["0000:03:00.0"].category, "Storage controllers")
+        self.assertEqual(devs["0000:00:1f.0"].status, "ok", "enable=0 must not mark a bound device as disabled")
 
     def test_usb_classification(self):
         self.fs.usb("1-1", "046d", "c52b", "USB Receiver", "03", driver="usbhid")

@@ -6,8 +6,8 @@ Each milestone has exit criteria that must be demonstrated with recorded evidenc
 | # | Milestone | Phase | Exit criteria | State |
 |---|---|---|---|---|
 | M0 | Environment + architecture | 1 | Environment report, architecture, roadmap, repo structure, module docs | **Done** |
-| M1 | **First bootable core ISO** | 2 | Reproducible build from clean checkout; hybrid ISO boots in QEMU on **BIOS and UEFI** at 2 GiB RAM; self-test PASS (systemd running, NetworkManager online, firewall active, disk tools present); clean power-off | In progress (see STATUS.md) |
-| M2 | Desktop ISO | 2-3 | Plasma Wayland session auto-starts in live mode; X-OS Liquid Glass theme; SDDM themed; VM screenshot evidence; LITE profile boots at 2 GiB | Next |
+| M1 | **First bootable core ISO** | 2 | Reproducible build from clean checkout; hybrid ISO boots in QEMU on **BIOS and UEFI** at 2 GiB RAM; self-test PASS (systemd running, NetworkManager online, firewall active, disk tools present); clean power-off | **Done (VM tested, 4/4 PASS)** |
+| M2 | Desktop ISO | 2-3 | Plasma Wayland session auto-starts in live mode; X-OS Liquid Glass theme; SDDM themed; VM screenshot evidence; LITE profile boots at 2 GiB | **Next** |
 | M3 | Signature Dock + top bar | 3 | QML dock with concave liquid geometry, persistent active state, running indicators, grouping, auto-hide, settings; 60 FPS target on GPU, static path on software rendering; geometry unit tests | Prototype in `desktop/dock` |
 | M4 | Control Center v1 | 4 | Overview, Network/Wi-Fi/Ethernet/VPN, Bluetooth, Display, Sound, Power, Device Manager, Disk Manager (read-only first), Services, Startup, Users — all wired to real D-Bus APIs; integration tests in VM |  |
 | M5 | Disk Manager write operations | 4 | Partition/format/resize/LUKS via UDisks2 + polkit with the safety rules in SAFETY.md; destructive-path tests on virtual disks only |  |

@@ -149,8 +149,8 @@ def pci_devices(root: Path = Path("/"), ids: IdDatabase | None = None) -> list[D
             modalias=_read(dev / "modalias"),
             properties={"class": f"0x{cls:06x}", "revision": _read(dev / "revision")},
         )
-        if _read(dev / "enable", "1") == "0" and driver:
-            d.status = "disabled"
+        # Note: sysfs "enable" is a pci_enable_device() refcount, not a user switch;
+        # bound devices such as LPC bridges legitimately read 0. Not used for status.
         if driver is None and base_cls not in _DRIVERLESS_OK:
             d.status, d.problem = "no-driver", "No kernel driver is bound to this device."
         out.append(d)

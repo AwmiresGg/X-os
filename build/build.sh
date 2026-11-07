@@ -115,6 +115,7 @@ stage_configure() {
     printf '#!/bin/sh\nexit 101\n' > "$CHROOT/usr/sbin/policy-rc.d"
     chmod +x "$CHROOT/usr/sbin/policy-rc.d"
     echo "$XOS_HOSTNAME" > "$CHROOT/etc/hostname"
+    rm -f "$CHROOT/etc/resolv.conf"
     cp /etc/resolv.conf "$CHROOT/etc/resolv.conf"
 
     local lists=("$XOS_ROOT/build/package-lists/core.list")
