@@ -10,7 +10,8 @@
 | X-OS Setup (wizard) | `installer/xos-setup/` | First screen of the live USB: language, keyboard layouts, Wi-Fi, theme + wallpaper, browsers, Try / Install. English + Persian (RTL); 8 languages listed |
 | Setup backend | `lib/python/xos/setup.py` | Validated choices → `/run/xos/setup-choices.json`; Wi-Fi via NetworkManager D-Bus (password never on argv/in files); keyboard + appearance for the session; locale/keyboard for the target |
 | Browser installer | `lib/python/xos/browsers.py` | Firefox (packages.mozilla.org) and Chrome (dl.google.com) from the vendors' signed repos; keys pinned by fingerprint; `Signed-By` scoping |
-| Calamares config | `installer/calamares/` | X-OS branding + slideshow; no preselected partitioning; summary + "Install now?" confirmation; EFI + BIOS GRUB; os-prober on (dual boot); LUKS option |
+| Calamares config | `installer/calamares/` | X-OS branding: QML sidebar (numbered steps) + navigation (pill buttons), full-bleed slides, X-OS stylesheet; no preselected partitioning; summary + "Install now?" confirmation; "Restart now" on finish; EFI + BIOS GRUB; os-prober on (dual boot); LUKS option |
+| Installed boot menu | `build/hooks/chroot/16-grub-defaults.sh`, `build/grub/10-xos.cfg` | Creates `/etc/default/grub` (Debian template) so Calamares edits it; X-OS name, theme and colours in `/etc/default/grub.d/10-xos.cfg` |
 | Post-install | `shellprocess@xos-prepare/xos-apply`, `xos-setup apply-target`, `xos-firstboot.service` | Copy choices into target, set locale/keyboard, download browsers; retry on first boot when offline |
 | Live session | `lib/xos-live-session` | Auto-login, empty live password, no screen lock, no dim/blank/suspend |
 
@@ -26,6 +27,8 @@
 | Wi-Fi page with no adapter ("use Ethernet") | VM | same |
 | Installer starts in the chosen language (Persian) with X-OS branding | VM | same |
 | Partition page: nothing preselected, exact device shown, summary lists every operation, final confirmation | VM | same |
+| Full install with **Secure Boot enforced** → reboot from disk → X-OS boot menu, splash, login, desktop | VM (2026-11-07) | `documentation/STATUS.md` (end-to-end table), `documentation/images/vm-installed-*.png` |
+| Sidebar + navigation QML at first and last step (Cancel left; single "Done" at the end) | Rendered offscreen (mock Calamares) | `testing/installer/render_calamares_panels.py`, `documentation/images/installer-panels-render.png` |
 
 ## Not tested / known issues
 
@@ -37,7 +40,6 @@
 - Dual boot / "Install alongside" not yet tested (needs a VM disk with Windows installed).
 - Calamares' own Persian translation shows raw `%1` / `TextLabel` in two strings (upstream).
 - Calamares window does not mirror to RTL (upstream behaviour).
-- Secure Boot on the **installed** system (grub-install with shim-signed) not yet tested in the VM.
 
 ## Acceptance criteria (gate E)
 - [ ] Automatic, manual and alongside install on virtual disks, each booting afterwards

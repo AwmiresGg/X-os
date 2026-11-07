@@ -80,6 +80,9 @@ QRadioButton::indicator:checked, QCheckBox::indicator:checked {
     background-color: #2BC4B0;
     border: 1px solid #2BC4B0;
 }
+/* Calamares applies this stylesheet application-wide, so images use absolute paths. */
+QCheckBox::indicator:checked { image: url(/etc/calamares/branding/xos/check.svg); }
+QRadioButton::indicator:checked { image: url(/etc/calamares/branding/xos/radio.svg); }
 QRadioButton::indicator:focus, QCheckBox::indicator:focus { border: 2px solid #2BC4B0; }
 
 QProgressBar {

@@ -65,5 +65,5 @@ terminal-height: "80%"
     align = "center"
     font = "Inter Regular 13"
     color = "#5E6570"
-    text = "Up/Down to choose  ·  Enter to start  ·  e to edit"
+    text = "Up/Down: choose      Enter: start      e: edit"
 }

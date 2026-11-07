@@ -1,0 +1,3 @@
+module io.calamares.ui
+singleton ViewManager 1.0 ViewManager.qml
+singleton Branding 1.0 Branding.qml

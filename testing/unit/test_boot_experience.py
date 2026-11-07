@@ -72,6 +72,15 @@ class LoginAndInstallerTests(unittest.TestCase):
         welcome = yaml.safe_load((ROOT / "installer/calamares/modules/welcome.conf").read_text())
         self.assertNotIn("internet", welcome["requirements"]["required"])
 
+    def test_menu_text_is_ascii(self):
+        # Under Secure Boot GRUB draws with its built-in font, which lacks dashes and bullets.
+        cfg = (ROOT / "build/grub/grub.cfg.in").read_text()
+        theme = (ROOT / "themes/boot/grub/xos/theme.txt").read_text()
+        shown = re.findall(r'menuentry "([^"]+)"', cfg) + re.findall(r'text = "([^"]*)"', theme)
+        self.assertGreater(len(shown), 5)
+        for t in shown:
+            self.assertTrue(t.isascii(), t)
+
     def test_installed_grub_is_branded_and_read(self):
         # grub-mkconfig only sources /etc/default/grub.d/*.cfg; Calamares must edit
         # /etc/default/grub (created by hook 16) rather than write grub.d/00calamares.
