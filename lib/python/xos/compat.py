@@ -194,7 +194,9 @@ def plan(det: Detection, entry: dict | None, home: Path) -> dict:
     if det.blockers:
         rating = "unsupported"
     app_id = entry["id"] if entry else _slug(Path(det.path).stem)
-    win_arch = "win32" if det.arch == "x86" and not (entry or {}).get("win64") else "win64"
+    # 64-bit prefixes run both 32- and 64-bit programs, and installers are often 32-bit
+    # stubs that install 64-bit apps (e.g. 7-Zip x64). A 32-bit prefix only on request.
+    win_arch = "win32" if (entry or {}).get("win32") else "win64"
     deps = list((entry or {}).get("dependencies", []))
     if det.dotnet and not any(d.startswith("dotnet") for d in deps):
         deps.append("dotnet48")
@@ -215,9 +217,46 @@ def plan(det: Detection, entry: dict | None, home: Path) -> dict:
         "dependencies": deps,
         "dxvk": (entry or {}).get("dxvk", True),
         "vkd3d": (entry or {}).get("vkd3d", False),
-        "silent_args": det.silent_args,
+        # MSI always uses msiexec's own switches; database switches are for .exe installers
+        "silent_args": det.silent_args if det.format == "msi" else ((entry or {}).get("silent_args") or det.silent_args),
         "warnings": det.blockers + (entry or {}).get("known_issues", []) + det.notes
                     + ([] if entry else ["This application is not in the X-OS compatibility database. "
                                          "It may or may not work."]),
         "sha256": det.sha256,
     }
+
+
+def install_steps(pl: dict, installer: str, wine: str = "wine", winetricks: str | None = "winetricks",
+                  silent: bool = False) -> list[list[str]]:
+    """The exact commands that install an app into its prefix (pure: nothing is executed).
+
+    Run them in order with WINEPREFIX/WINEARCH from env_for(pl). Raises ValueError when
+    the plan cannot be installed by this engine.
+    """
+    if not pl["can_install"]:
+        raise ValueError("this installer is rated unsupported or is not a Windows installer")
+    if pl["runner"] == "dosbox":
+        raise ValueError("16-bit programs run in DOSBox, not Wine")
+    if pl["format"] in ("msix", "msixbundle", "appx", "appxbundle"):
+        raise ValueError("MSIX/APPX packages are not supported yet")
+    steps = [[wine, "wineboot", "--init"]]
+    if pl["windows_version"] and pl["windows_version"] != "win10":    # win10 is Wine's default
+        steps.append([wine, "winecfg", "/v", pl["windows_version"]])
+    if pl["dependencies"]:
+        if not winetricks:
+            raise ValueError("winetricks is required for: " + ", ".join(pl["dependencies"]))
+        steps.append([winetricks, "-q", *pl["dependencies"]])
+    if pl["dxvk"] and winetricks:
+        steps.append([winetricks, "-q", "dxvk"])
+    args = (pl.get("silent_args") or "").split() if silent else []
+    if pl["format"] == "msi":
+        steps.append([wine, "msiexec", "/i", installer, *(args or [])])
+    elif pl["format"] in ("bat", "cmd"):
+        steps.append([wine, "cmd", "/c", installer])
+    else:
+        steps.append([wine, installer, *args])
+    return steps
+
+
+def env_for(pl: dict, base: dict) -> dict:
+    return dict(base, WINEPREFIX=pl["prefix"], WINEARCH=pl["prefix_arch"], WINEDEBUG="-all")

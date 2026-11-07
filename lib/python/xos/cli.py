@@ -96,6 +96,7 @@ def compat_main(argv=None) -> int:
         sp.add_argument("--json", action="store_true")
         if name == "install":
             sp.add_argument("--yes", action="store_true", help="skip the consent prompt")
+            sp.add_argument("--silent", action="store_true", help="unattended install when the installer supports it")
     a = ap.parse_args(argv)
 
     det = compat.detect(a.file)
@@ -127,7 +128,7 @@ def compat_main(argv=None) -> int:
         if input("Type 'install' to continue: ").strip() != "install":
             print("Cancelled.")
             return 1
-    return _install(a.file, pl)
+    return _install(a.file, pl, silent=a.silent)
 
 
 def _format_plan(pl: dict, entry: dict | None) -> str:
@@ -141,35 +142,20 @@ def _format_plan(pl: dict, entry: dict | None) -> str:
     return "\n".join(out)
 
 
-def _install(installer: str, pl: dict) -> int:
-    if pl["runner"] == "dosbox":
-        print("16-bit programs are run with DOSBox: sudo apt install dosbox")
-        return 4
+def _install(installer: str, pl: dict, silent: bool = False) -> int:
     wine = shutil.which("wine")
-    if not wine:
+    if not wine and pl["runner"] != "dosbox":
         print("Wine is not installed. Install the compatibility layer first:\n"
               "  sudo xos-compat-setup        (installs wine, wine32, winetricks, fonts)")
         return 4
-    env = dict(os.environ, WINEPREFIX=pl["prefix"], WINEARCH=pl["prefix_arch"], WINEDEBUG="-all")
-    Path(pl["prefix"]).mkdir(parents=True, exist_ok=True)
-    steps = [[wine, "wineboot", "--init"],
-             [wine, "winecfg", "-v", pl["windows_version"]]]
-    if pl["dependencies"]:
-        if not shutil.which("winetricks"):
-            print("winetricks is required for dependencies: sudo apt install winetricks")
-            return 4
-        steps.append(["winetricks", "-q", *pl["dependencies"]])
-    if pl["dxvk"] and shutil.which("winetricks"):
-        steps.append(["winetricks", "-q", "dxvk"])
-    if pl["format"] == "msi":
-        steps.append([wine, "msiexec", "/i", installer])
-    elif pl["format"] in ("bat", "cmd"):
-        steps.append([wine, "cmd", "/c", installer])
-    elif pl["format"] in ("msix", "msixbundle", "appx", "appxbundle"):
-        print("MSIX unpacking is not implemented yet (tracked in compatibility/MODULE.md).")
+    try:
+        steps = compat.install_steps(pl, str(Path(installer).resolve()), wine or "wine",
+                                     shutil.which("winetricks"), silent)
+    except ValueError as e:
+        print(f"Cannot install: {e}")
         return 5
-    else:
-        steps.append([wine, installer])
+    env = compat.env_for(pl, os.environ)
+    Path(pl["prefix"]).mkdir(parents=True, exist_ok=True)
     for cmd in steps:
         print("→", " ".join(cmd))
         r = subprocess.run(cmd, env=env)
@@ -177,8 +163,8 @@ def _install(installer: str, pl: dict) -> int:
             print(f"Step failed with exit code {r.returncode}. Run 'xos-compat plan' and see "
                   "/usr/share/doc/xos/compatibility.md for troubleshooting.")
             return r.returncode
-    meta = Path(pl["prefix"]) / "xos-app.json"
-    meta.write_text(json.dumps(pl, indent=2))
+    subprocess.run([wine, "wineserver", "-w"], env=env)       # let the installer finish writing
+    (Path(pl["prefix"]) / "xos-app.json").write_text(json.dumps(pl, indent=2))
     print(f"Installed into {pl['prefix']}. Wine creates launcher entries in ~/.local/share/applications/wine/.")
     return 0
 

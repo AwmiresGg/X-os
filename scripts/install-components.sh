@@ -60,6 +60,14 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/shell/xos_shell.py "$@"\n' > "$DEST/usr/bin/xos-shell"
     chmod 0755 "$DEST/usr/bin/xos-shell"
     inst 0644 "$SRC/desktop/autostart/xos-shell.desktop" etc/xdg/autostart/xos-shell.desktop
+    # Windows app installer dialog: opens .exe/.msi/.bat/.msix files by default
+    rm -rf "$DEST/usr/share/xos/compat-gui"
+    mkdir -p "$DEST/usr/share/xos/compat-gui"
+    cp "$SRC/compatibility/gui/xos_windows_app.py" "$SRC/compatibility/gui/WindowsApp.qml" "$DEST/usr/share/xos/compat-gui/"
+    printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/compat-gui/xos_windows_app.py "$@"\n' > "$DEST/usr/bin/xos-windows-app"
+    chmod 0755 "$DEST/usr/bin/xos-windows-app"
+    inst 0644 "$SRC/compatibility/gui/xos-windows-app.desktop" usr/share/applications/xos-windows-app.desktop
+    inst 0644 "$SRC/compatibility/gui/mimeapps.list" etc/xdg/mimeapps.list
     # Window decoration (KWin Aurorae themes XOS-Dark / XOS-Light)
     for t in "$SRC"/themes/decoration/*/; do
         n="$(basename "$t")"

@@ -1,0 +1,10 @@
+[Default Applications]
+application/x-ms-dos-executable=xos-windows-app.desktop
+application/x-msdownload=xos-windows-app.desktop
+application/x-dosexec=xos-windows-app.desktop
+application/vnd.microsoft.portable-executable=xos-windows-app.desktop
+application/x-msi=xos-windows-app.desktop
+application/x-ms-installer=xos-windows-app.desktop
+application/x-bat=xos-windows-app.desktop
+application/x-msix=xos-windows-app.desktop
+application/x-appx=xos-windows-app.desktop

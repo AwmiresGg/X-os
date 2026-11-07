@@ -109,7 +109,7 @@ class DatabaseAndPlanTests(unittest.TestCase):
             self.assertEqual(pl["rating"], "untested")
             self.assertTrue(pl["can_install"])
             self.assertEqual(pl["prefix"], "/home/u/.local/share/xos/prefixes/some-tool")
-            self.assertEqual(pl["prefix_arch"], "win32")
+            self.assertEqual(pl["prefix_arch"], "win64", "64-bit prefix by default (runs 32-bit installers too)")
             self.assertIn("dotnet48", pl["dependencies"])
             self.assertTrue(any("not in the X-OS compatibility database" in w for w in pl["warnings"]))
 
@@ -124,3 +124,49 @@ class DatabaseAndPlanTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class InstallStepsTests(unittest.TestCase):
+    def plan_for(self, name, data, entry=None):
+        with tempfile.TemporaryDirectory() as t:
+            p = Path(t) / name
+            p.write_bytes(data)
+            return compat.plan(compat.detect(p), entry, Path("/home/u"))
+
+    def test_exe_silent_uses_database_switches(self):
+        apps = compat.load_db(compat.default_db_path())
+        entry = compat.match(apps, "7z2409-x64.exe")
+        pl = self.plan_for("7z2409-x64.exe", make_pe(machine=0x14C, pe32plus=False), entry)
+        steps = compat.install_steps(pl, "/dl/7z2409-x64.exe", silent=True)
+        self.assertEqual(steps[0], ["wine", "wineboot", "--init"])
+        self.assertEqual(steps[-1], ["wine", "/dl/7z2409-x64.exe", "/S"])
+        self.assertEqual(compat.install_steps(pl, "/dl/x.exe")[-1], ["wine", "/dl/x.exe"])   # interactive
+
+    def test_msi_and_env(self):
+        pl = self.plan_for("tool.msi", compat.OLE_MAGIC + b"\0" * 504)
+        steps = compat.install_steps(pl, "/dl/tool.msi", silent=True)
+        self.assertEqual(steps[-1], ["wine", "msiexec", "/i", "/dl/tool.msi", "/qn", "/norestart"])
+        env = compat.env_for(pl, {"PATH": "/usr/bin"})
+        self.assertEqual((env["WINEPREFIX"], env["WINEARCH"]), (pl["prefix"], "win64"))
+
+    def test_unsupported_and_msix_refused(self):
+        pl = self.plan_for("Install VALORANT.exe", make_pe(),
+                           compat.match(compat.load_db(compat.default_db_path()), "Install VALORANT.exe"))
+        with self.assertRaises(ValueError):
+            compat.install_steps(pl, "/dl/v.exe")
+        with tempfile.TemporaryDirectory() as t:
+            p = Path(t) / "App.msix"
+            with zipfile.ZipFile(p, "w") as z:
+                z.writestr("AppxManifest.xml", "<Package/>")
+            with self.assertRaises(ValueError):
+                compat.install_steps(compat.plan(compat.detect(p), None, Path("/h")), str(p))
+
+
+class SilentSwitchTests(unittest.TestCase):
+    def test_msi_ignores_exe_switches_from_database(self):
+        apps = compat.load_db(compat.default_db_path())
+        with tempfile.TemporaryDirectory() as t:
+            p = Path(t) / "7z2409-x64.msi"
+            p.write_bytes(compat.OLE_MAGIC + b"\0" * 504)
+            pl = compat.plan(compat.detect(p), compat.match(apps, p.name), Path("/h"))
+        self.assertEqual(pl["silent_args"], "/qn /norestart")

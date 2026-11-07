@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Windows App Installer
+Name[fa]=نصب برنامه‌ی ویندوزی
+Comment=Install a Windows program (.exe, .msi) with the X-OS compatibility engine
+Exec=xos-windows-app %f
+Icon=/usr/share/xos/icons/xos/symbolic/apps/windows-apps.svg
+Terminal=false
+NoDisplay=true
+Categories=System;
+MimeType=application/x-ms-dos-executable;application/x-msdownload;application/x-dosexec;application/vnd.microsoft.portable-executable;application/x-msi;application/x-ms-installer;application/x-ole-storage;application/x-bat;application/x-msix;application/x-appx;
