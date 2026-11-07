@@ -35,7 +35,10 @@ for w in dark light; do
     inst 0644 "$SRC/themes/liquid-glass/wallpapers/x-os-$w.svg" "usr/share/wallpapers/X-OS/x-os-$w.svg"
 done
 # Design-system QML module (XOS.Theme) and the icon family.
-rm -rf "$DEST/usr/share/xos/qml" "$DEST/usr/share/xos/icons/xos"
+# (keeps XOS/Effects: that plugin is compiled inside the image by hook 30-native, not copied)
+find "$DEST/usr/share/xos/qml" -mindepth 1 -maxdepth 2 ! -path '*/XOS' ! -path '*/XOS/Effects' \
+    -exec rm -rf {} + 2>/dev/null || true
+rm -rf "$DEST/usr/share/xos/icons/xos"
 mkdir -p "$DEST/usr/share/xos/qml" "$DEST/usr/share/xos/icons/xos"
 cp -r "$SRC/ui/qml/." "$DEST/usr/share/xos/qml/"
 for d in symbolic apps brand; do

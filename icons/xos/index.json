@@ -607,6 +607,15 @@
         "updates"
       ],
       "tile": "apps/xos-updates.svg"
+    },
+    "install": {
+      "category": "apps",
+      "file": "symbolic/apps/install.svg",
+      "keywords": [
+        "apps",
+        "install"
+      ],
+      "tile": "apps/xos-install.svg"
     }
   }
 }

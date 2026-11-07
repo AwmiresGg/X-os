@@ -192,8 +192,8 @@ Item {
             readonly property bool hovered: hover.hovered
             readonly property real tileOpacity: dock.ls
                 ? (index === dock.effIndex ? dock.ls.tile
-                   : (Math.abs(dock.lay.xs[index] - dock.effOldX) < 0.5 ? 1 - 0.75 * dock.ls.oldT : 1))
-                : 1 - 0.75 * Math.min(1, act * 1.4)
+                   : (Math.abs(dock.lay.xs[index] - dock.effOldX) < 0.5 ? 1 - dock.ls.oldT : 1))
+                : 1 - Math.min(1, act * 1.4)
 
             x: dock.lay.xs[index] - dock.iconSize / 2
             y: body.y + (dock.barH - dock.iconSize) / 2 - (hovered && act < 0.5 ? 3 : 0)
@@ -213,7 +213,8 @@ Item {
             Keys.onMenuPressed: if (!isTrash) dock.contextMenu(app, x + width / 2)
 
             // tile: X-OS apps are drawn from the theme (squircle + glyph) so they follow
-            // dark/light; other apps use their own icon. Dims while the circle is over it.
+            // dark/light; other apps use their own icon. Hidden while the circle is over it (the
+            // circle carries the glyph, so the slot never shows a second copy).
             Rectangle {
                 anchors.fill: parent
                 visible: slot.isTrash || (!!slot.app && slot.app.glyph !== "")

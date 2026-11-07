@@ -65,6 +65,17 @@ class LoginAndInstallerTests(unittest.TestCase):
             self.assertTrue((d / b["images"][key]).exists(), key)
         self.assertTrue((d / b["stylesheet"]).exists())
         self.assertTrue((d / b["slideshow"]).exists())
+        # QML sidebar / navigation: Calamares loads calamares-<panel>.qml from the branding dir
+        for panel in ("sidebar", "navigation"):
+            self.assertEqual(b[panel], "qml")
+            qml = (d / f"calamares-{panel}.qml").read_text()
+            self.assertIn("ViewManager", qml)
+        nav = (d / "calamares-navigation.qml").read_text()
+        for call in ("ViewManager.back()", "ViewManager.next()", "ViewManager.quit()"):
+            self.assertIn(call, nav)
+        # offline installs are supported, so a missing connection is not a requirement
+        welcome = yaml.safe_load((ROOT / "installer/calamares/modules/welcome.conf").read_text())
+        self.assertNotIn("internet", welcome["requirements"]["required"])
 
 
 if __name__ == "__main__":

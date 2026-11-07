@@ -184,7 +184,7 @@ test("droplet: end state equals the normal active state (seamless hand-over)", (
     assert.ok(near(s.cy, G.floatingCentre(1), 1e-9));
     assert.equal(s.notchT, 1);
     assert.equal(s.accent, 1);
-    assert.ok(near(s.tile, 0.25));
+    assert.ok(near(s.tile, 0));
     assert.equal(s.goo, false);
 });
 

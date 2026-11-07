@@ -29,9 +29,15 @@ XOS_ICONS = {
     "org.kde.okular": "pdf-viewer", "org.kde.gwenview": "photos", "org.kde.haruna": "video",
     "org.kde.ark": "archive", "org.kde.spectacle": "screenshot", "org.kde.kcalc": "calculator",
     "org.kde.plasma-systemmonitor": "system-monitor", "org.kde.partitionmanager": "disk-manager",
-    "org.kde.kinfocenter": "device-manager", "xos-setup": "settings", "xos-store": "store",
-    "calamares": "updates",
+    "org.kde.kinfocenter": "device-manager", "xos-setup": "install", "xos-store": "store",
+    "calamares": "install",
 }
+
+# Window app ids that belong to another app's desktop entry (Calamares reports its reverse-DNS id).
+APP_ALIASES = {"io.calamares.calamares": "calamares"}
+
+# Names X-OS shows instead of the upstream desktop entry's (the entry itself is not edited).
+XOS_NAMES = {"calamares": "Install X-OS", "xos-setup": "Install X-OS"}
 
 DEFAULT_PINNED = ["org.kde.dolphin", "firefox-esr", "org.kde.konsole", "org.kde.kwrite",
                   "org.kde.gwenview", "org.kde.haruna", "org.kde.kcalc", "systemsettings"]
@@ -78,7 +84,7 @@ def normalize_app_id(app_id: str) -> str:
     a = (app_id or "").strip()
     if a.endswith(".desktop"):
         a = a[: -len(".desktop")]
-    return a
+    return APP_ALIASES.get(a, a)
 
 
 def parse_update(payload: str) -> tuple[list[Window], str]:
@@ -115,7 +121,7 @@ class AppRegistry:
         if app_id not in self._cache:
             self._cache[app_id] = self._load(app_id)
         info = self._cache[app_id]
-        return info or AppInfo(app_id, app_id.split(".")[-1].replace("-", " ").title() or "Application",
+        return info or AppInfo(app_id, XOS_NAMES.get(app_id) or app_id.split(".")[-1].replace("-", " ").title() or "Application",
                                icon="application-x-executable", xos_icon=XOS_ICONS.get(app_id, ""))
 
     def _load(self, app_id: str) -> AppInfo | None:
@@ -130,7 +136,7 @@ class AppRegistry:
                 if not cp.has_section("Desktop Entry"):
                     continue
                 e = cp["Desktop Entry"]
-                return AppInfo(app_id, e.get("Name", app_id), e.get("Icon", ""), e.get("Exec", ""),
+                return AppInfo(app_id, XOS_NAMES.get(app_id, e.get("Name", app_id)), e.get("Icon", ""), e.get("Exec", ""),
                                XOS_ICONS.get(app_id, ""))
         return None
 

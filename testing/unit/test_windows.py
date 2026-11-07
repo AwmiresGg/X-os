@@ -45,6 +45,13 @@ class RegistryAndDockTests(unittest.TestCase):
         unknown = self.reg.get("com.example.thing")
         self.assertEqual(unknown.name, "Thing")
 
+    def test_installer_is_named_and_iconed_as_x_os(self):
+        (Path(self.tmp.name) / "calamares.desktop").write_text(
+            "[Desktop Entry]\nName=Install System\nIcon=calamares\nExec=pkexec calamares\n")
+        reg = W.AppRegistry([Path(self.tmp.name)])
+        a = reg.get(W.normalize_app_id("io.calamares.calamares"))
+        self.assertEqual((a.id, a.name, a.xos_icon), ("calamares", "Install X-OS", "install"))
+
     def test_dock_groups_windows_per_app_and_keeps_pinned_order(self):
         wins = [W.Window(A, "Home", "org.kde.dolphin"), W.Window(C, "Docs", "org.kde.dolphin"),
                 W.Window(B, "bash", "org.kde.konsole")]

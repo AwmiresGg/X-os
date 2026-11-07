@@ -5,8 +5,8 @@ welcomeExpandingLogo: true
 windowExpanding: normal
 windowSize: 1024px,680px
 windowPlacement: center
-sidebar: widget
-navigation: widget
+sidebar: qml
+navigation: qml
 
 strings:
     productName:         "X-OS"

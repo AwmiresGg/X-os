@@ -107,3 +107,11 @@ QToolTip {
     padding: 4px 8px;
 }
 QMessageBox { background-color: #181B1F; }
+
+/* Partition legend: Calamares paints partition names with a hard-coded black pen and details
+   in Qt::gray (PartitionLabelsView.cpp), so on the dark theme they were unreadable. Its
+   background comes from the palette window colour, which is the one thing a stylesheet can
+   set: a light strip keeps both lines legible. */
+PartitionLabelsView {
+    background-color: #E9ECEF;
+}
