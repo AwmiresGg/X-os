@@ -60,6 +60,13 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/shell/xos_shell.py "$@"\n' > "$DEST/usr/bin/xos-shell"
     chmod 0755 "$DEST/usr/bin/xos-shell"
     inst 0644 "$SRC/desktop/autostart/xos-shell.desktop" etc/xdg/autostart/xos-shell.desktop
+    # Window decoration (KWin Aurorae themes XOS-Dark / XOS-Light)
+    for t in "$SRC"/themes/decoration/*/; do
+        n="$(basename "$t")"
+        rm -rf "$DEST/usr/share/aurorae/themes/$n"
+        mkdir -p "$DEST/usr/share/aurorae/themes/$n"
+        cp -r "$t". "$DEST/usr/share/aurorae/themes/$n/"
+    done
     rm -rf "$DEST/usr/share/plasma/look-and-feel/org.xos.desktop"
     mkdir -p "$DEST/usr/share/plasma/look-and-feel"
     cp -r "$SRC/themes/plasma/look-and-feel/org.xos.desktop" "$DEST/usr/share/plasma/look-and-feel/"

@@ -124,9 +124,12 @@ def keyboard_session_commands(c: Choices) -> list[list[str]]:
 def appearance_commands(c: Choices) -> list[list[str]]:
     """Per-user commands that apply theme + wallpaper in a Plasma session."""
     scheme = {"dark": "BreezeDark", "light": "BreezeLight", "auto": "BreezeDark"}[c.theme]
+    deco = "__aurorae__svg__XOS-Light" if c.theme == "light" else "__aurorae__svg__XOS-Dark"
     return [
         ["plasma-apply-colorscheme", scheme],
         ["plasma-apply-wallpaperimage", WALLPAPERS[c.wallpaper]],
+        ["kwriteconfig6", "--file", "kwinrc", "--group", "org.kde.kdecoration2", "--key", "theme", deco],
+        ["dbus-send", "--session", "--type=method_call", "--dest=org.kde.KWin", "/KWin", "org.kde.KWin.reconfigure"],
     ]
 
 
