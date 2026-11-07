@@ -140,3 +140,36 @@ export function surfaceGap(n, circleY, o = DEFAULTS) {
     const distCentres = Math.abs(circleY - n.cy);
     return n.N - (distCentres + r);
 }
+
+/**
+ * The dock outline as a polygon (array of [x, y]) for the compositor's blur region, so the
+ * blur follows the cradle instead of a rectangle. Arcs are sampled every `step` px of arc length.
+ */
+export function dockPolygon(width, n, o = DEFAULTS, step = 4) {
+    const h = o.height;
+    const rc = Math.min(o.cornerRadius, h / 2, width / 2);
+    const pts = [];
+    function arc(cx, cy, r, a0, a1) {
+        const segs = Math.max(2, Math.ceil(Math.abs(a1 - a0) * r / step));
+        for (let i = 0; i <= segs; i++) {
+            const a = a0 + (a1 - a0) * i / segs;
+            pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+        }
+    }
+    // top-left corner, from the left edge up to the top edge
+    arc(rc, rc, rc, Math.PI, 1.5 * Math.PI);
+    if (n && n.left >= rc && n.right <= width - rc) {
+        const fl = { x: n.left, y: n.f }, fr = { x: n.right, y: n.f };
+        // left fillet: from straight up (-90 deg) towards the notch centre
+        arc(fl.x, fl.y, n.f, -0.5 * Math.PI, Math.atan2(n.tl.y - fl.y, n.tl.x - fl.x));
+        // notch: around the bottom of the notch circle, counter-clockwise on screen
+        const a0 = Math.atan2(n.tl.y - n.cy, n.tl.x - n.cx);
+        const a1 = Math.atan2(n.tr.y - n.cy, n.tr.x - n.cx);
+        arc(n.cx, n.cy, n.N, a0, a1 < a0 ? a1 : a1 - 2 * Math.PI);
+        arc(fr.x, fr.y, n.f, Math.atan2(n.tr.y - fr.y, n.tr.x - fr.x), -0.5 * Math.PI);
+    }
+    arc(width - rc, rc, rc, 1.5 * Math.PI, 2 * Math.PI);
+    arc(width - rc, h - rc, rc, 0, 0.5 * Math.PI);
+    arc(rc, h - rc, rc, 0.5 * Math.PI, Math.PI);
+    return pts.map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+}

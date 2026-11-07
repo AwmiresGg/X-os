@@ -1,24 +1,49 @@
 # desktop
 
-**Status:** In progress: Signature Dock component + geometry engine (unit-tested); top bar, launcher, shell integration not started
+X-OS shell: **thin top menu bar** + **floating bottom dock**, drawn by `xos-shell`
+(`desktop/shell/`), replacing the Plasma panel. Design: `documentation/design/`.
 
-**Dependencies:** Qt 6.5+ (QtQuick.Shapes, QtQuick.Effects), KWin, Plasma 6, LayerShellQt (planned)
+**Status:** In progress — implemented and rendered offscreen with demo data; packaged into the
+desktop image (layer-shell surfaces under KWin Wayland). **Not yet verified inside a running
+X-OS session in the VM** (next step).
 
-**Previews:** `documentation/images/dock-preview-gl.png` (OpenGL path, full tier), `dock-preview-software.png` (software renderer, auto-reduced tier).
+## Architecture
 
-**Tests:** testing/unit/dock.test.mjs (geometry); offscreen render of desktop/dock/demo
+| Part | File | Notes |
+|---|---|---|
+| Host process | `shell/xos_shell.py` | PySide6; one process; status polled on a worker thread (battery 30 s, network 4 s, Bluetooth 10 s, audio 2 s, brightness/trash 10 s) |
+| Shell surfaces | `shell/qml/Shell.qml` + `XOS.Platform.ShellWindow` | Wayland: `org.kde.layershell` (Debian `qml6-module-org-kde-layershell`). Menu bar anchored top, reserves 30 px. Dock anchored bottom with an 8 px margin (floating), reserves its height. Popovers on one overlay surface (click outside / Esc closes). X11 fallback: frameless always-on-top windows |
+| Menu bar | `shell/qml/MenuBar.qml` | X-OS menu · active app name · Window menu · battery % · network · Bluetooth · volume · search (KRunner) · Control Center · date/time |
+| Dock | `shell/qml/DockBar.qml` | pinned + running apps grouped per app; one accent circle in a concave cradle over the active app; running dots; Trash; right-click menu; tooltips; keyboard focus |
+| Popovers | `shell/qml/Popovers.qml` | X-OS menu (with Restart/Shut Down confirmation), Window, battery, network, Bluetooth, sound, Control Center, calendar, dock context menu |
+| Status / actions | `lib/python/xos/shellstatus.py` | sysfs battery/backlight, `nmcli`, `rfkill`, `wpctl`, logind `SetBrightness`, `systemctl`/`loginctl`, Plasma logout |
+| Windows | `lib/python/xos/windows.py`, `shell/kwin/xos-windows` | KWin tracker script → D-Bus `org.xos.Shell /Windows update(json)`; commands via one-shot KWin scripts (UUID-validated ids) |
+| Default layout | `themes/plasma/look-and-feel/org.xos.desktop` | Plasma layout with no panel, X-OS wallpaper, dark scheme |
 
-**Known issues / limitations:**
-- Dock runs as a standalone QML component/preview; not yet a Plasma panel/layer-shell surface, so it does not yet track real windows.
-- Background blur needs KWin's blur protocol once it is a shell surface; standalone preview shows translucency only.
-- Grouped-window preview lists titles; live thumbnails need KWin's window-thumbnail item.
-- During an active-app hand-over the rising circle can overlap the notch shoulder by a few pixels for ~100 ms (the spring-driven notch lags the icon). Must be fixed before M3 sign-off.
-- Drag-and-drop reordering, dock position (left/right) and settings UI not implemented.
+## Settings (Control Center › Dock & Menu bar)
 
-**Acceptance criteria:**
-- [ ] Concave liquid notch with uniform gap (unit-tested)
-- [ ] Persistent active state and smooth hand-over
-- [ ] 60 FPS on Intel/AMD iGPU measured on hardware
-- [ ] Static rendering path under software rendering
+Dock transparency, menu-bar transparency (clamped so content stays readable), dock icon size,
+Dark Mode, Less Motion. Stored in `~/.config/xos/shell.json`.
 
-**Documentation:** see `architecture/ARCHITECTURE.md` and `documentation/`.
+## Tests
+
+| What | Level |
+|---|---|
+| Status parsing (battery incl. peripheral batteries ignored, nmcli, rfkill, wpctl, backlight, power commands) | Unit — `testing/unit/test_shellstatus.py` |
+| Window model, grouping, .desktop parsing, KWin command injection rejected | Unit — `testing/unit/test_windows.py` |
+| Cradle geometry | Unit — `testing/unit/dock.test.mjs` |
+| Design tokens (contrast, single accent, motion rules) | Unit — `testing/unit/test_design_tokens.py` |
+| Menu bar, dock, X-OS menu, Control Center | Rendered offscreen (`xos-shell --preview`) |
+| Running in Plasma Wayland | **Not yet tested** |
+
+## Not implemented yet (not shown in the UI either)
+
+- **Background blur** ("frosted" glass): needs KWin's blur protocol via `KWindowEffects`, which has
+  no Python binding — planned as a small C++ QML plugin. Today the bars are translucent, not blurred.
+- **Global application menus** (File/Edit/View…): need apps to export menus (KDE appmenu/DBusMenu).
+  The bar shows the active app's name and a working Window menu instead of fake menus.
+- Launch "droplet" animation from the reference video (only the cradle slide is implemented).
+- Dock auto-hide, drag-and-drop reordering, notification badges, live window thumbnails.
+- Calendar events (the calendar shows dates only).
+- The Plasma panel is removed only for **new** user profiles (the look-and-feel layout applies
+  on first login); existing profiles keep their panel.

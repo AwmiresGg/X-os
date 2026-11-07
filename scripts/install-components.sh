@@ -64,6 +64,10 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     mkdir -p "$DEST/usr/share/plasma/look-and-feel"
     cp -r "$SRC/themes/plasma/look-and-feel/org.xos.desktop" "$DEST/usr/share/plasma/look-and-feel/"
     inst 0644 "$SRC/themes/plasma/kdeglobals" etc/xdg/kdeglobals
+    # Native QML plugin sources; compiled inside the image by build/hooks/chroot/30-native.sh
+    rm -rf "$DEST/usr/src/xos-native"
+    mkdir -p "$DEST/usr/src/xos-native"
+    cp -r "$SRC/desktop/native/." "$DEST/usr/src/xos-native/"
     rm -rf "$DEST/etc/calamares"
     mkdir -p "$DEST/etc/calamares/branding"
     cp "$SRC/installer/calamares/settings.conf" "$DEST/etc/calamares/"

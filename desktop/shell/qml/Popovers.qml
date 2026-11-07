@@ -260,7 +260,7 @@ Item {
                               sub: bt.powered ? "On" : "Off", on: !!bt.powered, show: !!bt.present },
                             { key: "dark", glyph: "night-light", label: "Dark Mode",
                               sub: Theme.dark ? "On" : "Off", on: Theme.dark, show: true },
-                            { key: "motion", glyph: "eye", label: "Reduce Motion",
+                            { key: "motion", glyph: "eye", label: "Less Motion",
                               sub: root.cfg.reducedMotion ? "On" : "Off", on: !!root.cfg.reducedMotion, show: true }
                         ]
                         delegate: Rectangle {
@@ -276,7 +276,7 @@ Item {
                             Glyph { name: modelData.glyph; size: 18; tint: modelData.on ? Theme.onAccent : Theme.text; x: 10; anchors.verticalCenter: parent.verticalCenter }
                             Column {
                                 x: 36; anchors.verticalCenter: parent.verticalCenter
-                                Text { text: modelData.label; color: modelData.on ? Theme.onAccent : Theme.text; font.pixelSize: Theme.fontBody; font.weight: Font.DemiBold }
+                                Text { text: modelData.label; color: modelData.on ? Theme.onAccent : Theme.text; font.pixelSize: Theme.fontBody; font.weight: Font.DemiBold; elide: Text.ElideRight; width: 92 }
                                 Text { text: modelData.sub; color: modelData.on ? Theme.onAccent : Theme.textDim; font.pixelSize: Theme.fontCaption; elide: Text.ElideRight; width: 92 }
                             }
                             MouseArea {

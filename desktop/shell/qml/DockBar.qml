@@ -9,6 +9,7 @@ import QtQuick
 import QtQuick.Shapes
 import QtQuick.Effects
 import XOS.Theme
+import XOS.Platform
 import "components"
 import "../../dock/geometry.mjs" as Geo
 
@@ -97,6 +98,12 @@ Item {
                 strokeColor: Theme.highlight
                 PathSvg { path: Geo.dockPath(dock.lay.width, dock.notch, dock.opts) }
             }
+        }
+        // Liquid glass: the compositor blurs what is behind the dock, following the cradle.
+        GlassBlur {
+            target: body
+            enabled: !Theme.lowResource
+            polygon: Geo.dockPolygon(dock.lay.width, dock.notch, dock.opts)
         }
         // separator before the Trash
         Rectangle {

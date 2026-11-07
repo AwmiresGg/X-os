@@ -105,3 +105,22 @@ test("notch at the outermost icon does not cut into the rounded corners", () => 
     const firstL = Number(d.split(" ")[4]);
     assert.ok(firstL >= Math.min(O.cornerRadius, O.height / 2) - 1e-9);
 });
+
+test("blur polygon follows the cradle and stays inside the dock body", () => {
+    const { width, xs } = G.layout(5);
+    const flat = G.dockPolygon(width, null);
+    const n = G.notch(xs[2], 1);
+    const carved = G.dockPolygon(width, n);
+    assert.ok(carved.length > flat.length);
+    for (const [x, y] of carved) {
+        assert.ok(x >= -0.01 && x <= width + 0.01 && y >= -0.01 && y <= G.DEFAULTS.height + 0.01, `${x},${y}`);
+    }
+    // under the floating circle the outline dips to the notch depth
+    const lowest = Math.max(...carved.filter(([x]) => Math.abs(x - n.cx) < 2).map(([, y]) => y));
+    assert.ok(Math.abs(lowest - n.depth) < 0.5, `lowest ${lowest} vs depth ${n.depth}`);
+    // and every polygon point near the notch is outside the floating circle (+gap)
+    const cy = G.floatingCentre(1);
+    for (const [x, y] of carved) {
+        assert.ok(Math.hypot(x - n.cx, y - cy) >= G.containerRadius() + G.DEFAULTS.gap - 0.6);
+    }
+});

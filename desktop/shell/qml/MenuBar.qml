@@ -2,6 +2,7 @@
 // real menu; nothing here is decorative.
 import QtQuick
 import XOS.Theme
+import XOS.Platform
 import "components"
 
 Item {
@@ -23,7 +24,9 @@ Item {
         bar.requestMenu(openMenu === name ? "" : name, item.mapToItem(bar, item.width / 2, 0).x)
     }
 
+    GlassBlur { target: barBg; enabled: !Theme.lowResource }
     Rectangle {
+        id: barBg
         anchors.fill: parent
         color: Qt.rgba(Theme.surface1.r, Theme.surface1.g, Theme.surface1.b, bar.opacity_)
         Rectangle {          // hairline under the bar
