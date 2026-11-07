@@ -41,8 +41,9 @@ Dark Mode, Less Motion. Stored in `~/.config/xos/shell.json`.
 
 ## Not implemented yet (not shown in the UI either)
 
-- **Background blur** ("frosted" glass): needs KWin's blur protocol via `KWindowEffects`, which has
-  no Python binding — planned as a small C++ QML plugin. Today the bars are translucent, not blurred.
+- **Background blur** ("frosted" glass): implemented (`desktop/native/xos-effects`, KWin blur
+  protocol, cradle-shaped region; compiled into the image) but **not yet visually confirmed**: the
+  test VM renders with software OpenGL, where KWin may disable its blur effect.
 - **Global application menus** (File/Edit/View…): need apps to export menus (KDE appmenu/DBusMenu).
   The bar shows the active app's name and a working Window menu instead of fake menus.
 - Launch "droplet" animation from the reference video (only the cradle slide is implemented).
