@@ -1,0 +1,61 @@
+# Desktop variant (added on top of core.list).
+
+# display stack
+mesa-vulkan-drivers
+libgl1-mesa-dri
+xwayland
+# KDE Plasma foundation (Wayland session) - kept close to the minimal meta-package
+kde-plasma-desktop
+plasma-workspace-wayland
+kwin-wayland
+sddm
+sddm-theme-breeze
+kscreen
+plasma-nm
+plasma-pa
+bluedevil
+powerdevil
+kde-config-sddm
+plasma-systemmonitor
+partitionmanager
+kinfocenter
+
+# Qt/QML modules used by the X-OS shell (dock, top bar, Control Center)
+qml6-module-qtquick
+qml6-module-qtquick-controls
+qml6-module-qtquick-layouts
+qml6-module-qtquick-window
+qml6-module-qtquick-shapes
+qml6-module-qtqml-workerscript
+qml6-module-qt5compat-graphicaleffects
+qml-qt6
+
+# audio
+pipewire-audio
+wireplumber
+pipewire-pulse
+
+# applications (reused high-quality apps, themed by X-OS)
+dolphin
+konsole
+kwrite
+ark
+gwenview
+okular
+spectacle
+kcalc
+haruna
+firefox-esr
+flatpak
+
+# NetworkManager VPN plugins
+network-manager-openvpn
+network-manager-openvpn-gnome
+plasma-nm
+network-manager-l2tp
+
+# fonts
+fonts-inter
+fonts-noto-core
+fonts-noto-color-emoji
+fonts-jetbrains-mono

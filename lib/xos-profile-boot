@@ -1,0 +1,7 @@
+#!/bin/sh
+# Live session: choose profile from kernel cmdline (xos.profile=lite) or hardware.
+set -eu
+mkdir -p /run/xos
+p=$(sed -n 's/.*xos\.profile=\([a-z]*\).*/\1/p' /proc/cmdline)
+[ -n "$p" ] || p=auto
+exec /usr/bin/xos-profile apply "$p" --live

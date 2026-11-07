@@ -1,0 +1,12 @@
+[Unit]
+Description=X-OS performance profile (applies xos.profile= or the hardware recommendation in live sessions)
+ConditionPathExists=/run/live/medium
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/xos/profile-boot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
