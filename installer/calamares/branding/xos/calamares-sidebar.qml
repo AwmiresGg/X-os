@@ -121,6 +121,8 @@ Rectangle {
         }
 
         Text {                     // a quiet reminder of the one rule that matters
+            // only true until the Install step starts writing
+            visible: ViewManager.currentStepIndex < ViewManager.rowCount() - 2
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom

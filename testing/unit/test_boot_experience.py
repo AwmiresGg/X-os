@@ -27,11 +27,6 @@ class GrubThemeTests(unittest.TestCase):
         for f in fonts:
             self.assertIn(names[f], loaded, f"font {f} is used but not loaded")
 
-    def test_installed_systems_use_the_theme(self):
-        g = yaml.safe_load((ROOT / "installer/calamares/modules/grubcfg.conf").read_text())["defaults"]
-        self.assertEqual(g["GRUB_THEME"], "/usr/share/grub/themes/xos/theme.txt")
-        self.assertIn("splash", g["GRUB_CMDLINE_LINUX_DEFAULT"])
-
 
 class PlymouthTests(unittest.TestCase):
     def test_splash_handles_encrypted_disk_password(self):
@@ -76,6 +71,22 @@ class LoginAndInstallerTests(unittest.TestCase):
         # offline installs are supported, so a missing connection is not a requirement
         welcome = yaml.safe_load((ROOT / "installer/calamares/modules/welcome.conf").read_text())
         self.assertNotIn("internet", welcome["requirements"]["required"])
+
+    def test_installed_grub_is_branded_and_read(self):
+        # grub-mkconfig only sources /etc/default/grub.d/*.cfg; Calamares must edit
+        # /etc/default/grub (created by hook 16) rather than write grub.d/00calamares.
+        g = yaml.safe_load((ROOT / "installer/calamares/modules/grubcfg.conf").read_text())
+        self.assertFalse(g["prefer_grub_d"])
+        self.assertNotIn("GRUB_TERMINAL_OUTPUT", g["defaults"])   # would disable the theme
+        self.assertIn("splash", g["defaults"]["GRUB_CMDLINE_LINUX_DEFAULT"])
+        cfg = (ROOT / "build/grub/10-xos.cfg").read_text()
+        self.assertIn('GRUB_DISTRIBUTOR="X-OS"', cfg)
+        self.assertIn("GRUB_THEME=/usr/share/grub/themes/xos/theme.txt", cfg)
+        self.assertIn("10-xos.cfg", (ROOT / "scripts/install-components.sh").read_text())
+        hook = (ROOT / "build/hooks/chroot/16-grub-defaults.sh").read_text()
+        self.assertIn("/usr/share/grub/default/grub", hook)
+        fin = yaml.safe_load((ROOT / "installer/calamares/modules/finished.conf").read_text())
+        self.assertEqual(fin["restartNowMode"], "user-checked")
 
 
 if __name__ == "__main__":

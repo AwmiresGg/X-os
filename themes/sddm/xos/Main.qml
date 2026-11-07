@@ -248,7 +248,9 @@ Rectangle {
                 border.color: root.cRim
                 Text {
                     id: sessLabel; anchors.centerIn: parent; color: root.cText; font.family: root.ui; font.pixelSize: 13
-                    text: sessionModel.data(sessionModel.index(root.sessionIndex, 0), Qt.UserRole + 4) || "Plasma"
+                    // The X-OS desktop runs as the Plasma Wayland session; name it as users know it.
+                    text: (sessionModel.data(sessionModel.index(root.sessionIndex, 0), Qt.UserRole + 4) || "Plasma")
+                        .replace(/^Plasma \(Wayland\)$/, "X-OS").replace(/^Plasma \(X11\)$/, "X-OS (X11)")
                 }
                 MouseArea {
                     id: sessMouse; anchors.fill: parent; hoverEnabled: true

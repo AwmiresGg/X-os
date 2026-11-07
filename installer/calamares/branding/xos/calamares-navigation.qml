@@ -68,12 +68,20 @@ Rectangle {
         color: Qt.rgba(1, 1, 1, 0.06)
     }
 
+    // On the last page ("All done") there is nothing to go back or forward to: the only action
+    // is Done (Calamares' quit, which also performs "Restart now" when ticked), so it becomes
+    // the single primary button on the trailing side.
+    // (rowCount() is not a notifying property; currentStepIndex is, and re-evaluates this.)
+    readonly property bool lastPage: ViewManager.rowCount() > 1
+        && ViewManager.currentStepIndex >= ViewManager.rowCount() - 1
+
     Pill {
         id: quit
-        anchors.left: parent.left
-        anchors.leftMargin: 8
+        // positioned with x, not by switching anchors (anchor changes need AnchorChanges)
+        x: nav.lastPage ? nav.width - width - 20 : 8
         anchors.verticalCenter: parent.verticalCenter
-        quiet: true
+        quiet: !nav.lastPage
+        primary: nav.lastPage
         label: ViewManager.quitLabel
         visible: ViewManager.quitVisible
         enabled: ViewManager.quitEnabled
@@ -85,7 +93,7 @@ Rectangle {
         anchors.rightMargin: 20
         anchors.verticalCenter: parent.verticalCenter
         spacing: 10
-        visible: ViewManager.backAndNextVisible
+        visible: ViewManager.backAndNextVisible && !nav.lastPage
         Pill {
             label: ViewManager.backLabel
             enabled: ViewManager.backEnabled

@@ -50,6 +50,7 @@ rm -rf "$DEST/usr/share/grub/themes/xos" "$DEST/usr/share/plymouth/themes/xos"
 mkdir -p "$DEST/usr/share/grub/themes" "$DEST/usr/share/plymouth/themes"
 cp -r "$SRC/themes/boot/grub/xos" "$DEST/usr/share/grub/themes/xos"
 cp -r "$SRC/themes/boot/plymouth/xos" "$DEST/usr/share/plymouth/themes/xos"
+inst 0644 "$SRC/build/grub/10-xos.cfg" etc/default/grub.d/10-xos.cfg
 
 # Desktop variant: dock, setup wizard, installer.
 if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
