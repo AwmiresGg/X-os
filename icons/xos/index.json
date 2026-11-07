@@ -1,0 +1,612 @@
+{
+  "schema": 1,
+  "icons": {
+    "xos-mark": {
+      "category": "shell",
+      "file": "symbolic/shell/xos-mark.svg",
+      "keywords": [
+        "mark",
+        "shell",
+        "xos"
+      ]
+    },
+    "search": {
+      "category": "shell",
+      "file": "symbolic/shell/search.svg",
+      "keywords": [
+        "search",
+        "shell"
+      ]
+    },
+    "app-grid": {
+      "category": "shell",
+      "file": "symbolic/shell/app-grid.svg",
+      "keywords": [
+        "app",
+        "grid",
+        "shell"
+      ]
+    },
+    "badge-dot": {
+      "category": "shell",
+      "file": "symbolic/shell/badge-dot.svg",
+      "keywords": [
+        "badge",
+        "dot",
+        "shell"
+      ]
+    },
+    "badge-warning": {
+      "category": "shell",
+      "file": "symbolic/shell/badge-warning.svg",
+      "keywords": [
+        "badge",
+        "shell",
+        "warning"
+      ]
+    },
+    "badge-error": {
+      "category": "shell",
+      "file": "symbolic/shell/badge-error.svg",
+      "keywords": [
+        "badge",
+        "error",
+        "shell"
+      ]
+    },
+    "power": {
+      "category": "status",
+      "file": "symbolic/status/power.svg",
+      "keywords": [
+        "power",
+        "status"
+      ]
+    },
+    "battery-empty": {
+      "category": "status",
+      "file": "symbolic/status/battery-empty.svg",
+      "keywords": [
+        "battery",
+        "empty",
+        "status"
+      ]
+    },
+    "battery-low": {
+      "category": "status",
+      "file": "symbolic/status/battery-low.svg",
+      "keywords": [
+        "battery",
+        "low",
+        "status"
+      ]
+    },
+    "battery-medium": {
+      "category": "status",
+      "file": "symbolic/status/battery-medium.svg",
+      "keywords": [
+        "battery",
+        "medium",
+        "status"
+      ]
+    },
+    "battery-full": {
+      "category": "status",
+      "file": "symbolic/status/battery-full.svg",
+      "keywords": [
+        "battery",
+        "full",
+        "status"
+      ]
+    },
+    "battery-charging": {
+      "category": "status",
+      "file": "symbolic/status/battery-charging.svg",
+      "keywords": [
+        "battery",
+        "charging",
+        "status"
+      ]
+    },
+    "wifi-0": {
+      "category": "status",
+      "file": "symbolic/status/wifi-0.svg",
+      "keywords": [
+        "0",
+        "status",
+        "wifi"
+      ]
+    },
+    "wifi-1": {
+      "category": "status",
+      "file": "symbolic/status/wifi-1.svg",
+      "keywords": [
+        "1",
+        "status",
+        "wifi"
+      ]
+    },
+    "wifi-2": {
+      "category": "status",
+      "file": "symbolic/status/wifi-2.svg",
+      "keywords": [
+        "2",
+        "status",
+        "wifi"
+      ]
+    },
+    "wifi-3": {
+      "category": "status",
+      "file": "symbolic/status/wifi-3.svg",
+      "keywords": [
+        "3",
+        "status",
+        "wifi"
+      ]
+    },
+    "wifi-off": {
+      "category": "status",
+      "file": "symbolic/status/wifi-off.svg",
+      "keywords": [
+        "off",
+        "status",
+        "wifi"
+      ]
+    },
+    "ethernet": {
+      "category": "status",
+      "file": "symbolic/status/ethernet.svg",
+      "keywords": [
+        "ethernet",
+        "status"
+      ]
+    },
+    "network-off": {
+      "category": "status",
+      "file": "symbolic/status/network-off.svg",
+      "keywords": [
+        "network",
+        "off",
+        "status"
+      ]
+    },
+    "bluetooth": {
+      "category": "status",
+      "file": "symbolic/status/bluetooth.svg",
+      "keywords": [
+        "bluetooth",
+        "status"
+      ]
+    },
+    "bluetooth-off": {
+      "category": "status",
+      "file": "symbolic/status/bluetooth-off.svg",
+      "keywords": [
+        "bluetooth",
+        "off",
+        "status"
+      ]
+    },
+    "bluetooth-connected": {
+      "category": "status",
+      "file": "symbolic/status/bluetooth-connected.svg",
+      "keywords": [
+        "bluetooth",
+        "connected",
+        "status"
+      ]
+    },
+    "vpn": {
+      "category": "status",
+      "file": "symbolic/status/vpn.svg",
+      "keywords": [
+        "status",
+        "vpn"
+      ]
+    },
+    "volume-mute": {
+      "category": "status",
+      "file": "symbolic/status/volume-mute.svg",
+      "keywords": [
+        "mute",
+        "status",
+        "volume"
+      ]
+    },
+    "volume-low": {
+      "category": "status",
+      "file": "symbolic/status/volume-low.svg",
+      "keywords": [
+        "low",
+        "status",
+        "volume"
+      ]
+    },
+    "volume-medium": {
+      "category": "status",
+      "file": "symbolic/status/volume-medium.svg",
+      "keywords": [
+        "medium",
+        "status",
+        "volume"
+      ]
+    },
+    "volume-high": {
+      "category": "status",
+      "file": "symbolic/status/volume-high.svg",
+      "keywords": [
+        "high",
+        "status",
+        "volume"
+      ]
+    },
+    "microphone": {
+      "category": "status",
+      "file": "symbolic/status/microphone.svg",
+      "keywords": [
+        "microphone",
+        "status"
+      ]
+    },
+    "brightness": {
+      "category": "status",
+      "file": "symbolic/status/brightness.svg",
+      "keywords": [
+        "brightness",
+        "status"
+      ]
+    },
+    "night-light": {
+      "category": "status",
+      "file": "symbolic/status/night-light.svg",
+      "keywords": [
+        "light",
+        "night",
+        "status"
+      ]
+    },
+    "notifications": {
+      "category": "status",
+      "file": "symbolic/status/notifications.svg",
+      "keywords": [
+        "notifications",
+        "status"
+      ]
+    },
+    "security": {
+      "category": "status",
+      "file": "symbolic/status/security.svg",
+      "keywords": [
+        "security",
+        "status"
+      ]
+    },
+    "chevron-left": {
+      "category": "actions",
+      "file": "symbolic/actions/chevron-left.svg",
+      "keywords": [
+        "actions",
+        "chevron",
+        "left"
+      ]
+    },
+    "chevron-right": {
+      "category": "actions",
+      "file": "symbolic/actions/chevron-right.svg",
+      "keywords": [
+        "actions",
+        "chevron",
+        "right"
+      ]
+    },
+    "chevron-up": {
+      "category": "actions",
+      "file": "symbolic/actions/chevron-up.svg",
+      "keywords": [
+        "actions",
+        "chevron",
+        "up"
+      ]
+    },
+    "chevron-down": {
+      "category": "actions",
+      "file": "symbolic/actions/chevron-down.svg",
+      "keywords": [
+        "actions",
+        "chevron",
+        "down"
+      ]
+    },
+    "check": {
+      "category": "actions",
+      "file": "symbolic/actions/check.svg",
+      "keywords": [
+        "actions",
+        "check"
+      ]
+    },
+    "add": {
+      "category": "actions",
+      "file": "symbolic/actions/add.svg",
+      "keywords": [
+        "actions",
+        "add"
+      ]
+    },
+    "eye": {
+      "category": "actions",
+      "file": "symbolic/actions/eye.svg",
+      "keywords": [
+        "actions",
+        "eye"
+      ]
+    },
+    "lock": {
+      "category": "actions",
+      "file": "symbolic/actions/lock.svg",
+      "keywords": [
+        "actions",
+        "lock"
+      ]
+    },
+    "window-minimize": {
+      "category": "window",
+      "file": "symbolic/window/window-minimize.svg",
+      "keywords": [
+        "minimize",
+        "window"
+      ]
+    },
+    "window-maximize": {
+      "category": "window",
+      "file": "symbolic/window/window-maximize.svg",
+      "keywords": [
+        "maximize",
+        "window"
+      ]
+    },
+    "window-restore": {
+      "category": "window",
+      "file": "symbolic/window/window-restore.svg",
+      "keywords": [
+        "restore",
+        "window"
+      ]
+    },
+    "window-close": {
+      "category": "window",
+      "file": "symbolic/window/window-close.svg",
+      "keywords": [
+        "close",
+        "window"
+      ]
+    },
+    "folder": {
+      "category": "places",
+      "file": "symbolic/places/folder.svg",
+      "keywords": [
+        "folder",
+        "places"
+      ]
+    },
+    "home": {
+      "category": "places",
+      "file": "symbolic/places/home.svg",
+      "keywords": [
+        "home",
+        "places"
+      ]
+    },
+    "trash-empty": {
+      "category": "places",
+      "file": "symbolic/places/trash-empty.svg",
+      "keywords": [
+        "empty",
+        "places",
+        "trash"
+      ]
+    },
+    "trash-full": {
+      "category": "places",
+      "file": "symbolic/places/trash-full.svg",
+      "keywords": [
+        "full",
+        "places",
+        "trash"
+      ]
+    },
+    "downloads": {
+      "category": "places",
+      "file": "symbolic/places/downloads.svg",
+      "keywords": [
+        "downloads",
+        "places"
+      ]
+    },
+    "files": {
+      "category": "apps",
+      "file": "symbolic/apps/files.svg",
+      "keywords": [
+        "apps",
+        "files"
+      ],
+      "tile": "apps/xos-files.svg"
+    },
+    "browser": {
+      "category": "apps",
+      "file": "symbolic/apps/browser.svg",
+      "keywords": [
+        "apps",
+        "browser"
+      ],
+      "tile": "apps/xos-browser.svg"
+    },
+    "terminal": {
+      "category": "apps",
+      "file": "symbolic/apps/terminal.svg",
+      "keywords": [
+        "apps",
+        "terminal"
+      ],
+      "tile": "apps/xos-terminal.svg"
+    },
+    "text-editor": {
+      "category": "apps",
+      "file": "symbolic/apps/text-editor.svg",
+      "keywords": [
+        "apps",
+        "editor",
+        "text"
+      ],
+      "tile": "apps/xos-text-editor.svg"
+    },
+    "photos": {
+      "category": "apps",
+      "file": "symbolic/apps/photos.svg",
+      "keywords": [
+        "apps",
+        "photos"
+      ],
+      "tile": "apps/xos-photos.svg"
+    },
+    "video": {
+      "category": "apps",
+      "file": "symbolic/apps/video.svg",
+      "keywords": [
+        "apps",
+        "video"
+      ],
+      "tile": "apps/xos-video.svg"
+    },
+    "music": {
+      "category": "apps",
+      "file": "symbolic/apps/music.svg",
+      "keywords": [
+        "apps",
+        "music"
+      ],
+      "tile": "apps/xos-music.svg"
+    },
+    "calculator": {
+      "category": "apps",
+      "file": "symbolic/apps/calculator.svg",
+      "keywords": [
+        "apps",
+        "calculator"
+      ],
+      "tile": "apps/xos-calculator.svg"
+    },
+    "settings": {
+      "category": "apps",
+      "file": "symbolic/apps/settings.svg",
+      "keywords": [
+        "apps",
+        "settings"
+      ],
+      "tile": "apps/xos-settings.svg"
+    },
+    "pdf-viewer": {
+      "category": "apps",
+      "file": "symbolic/apps/pdf-viewer.svg",
+      "keywords": [
+        "apps",
+        "pdf",
+        "viewer"
+      ],
+      "tile": "apps/xos-pdf-viewer.svg"
+    },
+    "archive": {
+      "category": "apps",
+      "file": "symbolic/apps/archive.svg",
+      "keywords": [
+        "apps",
+        "archive"
+      ],
+      "tile": "apps/xos-archive.svg"
+    },
+    "screenshot": {
+      "category": "apps",
+      "file": "symbolic/apps/screenshot.svg",
+      "keywords": [
+        "apps",
+        "screenshot"
+      ],
+      "tile": "apps/xos-screenshot.svg"
+    },
+    "system-monitor": {
+      "category": "apps",
+      "file": "symbolic/apps/system-monitor.svg",
+      "keywords": [
+        "apps",
+        "monitor",
+        "system"
+      ],
+      "tile": "apps/xos-system-monitor.svg"
+    },
+    "disk-manager": {
+      "category": "apps",
+      "file": "symbolic/apps/disk-manager.svg",
+      "keywords": [
+        "apps",
+        "disk",
+        "manager"
+      ],
+      "tile": "apps/xos-disk-manager.svg"
+    },
+    "device-manager": {
+      "category": "apps",
+      "file": "symbolic/apps/device-manager.svg",
+      "keywords": [
+        "apps",
+        "device",
+        "manager"
+      ],
+      "tile": "apps/xos-device-manager.svg"
+    },
+    "store": {
+      "category": "apps",
+      "file": "symbolic/apps/store.svg",
+      "keywords": [
+        "apps",
+        "store"
+      ],
+      "tile": "apps/xos-store.svg"
+    },
+    "control-center": {
+      "category": "apps",
+      "file": "symbolic/apps/control-center.svg",
+      "keywords": [
+        "apps",
+        "center",
+        "control"
+      ],
+      "tile": "apps/xos-control-center.svg"
+    },
+    "calendar": {
+      "category": "apps",
+      "file": "symbolic/apps/calendar.svg",
+      "keywords": [
+        "apps",
+        "calendar"
+      ],
+      "tile": "apps/xos-calendar.svg"
+    },
+    "windows-apps": {
+      "category": "apps",
+      "file": "symbolic/apps/windows-apps.svg",
+      "keywords": [
+        "apps",
+        "windows"
+      ],
+      "tile": "apps/xos-windows-apps.svg"
+    },
+    "updates": {
+      "category": "apps",
+      "file": "symbolic/apps/updates.svg",
+      "keywords": [
+        "apps",
+        "updates"
+      ],
+      "tile": "apps/xos-updates.svg"
+    }
+  }
+}

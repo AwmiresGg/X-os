@@ -281,10 +281,7 @@ class Windows(QObject):
         out = []
         for item in W.dock_items(pinned, self._windows, self._active, self.registry):
             d = item.to_dict()
-            tile = next((b / "apps" / f"xos-{item.xos_icon}.svg" for b in ICON_DIRS
-                         if item.xos_icon and (b / "apps" / f"xos-{item.xos_icon}.svg").exists()), None)
-            d["tile"] = QUrl.fromLocalFile(str(tile)).toString() if tile else f"image://appicon/{item.icon}"
-            d["glyph"] = item.xos_icon
+            d["glyph"] = item.xos_icon if item.xos_icon and find_glyph(item.xos_icon) else ""
             out.append(d)
         return out
 

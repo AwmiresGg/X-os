@@ -145,22 +145,29 @@ Item {
             Keys.onSpacePressed: activate()
             Keys.onMenuPressed: if (!isTrash) dock.contextMenu(app, x + width / 2)
 
-            // tile: dims while the circle is over it (reference: grey in transit)
-            Image {
+            // tile: X-OS apps are drawn from the theme (squircle + glyph) so they follow
+            // dark/light; other apps use their own icon. Dims while the circle is over it.
+            Rectangle {
                 anchors.fill: parent
-                visible: !slot.isTrash
-                source: slot.app ? slot.app.tile : ""
-                sourceSize: Qt.size(dock.iconSize * 2, dock.iconSize * 2)
+                visible: slot.isTrash || (!!slot.app && slot.app.glyph !== "")
                 opacity: 1 - 0.75 * Math.min(1, slot.act * 1.4)
-                smooth: true
-            }
-            Rectangle {      // Trash: glyph on the same tile material as the app tiles
-                visible: slot.isTrash
-                anchors.fill: parent
                 radius: dock.iconSize * 0.24
                 color: Theme.surface2
                 border.color: Theme.borderStrong
-                Glyph { anchors.centerIn: parent; size: dock.iconSize * 0.56; name: dock.trashFull ? "trash-full" : "trash-empty" }
+                Glyph {
+                    anchors.centerIn: parent
+                    size: dock.iconSize * 0.56
+                    name: slot.isTrash ? (dock.trashFull ? "trash-full" : "trash-empty") : slot.app.glyph
+                    tint: slot.hovered ? Theme.accent : Theme.text
+                }
+            }
+            Image {
+                anchors.fill: parent
+                visible: !slot.isTrash && !!slot.app && slot.app.glyph === ""
+                source: visible ? "image://appicon/" + slot.app.icon : ""
+                sourceSize: Qt.size(dock.iconSize * 2, dock.iconSize * 2)
+                opacity: 1 - 0.75 * Math.min(1, slot.act * 1.4)
+                smooth: true
             }
             // running indicator (static dot — no pulsing)
             Rectangle {
@@ -261,7 +268,7 @@ Item {
                 Image {
                     visible: parent.app.glyph === ""
                     anchors.fill: parent
-                    source: parent.app.tile
+                    source: "image://appicon/" + parent.app.icon
                     sourceSize: Qt.size(width * 2, height * 2)
                 }
             }

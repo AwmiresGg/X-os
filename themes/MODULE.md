@@ -1,6 +1,6 @@
 # themes
 
-**Status:** Started: dark nebula wallpaper (SVG)
+**Status:** Started: restrained dark + light wallpapers (single teal accent), XOS.Theme tokens (ui/theme/tokens.json), Plasma look-and-feel `org.xos.desktop` (no panel). Light Liquid Glass Plasma/Kvantum widget theme not started.
 
 **Dependencies:** Plasma 6 theming, Kvantum (planned)
 

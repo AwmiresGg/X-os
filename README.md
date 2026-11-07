@@ -13,7 +13,7 @@ for old and new PCs, and a safety-first installer and recovery story.
 > **Do not install X-OS on a computer you depend on.** See
 > [documentation/STATUS.md](documentation/STATUS.md) for exactly what works.
 
-![Signature Dock preview](documentation/images/dock-preview-gl.png)
+![X-OS shell: menu bar, dock and Control Center (offscreen render, demo data)](documentation/images/shell-dark-control-center.png)
 
 ## Quick start (developers)
 
