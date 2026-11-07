@@ -6,8 +6,11 @@ X-OS shell: **thin top menu bar** + **floating bottom dock**, drawn by `xos-shel
 **Status:** In progress — runs in the live X-OS session (VM, Plasma 6.3 Wayland, 2026-11-07):
 Plasma panel absent, menu bar shows real network/volume/clock state and the active app name from
 the KWin tracker, dock shows the running app in the cradled circle
-(`documentation/images/vm-live-session-shell.png`). Interactions (menus, dock clicks,
-blur) inside the VM not yet exercised.
+(`documentation/images/vm-live-session-shell.png`). Interactions verified in the VM: X-OS menu,
+click-outside close (focus stays on the app), Shut Down confirmation, Control Center (Network tile,
+volume, transparency/icon-size sliders applied live), dock hover tooltip, launching an app from the
+dock with the droplet animation (`documentation/images/vm-dock-launch-konsole.png`). Blur not yet
+confirmed (software rendering in the VM).
 
 ## Architecture
 
@@ -39,7 +42,8 @@ Dark Mode, Less Motion. Stored in `~/.config/xos/shell.json`.
 | Design tokens (contrast, single accent, motion rules) | Unit — `testing/unit/test_design_tokens.py` |
 | Menu bar, dock, X-OS menu, Control Center | Rendered offscreen (`xos-shell --preview`) |
 | Starts in Plasma Wayland live session, shows real status + active window | VM (screenshot) |
-| Menu/dock interactions, blur, window actions in a real session | **Not yet tested** |
+| Menus, click-outside, Control Center, transparency slider, dock launch + droplet | VM (screenshots) |
+| Blur, Window menu actions (minimize/zoom/close), dock right-click menu, Bluetooth/battery/brightness (no such hardware in the VM) | **Not yet tested** |
 
 ## Not implemented yet (not shown in the UI either)
 
