@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=X-OS: apply setup choices
+Exec=xos-setup user-apply
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

@@ -1,0 +1,35 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Unit tests and static checks
+        run: scripts/run-tests.sh
+
+  shell-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Qt runtime (PySide6 6.8, as in Debian 13), Xvfb, D-Bus
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth dbus-daemon libxkbcommon-x11-0 libxcb-cursor0 \
+            libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 \
+            libxcb-render-util0 libxcb-image0 libegl1 libgl1 fonts-dejavu-core
+          python -m pip install "PySide6==6.8.2.1"
+          python3 -c "import PySide6; print('PySide6', PySide6.__version__)"
+      - name: Start the real shell for 6 s
+        run: testing/shell_smoke.sh

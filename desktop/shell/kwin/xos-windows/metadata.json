@@ -1,0 +1,13 @@
+{
+    "KPlugin": {
+        "Id": "xos-windows",
+        "Name": "X-OS window tracker",
+        "Description": "Reports open windows and the active window to the X-OS shell (dock and menu bar) over D-Bus.",
+        "License": "BSL-1.0",
+        "Version": "1.0",
+        "EnabledByDefault": false
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js",
+    "KPackageStructure": "KWin/Script"
+}

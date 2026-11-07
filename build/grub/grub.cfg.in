@@ -1,0 +1,52 @@
+# X-OS live medium boot menu (generated from build/grub/grub.cfg.in)
+# Booting this medium never modifies internal disks. Installation is a separate,
+# explicit action inside the live session.
+
+set default=0
+set timeout=5
+set timeout_style=menu
+
+serial --unit=0 --speed=115200
+terminal_input console serial
+terminal_output console serial
+
+insmod all_video
+insmod part_gpt
+insmod part_msdos
+insmod iso9660
+
+set menu_color_normal=light-gray/black
+set menu_color_highlight=white/blue
+
+set xos_live="boot=live components live-config.username=xos live-config.hostname=x-os"
+
+menuentry "X-OS @VERSION@ (@VARIANT@) - Try without installing" --id live {
+    linux /live/vmlinuz $xos_live quiet splash
+    initrd /live/initrd.img
+}
+
+menuentry "X-OS - Try without installing (LITE profile, low-memory PCs)" --id live-lite {
+    linux /live/vmlinuz $xos_live xos.profile=lite quiet splash
+    initrd /live/initrd.img
+}
+
+menuentry "X-OS - Safe graphics (nomodeset)" --id live-safe {
+    linux /live/vmlinuz $xos_live nomodeset xos.profile=lite
+    initrd /live/initrd.img
+}
+
+menuentry "X-OS - Load into RAM (remove the USB stick after boot)" --id live-toram {
+    linux /live/vmlinuz $xos_live toram quiet splash
+    initrd /live/initrd.img
+}
+
+menuentry "X-OS - Hardware self-test (prints a compatibility report)" --id selftest {
+    linux /live/vmlinuz $xos_live xos.selftest=1 console=tty0 console=ttyS0,115200
+    initrd /live/initrd.img
+}
+
+if [ "$grub_platform" = "efi" ]; then
+    menuentry "UEFI firmware settings" --id uefi-setup {
+        fwsetup
+    }
+fi

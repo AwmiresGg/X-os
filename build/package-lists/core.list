@@ -1,0 +1,107 @@
+# Core system: boots on BIOS and UEFI, live session, hardware + disk + network tooling.
+# One package per line; '#' comments allowed.
+
+# kernel, init, live system
+linux-image-amd64
+systemd-sysv
+systemd-timesyncd
+live-boot
+live-config
+live-config-systemd
+# live-config creates the live user through user-setup (only a Recommends of live-config)
+user-setup
+live-tools
+initramfs-tools
+# bootloaders (needed by the installer to set up GRUB on installed systems)
+grub-efi-amd64-bin
+grub-pc-bin
+grub2-common
+efibootmgr
+# Secure Boot: Microsoft-signed shim, Debian-signed GRUB (also used by the installer)
+shim-signed
+grub-efi-amd64-signed
+mokutil
+
+# base userland
+sudo
+locales
+keyboard-configuration
+console-setup
+bash-completion
+zsh
+less
+nano
+vim-tiny
+ca-certificates
+curl
+wget
+gnupg
+file
+rsync
+zstd
+xz-utils
+unzip
+p7zip-full
+python3
+python3-gi
+python3-dbus
+dbus
+polkitd
+pkexec
+
+# hardware discovery (Device Manager backends)
+pciutils
+usbutils
+hwinfo
+lshw
+dmidecode
+udev
+kmod
+lm-sensors
+zram-tools
+
+# storage (Disk Manager backends)
+udisks2
+parted
+gdisk
+fdisk
+dosfstools
+mtools
+ntfs-3g
+exfatprogs
+e2fsprogs
+btrfs-progs
+xfsprogs
+cryptsetup
+smartmontools
+nvme-cli
+lvm2
+
+# networking
+network-manager
+iproute2
+iputils-ping
+dnsutils
+wpasupplicant
+iw
+wireless-regdb
+openssh-client
+wireguard-tools
+ufw
+apparmor
+apparmor-utils
+
+# bluetooth
+bluez
+
+# free firmware + redistributable non-free firmware (Wi-Fi, GPU, CPU microcode)
+firmware-linux-free
+firmware-misc-nonfree
+firmware-amd-graphics
+firmware-intel-graphics
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+intel-microcode
+amd64-microcode

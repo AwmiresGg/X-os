@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Install X-OS
+Name[fa]=نصب X-OS
+Comment=Set up language, keyboard, Wi-Fi and apps, then install X-OS
+Comment[fa]=تنظیم زبان، صفحه‌کلید، وای‌فای و برنامه‌ها و سپس نصب X-OS
+Exec=xos-setup-gui
+Icon=/usr/share/xos/icons/xos/brand/x-os-logo.svg
+Categories=System;

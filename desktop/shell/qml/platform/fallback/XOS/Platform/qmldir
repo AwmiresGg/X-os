@@ -1,0 +1,3 @@
+module XOS.Platform
+ShellWindow 1.0 ShellWindow.qml
+GlassBlur 1.0 GlassBlur.qml

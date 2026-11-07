@@ -1,0 +1,13 @@
+[Unit]
+Description=X-OS live session (auto-login, no screen lock)
+ConditionPathExists=/run/live/medium
+After=live-config.service
+Before=display-manager.service sddm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/xos/live-session
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

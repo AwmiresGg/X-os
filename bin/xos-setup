@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+# X-OS launcher. Prefers the installed library; falls back to the source tree.
+import os, signal, sys
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+here = os.path.dirname(os.path.realpath(__file__))
+for p in ("/usr/lib/xos/python", os.path.join(here, "..", "lib", "python")):
+    if os.path.isdir(os.path.join(p, "xos")):
+        sys.path.insert(0, p)
+        break
+from xos.cli import setup_main
+sys.exit(setup_main())

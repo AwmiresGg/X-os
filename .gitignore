@@ -1,0 +1,6 @@
+build/work/
+releases/out/
+__pycache__/
+*.pyc
+testing/vm/logs/
+node_modules/

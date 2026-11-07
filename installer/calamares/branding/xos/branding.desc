@@ -1,0 +1,35 @@
+---
+componentName: xos
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 1024px,680px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+
+strings:
+    productName:         "X-OS"
+    shortProductName:    "X-OS"
+    version:             "0.1.0-dev"
+    shortVersion:        "0.1"
+    versionedName:       "X-OS 0.1 (development build)"
+    shortVersionedName:  "X-OS 0.1"
+    bootloaderEntryName: "X-OS"
+    productUrl:          "https://github.com/AwmiresGg/X-os"
+    supportUrl:          "https://github.com/AwmiresGg/X-os/issues"
+    knownIssuesUrl:      "https://github.com/AwmiresGg/X-os/blob/main/documentation/STATUS.md"
+
+images:
+    productLogo:         "logo.svg"
+    productIcon:         "logo.svg"
+    productWelcome:      "welcome.svg"
+
+slideshow:               "show.qml"
+slideshowAPI:            2
+
+style:
+   SidebarBackground:        "#121417"
+   SidebarText:              "#EEF0FF"
+   SidebarTextCurrent:       "#FFFFFF"
+   SidebarBackgroundCurrent: "#17524C"
