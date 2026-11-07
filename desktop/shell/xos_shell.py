@@ -256,19 +256,33 @@ class Windows(QObject):
         self.scripting = QDBusInterface("org.kde.KWin", "/Scripting", "org.kde.kwin.Scripting", self.bus)
         tracker = next((p for p in (Path("/usr/share/xos/shell/kwin/xos-windows/contents/code/main.js"),
                                     HERE / "kwin/xos-windows/contents/code/main.js") if p.exists()), None)
-        if tracker:
-            self._run_kwin_script(str(tracker), "xos-windows")
+        self._tracker = str(tracker) if tracker else ""
+        self._retry = QTimer(self)
+        self._retry.setInterval(5000)
+        self._retry.timeout.connect(self._start_tracker)
+        self._start_tracker()
 
-    def _run_kwin_script(self, path: str, name: str) -> None:
-        from PySide6.QtDBus import QDBusInterface
+    def _start_tracker(self):
+        """KWin may start after us or restart: keep trying until the tracker is loaded."""
+        if self._tracker and self._run_kwin_script(self._tracker, "xos-windows"):
+            self._retry.stop()
+        else:
+            if not self._retry.isActive():
+                print("xos-shell: KWin scripting not available yet; retrying", file=sys.stderr)
+            self._retry.start()
+
+    def _run_kwin_script(self, path: str, name: str) -> bool:
+        """Load and run a KWin script. Returns False (never raises) if KWin is unavailable."""
+        from PySide6.QtDBus import QDBusInterface, QDBusMessage
         self.scripting.call("unloadScript", name)
         reply = self.scripting.call("loadScript", path, name)
         args = reply.arguments()
-        if not args or int(args[0]) < 0:
-            print(f"xos-shell: KWin refused script {name}", file=sys.stderr)
-            return
-        script = QDBusInterface("org.kde.KWin", f"/Scripting/Script{int(args[0])}", "org.kde.kwin.Script", self.bus)
+        if reply.type() == QDBusMessage.MessageType.ErrorMessage or not args \
+                or not isinstance(args[0], int) or args[0] < 0:
+            return False
+        script = QDBusInterface("org.kde.KWin", f"/Scripting/Script{args[0]}", "org.kde.kwin.Script", self.bus)
         script.call("run")
+        return True
 
     def apply(self, payload: str):
         self._windows, self._active = W.parse_update(payload)
@@ -376,26 +390,39 @@ DEMO_WINDOWS = {"windows": [
 ], "active": "0b5c7e1a-2222-4a2b-9c3d-bbbbbbbbbbbb"}
 
 
-def _keep_dock_input_region(shell) -> None:
+def _keep_dock_input_region(app) -> None:
     """Limit the dock surface's input region to the visible dock (the window is taller to
-    leave room for the launch droplet; the transparent band must not swallow clicks)."""
+    leave room for the launch droplet; the transparent band must not swallow clicks).
+    Best effort: a failure here must never take the shell down."""
     from PySide6.QtCore import QRect
     from PySide6.QtGui import QRegion
-    dock_win = shell.property("dockWindow")
-    bar = dock_win.findChild(QObject, "dockBar") if dock_win else None
-    if not bar:
-        return
-    last = {"r": None}
+    try:
+        dock_win = bar = None
+        for w in app.topLevelWindows():
+            if isinstance(w, QQuickWindow):
+                bar = w.findChild(QObject, "dockBar") or w.contentItem().findChild(QObject, "dockBar")
+                if bar is not None:
+                    dock_win = w
+                    break
+        if bar is None:
+            print("xos-shell: dock not found; input region not limited", file=sys.stderr)
+            return
+        last = {"r": None}
 
-    def update():
-        r = bar.property("inputRect").toRect()
-        if r != last["r"]:
-            last["r"] = r
-            dock_win.setMask(QRegion(QRect(r)))
-    timer = QTimer(shell)
-    timer.timeout.connect(update)
-    timer.start(500)
-    update()
+        def update():
+            try:
+                r = bar.property("inputRect").toRect()
+                if r != last["r"]:
+                    last["r"] = r
+                    dock_win.setMask(QRegion(QRect(r)))
+            except Exception as e:      # noqa: BLE001
+                print(f"xos-shell: input region update failed: {e}", file=sys.stderr)
+        timer = QTimer(dock_win)
+        timer.timeout.connect(update)
+        timer.start(500)
+        update()
+    except Exception as e:              # noqa: BLE001
+        print(f"xos-shell: input region disabled: {e}", file=sys.stderr)
 
 
 def main() -> int:
@@ -404,6 +431,7 @@ def main() -> int:
     ap.add_argument("--open", default="", help="preview: popover to show (system, battery, control)")
     ap.add_argument("--theme", default="", help="preview: dark | light")
     ap.add_argument("--opacity", type=float, default=None, help="preview: dock/menu bar opacity")
+    ap.add_argument("--smoke", type=float, default=0, help="real mode: run N seconds, then exit 0 (tests)")
     ap.add_argument("--launch-p", type=float, default=-1, help="preview: freeze the launch droplet at p (0..1)")
     ap.add_argument("--simulate-launch", metavar="DIR", help="preview: open a new app window after 0.8 s and "
                                                                "save frames of the live animation to DIR")
@@ -438,7 +466,9 @@ def main() -> int:
     if not engine.rootObjects():
         return 1
     if not a.preview:
-        _keep_dock_input_region(engine.rootObjects()[0])
+        _keep_dock_input_region(app)
+    if a.smoke and not a.preview:
+        QTimer.singleShot(int(a.smoke * 1000), app.quit)
     if a.preview:
         win = engine.rootObjects()[0]
 
