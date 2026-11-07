@@ -32,7 +32,14 @@ for d in "$SRC"/documentation/*.md; do [[ -e "$d" ]] && inst 0644 "$d" "usr/shar
 # Branding assets (logo, wallpapers) - all variants.
 inst 0644 "$SRC/icons/xos/brand/x-os-logo.svg" usr/share/xos/icons/xos/brand/x-os-logo.svg
 for w in dark light; do
-    inst 0644 "$SRC/themes/liquid-glass/wallpapers/x-os-nebula-$w.svg" "usr/share/wallpapers/X-OS/nebula-$w.svg"
+    inst 0644 "$SRC/themes/liquid-glass/wallpapers/x-os-$w.svg" "usr/share/wallpapers/X-OS/x-os-$w.svg"
+done
+# Design-system QML module (XOS.Theme) and the icon family.
+rm -rf "$DEST/usr/share/xos/qml" "$DEST/usr/share/xos/icons/xos"
+mkdir -p "$DEST/usr/share/xos/qml" "$DEST/usr/share/xos/icons/xos"
+cp -r "$SRC/ui/qml/." "$DEST/usr/share/xos/qml/"
+for d in symbolic apps brand; do
+    [[ -d "$SRC/icons/xos/$d" ]] && cp -r "$SRC/icons/xos/$d" "$DEST/usr/share/xos/icons/xos/"
 done
 inst 0644 "$SRC/build/tmpfiles/xos.conf" usr/lib/tmpfiles.d/xos.conf
 
@@ -46,6 +53,17 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     inst 0644 "$SRC/installer/desktop/xos-setup.desktop"            usr/share/applications/xos-setup.desktop
     inst 0644 "$SRC/installer/desktop/xos-setup-live-autostart.desktop" etc/xdg/autostart/xos-setup-live.desktop
     inst 0644 "$SRC/desktop/autostart/xos-setup-user.desktop"        etc/xdg/autostart/xos-setup-user.desktop
+    # X-OS shell (menu bar + dock) replaces the Plasma panel.
+    rm -rf "$DEST/usr/share/xos/shell"
+    mkdir -p "$DEST/usr/share/xos/shell"
+    cp -r "$SRC/desktop/shell/." "$DEST/usr/share/xos/shell/"
+    printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/shell/xos_shell.py "$@"\n' > "$DEST/usr/bin/xos-shell"
+    chmod 0755 "$DEST/usr/bin/xos-shell"
+    inst 0644 "$SRC/desktop/autostart/xos-shell.desktop" etc/xdg/autostart/xos-shell.desktop
+    rm -rf "$DEST/usr/share/plasma/look-and-feel/org.xos.desktop"
+    mkdir -p "$DEST/usr/share/plasma/look-and-feel"
+    cp -r "$SRC/themes/plasma/look-and-feel/org.xos.desktop" "$DEST/usr/share/plasma/look-and-feel/"
+    inst 0644 "$SRC/themes/plasma/kdeglobals" etc/xdg/kdeglobals
     rm -rf "$DEST/etc/calamares"
     mkdir -p "$DEST/etc/calamares/branding"
     cp "$SRC/installer/calamares/settings.conf" "$DEST/etc/calamares/"

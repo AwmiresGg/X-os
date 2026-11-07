@@ -61,6 +61,8 @@ fonts-jetbrains-mono
 
 # X-OS Setup wizard + installer
 calamares
+# calamares unpacks the live image with unsquashfs (a Recommends of calamares)
+squashfs-tools
 os-prober
 python3-pyside6.qtquick
 python3-pyside6.qtqml
@@ -69,3 +71,8 @@ qml6-module-qtquick-templates
 qml6-module-qtquick-effects
 fonts-vazirmatn
 kde-config-sddm
+
+# X-OS shell (menu bar + dock as layer-shell surfaces)
+qml6-module-org-kde-layershell
+python3-pyside6.qtsvg
+python3-pyside6.qtdbus

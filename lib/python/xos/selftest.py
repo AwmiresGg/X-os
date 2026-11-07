@@ -83,6 +83,20 @@ def check_live_medium():
     return "SKIP", "installed system (not a live session)"
 
 
+def check_live_user():
+    """Live sessions must have the live user (created by live-config + user-setup)."""
+    if not Path("/run/live/medium").exists():
+        return "SKIP", "installed system"
+    import pwd
+    cmdline = Path("/proc/cmdline").read_text().split()
+    name = next((a.split("=", 1)[1] for a in cmdline if a.startswith("live-config.username=")), "xos")
+    try:
+        u = pwd.getpwnam(name)
+    except KeyError:
+        return "FAIL", f"live user {name!r} does not exist (is user-setup installed?)"
+    return "PASS", f"{name} (uid {u.pw_uid})"
+
+
 def check_network_manager():
     rc, out = _sh("systemctl", "is-active", "NetworkManager.service")
     if out != "active":
@@ -182,6 +196,7 @@ def run(mode: str = "report", out_dir: Path = Path("/var/log")) -> dict:
         "os-release": check_os_release,
         "systemd": check_systemd,
         "live-medium": check_live_medium,
+        "live-user": check_live_user,
         "network-manager": check_network_manager,
         "connectivity": check_connectivity,
         "firewall": check_firewall,

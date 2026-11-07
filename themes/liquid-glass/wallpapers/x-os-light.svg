@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" preserveAspectRatio="xMidYMid slice">
+  <!-- X-OS default wallpaper (light). Original artwork. One accent hue (X-OS teal), neutral charcoal. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F1F3F5"/><stop offset="1" stop-color="#E2E6EA"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".68" cy=".62" r=".46">
+      <stop offset="0" stop-color="#2BC4B0" stop-opacity=".12"/><stop offset=".55" stop-color="#2BC4B0" stop-opacity=".04"/>
+      <stop offset="1" stop-color="#2BC4B0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".00"/><stop offset=".45" stop-color="#8C969E" stop-opacity=".10"/>
+      <stop offset=".7" stop-color="#2BC4B0" stop-opacity=".14"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#2BC4B0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#bg)"/>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  <path d="M-300 1880 C 600 1500, 1500 1250, 2300 1330 S 3600 1600, 4200 1050 L 4200 1250 C 3500 1820, 2600 1560, 2150 1530 S 700 1700, -300 2160 Z" fill="url(#ribbon)"/>
+  <path d="M-300 1880 C 600 1500, 1500 1250, 2300 1330 S 3600 1600, 4200 1050" fill="none" stroke="url(#edge)" stroke-width="3"/>
+</svg>

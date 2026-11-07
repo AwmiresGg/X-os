@@ -1,0 +1,12 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Id": "org.xos.desktop",
+        "Name": "X-OS",
+        "Description": "X-OS Liquid Glass desktop: X-OS menu bar and dock (no Plasma panel), dark theme",
+        "Authors": [ { "Name": "X-OS project" } ],
+        "License": "BSL-1.0",
+        "Version": "0.1"
+    },
+    "X-Plasma-APIVersion": "2"
+}

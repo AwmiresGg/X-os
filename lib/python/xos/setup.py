@@ -47,8 +47,8 @@ KEYBOARDS = [  # (xkb layout, xkb variant, label)
 ]
 
 WALLPAPERS = {
-    "nebula-dark": "/usr/share/wallpapers/X-OS/nebula-dark.svg",
-    "nebula-light": "/usr/share/wallpapers/X-OS/nebula-light.svg",
+    "x-os-dark": "/usr/share/wallpapers/X-OS/x-os-dark.svg",
+    "x-os-light": "/usr/share/wallpapers/X-OS/x-os-light.svg",
 }
 
 _LAYOUT_RE = re.compile(r"^[a-z]{2,8}$")
@@ -60,7 +60,7 @@ class Choices:
     locale: str = "en_US.UTF-8"
     keyboard: list[list[str]] = field(default_factory=lambda: [["us", ""]])   # [[layout, variant], ...]
     theme: str = "dark"                    # dark | light | auto
-    wallpaper: str = "nebula-dark"
+    wallpaper: str = "x-os-dark"
     browsers: list[str] = field(default_factory=lambda: ["firefox"])
     wifi_ssid: str | None = None           # informational only, never a password
 
@@ -113,7 +113,10 @@ def keyboard_session_commands(c: Choices) -> list[list[str]]:
         ["kwriteconfig6", "--file", "kxkbrc", "--group", "Layout", "--key", "VariantList", variants],
         # Alt+Shift switches layouts, as on Windows.
         ["kwriteconfig6", "--file", "kxkbrc", "--group", "Layout", "--key", "Options", "grp:alt_shift_toggle"],
-        ["dbus-send", "--session", "--type=signal", "--reload", "/Layouts", "org.kde.keyboard.reloadConfig"],
+        # Plasma only applies Options when ResetOldOptions is set.
+        ["kwriteconfig6", "--file", "kxkbrc", "--group", "Layout", "--key", "ResetOldOptions", "true"],
+        # Same signal System Settings sends; KWin reloads the layouts on it.
+        ["dbus-send", "--session", "--type=signal", "/Layouts", "org.kde.keyboard.reloadConfig"],
     ]
     return cmds
 

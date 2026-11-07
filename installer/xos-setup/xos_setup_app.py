@@ -56,6 +56,7 @@ class Backend(QObject):
         self._demo = demo
         self._wifi: list[dict] = []
         self._busy = False
+        self._locale = ""
 
     # ---- static data for the UI
     @Property("QVariantList", constant=True)
@@ -70,7 +71,7 @@ class Backend(QObject):
     def wallpapers(self):
         out = []
         for k, installed in setup.WALLPAPERS.items():
-            src = installed if Path(installed).exists() else str(HERE.parents[1] / f"themes/liquid-glass/wallpapers/x-os-{k}.svg")
+            src = installed if Path(installed).exists() else str(HERE.parents[1] / f"themes/liquid-glass/wallpapers/{k}.svg")
             out.append({"id": k, "url": QUrl.fromLocalFile(src).toString()})
         return out
 
@@ -150,6 +151,7 @@ class Backend(QObject):
                 browsers=list(data["browsers"]), wifi_ssid=data.get("wifiSsid") or None)
             if not self._demo:
                 setup.save(c)
+            self._locale = c.locale
             return ""
         except (ValueError, KeyError, OSError) as e:
             return str(e)
@@ -166,10 +168,22 @@ class Backend(QObject):
         # Elsewhere fall back to pkexec, which asks for an administrator password.
         live = Path("/run/live/medium").is_dir()
         if live and subprocess.run(["sudo", "-n", "true"], capture_output=True).returncode == 0:
+            # A previous failed attempt can leave the target mounted under
+            # /tmp/calamares-root-*; Calamares then (rightly) refuses automatic
+            # partitioning of the in-use disk. Clean up before starting again.
+            for stale in Path("/tmp").glob("calamares-root-*"):
+                subprocess.run(["sudo", "-n", "umount", "-R", str(stale)], capture_output=True)
             cmd = ["sudo", "-n", "-E", exe]
         else:
             cmd = ["pkexec", exe]
-        subprocess.Popen(cmd, start_new_session=True)
+        # Start the installer in the language chosen in X-OS Setup.
+        env = dict(os.environ)
+        if self._locale:
+            env["LANG"] = self._locale
+            env["LANGUAGE"] = self._locale.split(".")[0]
+            if cmd[0] == "sudo":
+                cmd[1:1] = ["--preserve-env=LANG,LANGUAGE"]
+        subprocess.Popen(cmd, start_new_session=True, env=env)
         QTimer.singleShot(1500, QGuiApplication.quit)
         return ""
 

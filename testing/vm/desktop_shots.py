@@ -72,7 +72,8 @@ class QMP:
 
 
 _SHIFTED = {"|": "backslash", "_": "minus", ":": "semicolon", '"': "apostrophe", ">": "dot", "<": "comma",
-            "*": "8", "&": "7", "(": "9", ")": "0", "+": "equal", "?": "slash", "~": "grave_accent", "$": "4"}
+            "*": "8", "&": "7", "(": "9", ")": "0", "+": "equal", "?": "slash", "~": "grave_accent", "$": "4",
+            "^": "6", "!": "1", "@": "2", "#": "3", "%": "5", "{": "bracket_left", "}": "bracket_right"}
 _PLAIN = {" ": "spc", "-": "minus", "/": "slash", ".": "dot", "=": "equal", ",": "comma", ";": "semicolon",
           "'": "apostrophe", "\\": "backslash", "\n": "ret", "[": "bracket_left", "]": "bracket_right"}
 
@@ -105,6 +106,8 @@ def main() -> int:
     ap.add_argument("--cpus", type=int, default=4)
     ap.add_argument("--cpu-model", default="", help="QEMU CPU model (TCG default: Westmere; 'max' exposes AVX2/AVX-512)")
     ap.add_argument("--firmware", choices=["bios", "uefi"], default="uefi")
+    ap.add_argument("--click-at", action="append", default=[], help="SECONDS:x,y left click (screen pixels)")
+    ap.add_argument("--screen", default="1280x800", help="guest screen size for click scaling")
     ap.add_argument("--grub-entry", type=int, default=0, help="menu entry index to boot (sent as Down keys)")
     ap.add_argument("--serial-at", action="append", default=[], help="SECONDS:text to write to the serial console")
     ap.add_argument("--selftest", action="store_true", help="run xos-selftest (report mode) and log to serial")
@@ -172,13 +175,27 @@ def main() -> int:
                         [(int(k.split(":", 1)[0]), "keys", text_to_keys(k.split(":", 1)[1].replace("\\n", "\n")))
                          for k in a.type_at] +
                         [(int(k.split(":", 1)[0]), "serial", k.split(":", 1)[1].replace("\\n", "\n"))
-                         for k in a.serial_at])
+                         for k in a.serial_at] +
+                        [(int(k.split(":")[0]), "click", tuple(int(v) for v in k.split(":")[1].split(",")))
+                         for k in a.click_at])
         for when, kind, payload in events:
             while time.monotonic() - t0 < when:
                 if proc.poll() is not None:
                     print("VM exited early", file=sys.stderr)
                     return 2
                 time.sleep(2)
+            if kind == "click":
+                sw, sh = (int(v) for v in a.screen.split("x"))
+                x, y = payload
+                q.cmd("input-send-event", events=[
+                    {"type": "abs", "data": {"axis": "x", "value": int(x * 32767 / (sw - 1))}},
+                    {"type": "abs", "data": {"axis": "y", "value": int(y * 32767 / (sh - 1))}}])
+                time.sleep(0.3)
+                for down in (True, False):
+                    q.cmd("input-send-event", events=[{"type": "btn", "data": {"down": down, "button": "left"}}])
+                    time.sleep(0.1)
+                print(f"[{when:5d}s] click {x},{y}")
+                continue
             if kind == "serial":
                 ser.sendall(payload.encode())
                 print(f"[{when:5d}s] wrote {len(payload)} bytes to serial")

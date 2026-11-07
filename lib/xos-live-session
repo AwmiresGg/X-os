@@ -26,3 +26,12 @@ cat > /etc/xdg/kscreenlockerrc <<CONF
 Autolock=false
 LockOnResume=false
 CONF
+
+# Never dim, blank or suspend the live session: a laptop going to sleep in the
+# middle of an installation must not happen. (Installed systems keep defaults.)
+{
+    for profile in AC Battery LowBattery; do
+        printf '[%s][Display]\nDimDisplayWhenIdle=false\nTurnOffDisplayWhenIdle=false\n\n' "$profile"
+        printf '[%s][SuspendAndShutdown]\nAutoSuspendAction=0\n\n' "$profile"
+    done
+} > /etc/xdg/powerdevilrc

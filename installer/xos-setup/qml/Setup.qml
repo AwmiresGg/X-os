@@ -24,7 +24,7 @@ ApplicationWindow {
     readonly property string lang: uiLocale.slice(0, 2)
     property var keyboard: [{ layout: "us", variant: "", label: "English (US)" }]
     property string theme: "dark"
-    property string wallpaper: "nebula-dark"
+    property string wallpaper: "x-os-dark"
     property var chosenBrowsers: ["firefox"]
     property string wifiSsid: ""
     property int page: startPage
@@ -103,8 +103,8 @@ ApplicationWindow {
         color: win.theme === "light" ? Qt.rgba(1, 1, 1, 0.72) : Qt.rgba(0.11, 0.12, 0.19, 0.78)
         border.color: win.theme === "light" ? Qt.rgba(1, 1, 1, 0.9) : Qt.rgba(1, 1, 1, 0.12)
     }
-    component Title: Label { color: win.fg; font.pixelSize: 30; font.weight: Font.DemiBold; Layout.fillWidth: true; wrapMode: Text.Wrap }
-    component Sub: Label { color: win.fgDim; font.pixelSize: 15; Layout.fillWidth: true; wrapMode: Text.Wrap }
+    component Title: Label { horizontalAlignment: Text.AlignLeft; color: win.fg; font.pixelSize: 30; font.weight: Font.DemiBold; Layout.fillWidth: true; wrapMode: Text.Wrap }
+    component Sub: Label { horizontalAlignment: Text.AlignLeft; color: win.fgDim; font.pixelSize: 15; Layout.fillWidth: true; wrapMode: Text.Wrap }
     component Choice: Rectangle {
         id: ch
         property bool selected: false
@@ -114,11 +114,16 @@ ApplicationWindow {
         Layout.fillWidth: true
         implicitHeight: 52
         radius: 14
-        color: selected ? Qt.rgba(0.49, 0.55, 1, 0.28) : (ma.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(1, 1, 1, 0.03))
-        border.color: selected ? win.accent : Qt.rgba(1, 1, 1, 0.08)
+        readonly property bool light: win.theme === "light"
+        color: selected ? Qt.rgba(0.49, 0.55, 1, light ? 0.20 : 0.28)
+                        : (ma.containsMouse ? (light ? Qt.rgba(0, 0, 0, 0.07) : Qt.rgba(1, 1, 1, 0.08))
+                                            : (light ? Qt.rgba(0, 0, 0, 0.035) : Qt.rgba(1, 1, 1, 0.03)))
+        border.color: selected ? win.accent : (light ? Qt.rgba(0, 0, 0, 0.10) : Qt.rgba(1, 1, 1, 0.08))
         RowLayout {
             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-            Label { id: lbl; color: win.fg; font.pixelSize: 16; Layout.fillWidth: true }
+            // Explicit alignment so LayoutMirroring flips it for Persian/Arabic (Qt only
+            // mirrors explicit alignments; implicit ones follow the text's own direction).
+            Label { id: lbl; color: win.fg; font.pixelSize: 16; Layout.fillWidth: true; horizontalAlignment: Text.AlignLeft }
             Label { text: ch.detail; color: win.fgDim; font.pixelSize: 13 }
             Label { text: ch.selected ? "✓" : ""; color: win.accent; font.pixelSize: 18 }
         }
@@ -140,7 +145,11 @@ ApplicationWindow {
     component GhostButton: Button {
         id: gb
         contentItem: Label { text: gb.text; color: win.fg; font.pixelSize: 15; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-        background: Rectangle { implicitWidth: 120; implicitHeight: 44; radius: 22; color: gb.hovered ? Qt.rgba(1, 1, 1, 0.10) : "transparent"; border.color: Qt.rgba(1, 1, 1, 0.18) }
+        background: Rectangle {
+            implicitWidth: 120; implicitHeight: 44; radius: 22
+            color: gb.hovered ? (win.theme === "light" ? Qt.rgba(0, 0, 0, 0.06) : Qt.rgba(1, 1, 1, 0.10)) : "transparent"
+            border.color: win.theme === "light" ? Qt.rgba(0, 0, 0, 0.22) : Qt.rgba(1, 1, 1, 0.18)
+        }
     }
 
     // ------------------------------------------------------------- layout
@@ -319,7 +328,7 @@ ApplicationWindow {
                         RowLayout {
                             spacing: 18; Layout.topMargin: 8
                             Repeater {
-                                model: [{ id: "dark", wp: "nebula-dark" }, { id: "light", wp: "nebula-light" }, { id: "auto", wp: "nebula-dark" }]
+                                model: [{ id: "dark", wp: "x-os-dark" }, { id: "light", wp: "x-os-light" }, { id: "auto", wp: "x-os-dark" }]
                                 ColumnLayout {
                                     required property var modelData
                                     spacing: 8

@@ -8,6 +8,9 @@ systemd-timesyncd
 live-boot
 live-config
 live-config-systemd
+# live-config creates the live user through user-setup (only a Recommends of live-config)
+user-setup
+live-tools
 initramfs-tools
 # bootloaders (needed by the installer to set up GRUB on installed systems)
 grub-efi-amd64-bin

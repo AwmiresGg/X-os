@@ -1,0 +1,5 @@
+[KDE]
+LookAndFeelPackage=org.xos.desktop
+
+[General]
+ColorScheme=BreezeDark

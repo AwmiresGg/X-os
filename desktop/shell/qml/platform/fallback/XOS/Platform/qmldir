@@ -1,0 +1,2 @@
+module XOS.Platform
+ShellWindow 1.0 ShellWindow.qml

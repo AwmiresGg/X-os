@@ -77,7 +77,7 @@ class BrowserCatalogTests(unittest.TestCase):
 class ChoicesTests(unittest.TestCase):
     def test_roundtrip_persian(self):
         c = setup.Choices(locale="fa_IR.UTF-8", keyboard=[["us", ""], ["ir", ""]], theme="dark",
-                          wallpaper="nebula-dark", browsers=["firefox", "chrome"], wifi_ssid="خانه")
+                          wallpaper="x-os-dark", browsers=["firefox", "chrome"], wifi_ssid="خانه")
         with tempfile.TemporaryDirectory() as t:
             p = Path(t) / "c.json"
             setup.save(c, p)
@@ -132,3 +132,19 @@ class WifiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class KeyboardCommandTests(unittest.TestCase):
+    def test_session_commands_are_valid_and_reload_plasma(self):
+        cmds = setup.keyboard_session_commands(setup.Choices(keyboard=[["us", ""], ["ir", ""]]))
+        dbus = [c for c in cmds if c[0] == "dbus-send"]
+        self.assertEqual(dbus, [["dbus-send", "--session", "--type=signal", "/Layouts",
+                                 "org.kde.keyboard.reloadConfig"]])
+        flat = [" ".join(c) for c in cmds]
+        self.assertTrue(any("LayoutList us,ir" in f for f in flat))
+        self.assertTrue(any("ResetOldOptions true" in f for f in flat))
+        if shutil.which("dbus-send"):
+            # The real binary must accept every option we pass (it rejected "--reload").
+            r = subprocess.run(["dbus-send", "--help"], capture_output=True, text=True)
+            for opt in dbus[0][1:3]:
+                self.assertIn(opt.split("=")[0], r.stdout + r.stderr)

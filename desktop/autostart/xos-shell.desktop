@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=X-OS Shell
+Comment=Menu bar and dock
+Exec=xos-shell
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=1
+X-KDE-AutoRestart=true
+NoDisplay=true
