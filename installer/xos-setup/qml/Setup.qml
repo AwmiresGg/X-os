@@ -12,7 +12,7 @@ ApplicationWindow {
     minimumHeight: 600
     visible: true
     title: "X-OS Setup"
-    color: "#070811"
+    color: "#0B0C0E"
 
     required property var backend
     property int startPage: 0
@@ -94,13 +94,13 @@ ApplicationWindow {
     }
     Rectangle { anchors.fill: parent; color: win.theme === "light" ? "#20FFFFFF" : "#55000000" }
 
-    readonly property color fg: theme === "light" ? "#151827" : "#EEF0FF"
-    readonly property color fgDim: theme === "light" ? "#4A5070" : "#A9B0CF"
-    readonly property color accent: "#7C8CFF"
+    readonly property color fg: theme === "light" ? "#15171A" : "#ECEEF1"
+    readonly property color fgDim: theme === "light" ? "#555C66" : "#9AA1AB"
+    readonly property color accent: "#2BC4B0"
 
     component Glass: Rectangle {
         radius: 22
-        color: win.theme === "light" ? Qt.rgba(1, 1, 1, 0.72) : Qt.rgba(0.11, 0.12, 0.19, 0.78)
+        color: win.theme === "light" ? Qt.rgba(1, 1, 1, 0.72) : Qt.rgba(0.094, 0.106, 0.122, 0.86)
         border.color: win.theme === "light" ? Qt.rgba(1, 1, 1, 0.9) : Qt.rgba(1, 1, 1, 0.12)
     }
     component Title: Label { horizontalAlignment: Text.AlignLeft; color: win.fg; font.pixelSize: 30; font.weight: Font.DemiBold; Layout.fillWidth: true; wrapMode: Text.Wrap }
@@ -115,7 +115,7 @@ ApplicationWindow {
         implicitHeight: 52
         radius: 14
         readonly property bool light: win.theme === "light"
-        color: selected ? Qt.rgba(0.49, 0.55, 1, light ? 0.20 : 0.28)
+        color: selected ? Qt.rgba(0.17, 0.77, 0.69, light ? 0.20 : 0.28)
                         : (ma.containsMouse ? (light ? Qt.rgba(0, 0, 0, 0.07) : Qt.rgba(1, 1, 1, 0.08))
                                             : (light ? Qt.rgba(0, 0, 0, 0.035) : Qt.rgba(1, 1, 1, 0.03)))
         border.color: selected ? win.accent : (light ? Qt.rgba(0, 0, 0, 0.10) : Qt.rgba(1, 1, 1, 0.08))
@@ -136,9 +136,9 @@ ApplicationWindow {
         contentItem: Label { text: pb.text; color: "white"; font.pixelSize: 15; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
         background: Rectangle {
             implicitWidth: 140; implicitHeight: 44; radius: 22
-            gradient: Gradient { orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: pb.enabled ? "#6F7EFF" : "#555A70" }
-                GradientStop { position: 1; color: pb.enabled ? "#A46BFF" : "#555A70" } }
+            color: pb.enabled ? "#17524C" : "#22262B"
+            border.width: 1
+            border.color: pb.enabled ? "#2BC4B0" : "transparent"
             opacity: pb.down ? 0.8 : 1
         }
     }
@@ -177,7 +177,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Rectangle {
                             width: 26; height: 26; radius: 13
-                            color: index < win.page ? win.accent : (index === win.page ? Qt.rgba(0.49, 0.55, 1, 0.35) : "transparent")
+                            color: index < win.page ? win.accent : (index === win.page ? Qt.rgba(0.17, 0.77, 0.69, 0.35) : "transparent")
                             border.color: index <= win.page ? win.accent : Qt.rgba(1, 1, 1, 0.2)
                             Label { anchors.centerIn: parent; text: index < win.page ? "✓" : (index + 1); color: win.fg; font.pixelSize: 12 }
                         }
@@ -189,7 +189,7 @@ ApplicationWindow {
                     }
                 }
                 Item { Layout.fillHeight: true }
-                Label { visible: win.backend.demo; text: "DEMO MODE"; color: "#FFB86B"; font.pixelSize: 11 }
+                Label { visible: win.backend.demo; text: "DEMO MODE"; color: "#E5B567"; font.pixelSize: 11 }
             }
         }
 
@@ -317,7 +317,7 @@ ApplicationWindow {
                                 }
                             }
                         }
-                        Label { visible: wifiPage.error !== ""; text: wifiPage.error; color: "#FF7A90"; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                        Label { visible: wifiPage.error !== ""; text: wifiPage.error; color: "#E5636B"; Layout.fillWidth: true; wrapMode: Text.Wrap }
                     }
 
                     // 3 Appearance
@@ -345,7 +345,7 @@ ApplicationWindow {
                                         Rectangle {   // mini dock
                                             anchors.horizontalCenter: parent.horizontalCenter; anchors.bottom: parent.bottom; anchors.bottomMargin: 10
                                             width: 110; height: 16; radius: 8
-                                            color: modelData.id === "light" ? Qt.rgba(1, 1, 1, 0.7) : Qt.rgba(0.12, 0.13, 0.2, 0.8)
+                                            color: modelData.id === "light" ? Qt.rgba(1, 1, 1, 0.7) : Qt.rgba(0.094, 0.106, 0.122, 0.85)
                                         }
                                         MouseArea {
                                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -403,10 +403,10 @@ ApplicationWindow {
                         Rectangle {
                             Layout.fillWidth: true; Layout.topMargin: 8
                             implicitHeight: warn.implicitHeight + 24; radius: 14
-                            color: Qt.rgba(1, 0.72, 0.42, 0.12); border.color: Qt.rgba(1, 0.72, 0.42, 0.5)
+                            color: Qt.rgba(0.9, 0.71, 0.4, 0.12); border.color: Qt.rgba(0.9, 0.71, 0.4, 0.5)
                             Label { id: warn; anchors.fill: parent; anchors.margins: 12; text: "⚠  " + win.t("devWarn"); color: win.fg; wrapMode: Text.Wrap }
                         }
-                        Label { id: finishError; color: "#FF7A90"; visible: text !== ""; Layout.fillWidth: true; wrapMode: Text.Wrap }
+                        Label { id: finishError; color: "#E5636B"; visible: text !== ""; Layout.fillWidth: true; wrapMode: Text.Wrap }
                         Item { Layout.fillHeight: true }
                         RowLayout {
                             spacing: 14

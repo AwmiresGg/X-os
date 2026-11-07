@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
     <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8FE3FF"/><stop offset=".5" stop-color="#7C8CFF"/><stop offset="1" stop-color="#C47CFF"/>
+      <stop offset="0" stop-color="#7FE6D8"/><stop offset=".5" stop-color="#2BC4B0"/><stop offset="1" stop-color="#17867A"/>
     </linearGradient>
     <linearGradient id="b" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <circle cx="64" cy="64" r="58" fill="#0E1020"/>
+  <circle cx="64" cy="64" r="58" fill="#121417"/>
   <circle cx="64" cy="64" r="57" fill="none" stroke="url(#a)" stroke-opacity=".5" stroke-width="2"/>
   <!-- the X: two liquid strokes, one passing over the other -->
   <path d="M38 36c10 0 16 8 26 28s16 28 26 28" fill="none" stroke="url(#a)" stroke-width="13" stroke-linecap="round"/>

@@ -3,9 +3,11 @@
 X-OS shell: **thin top menu bar** + **floating bottom dock**, drawn by `xos-shell`
 (`desktop/shell/`), replacing the Plasma panel. Design: `documentation/design/`.
 
-**Status:** In progress — implemented and rendered offscreen with demo data; packaged into the
-desktop image (layer-shell surfaces under KWin Wayland). **Not yet verified inside a running
-X-OS session in the VM** (next step).
+**Status:** In progress — runs in the live X-OS session (VM, Plasma 6.3 Wayland, 2026-11-07):
+Plasma panel absent, menu bar shows real network/volume/clock state and the active app name from
+the KWin tracker, dock shows the running app in the cradled circle
+(`documentation/images/vm-live-session-shell.png`). Interactions (menus, dock clicks,
+blur) inside the VM not yet exercised.
 
 ## Architecture
 
@@ -34,7 +36,8 @@ Dark Mode, Less Motion. Stored in `~/.config/xos/shell.json`.
 | Cradle geometry | Unit — `testing/unit/dock.test.mjs` |
 | Design tokens (contrast, single accent, motion rules) | Unit — `testing/unit/test_design_tokens.py` |
 | Menu bar, dock, X-OS menu, Control Center | Rendered offscreen (`xos-shell --preview`) |
-| Running in Plasma Wayland | **Not yet tested** |
+| Starts in Plasma Wayland live session, shows real status + active window | VM (screenshot) |
+| Menu/dock interactions, blur, window actions in a real session | **Not yet tested** |
 
 ## Not implemented yet (not shown in the UI either)
 

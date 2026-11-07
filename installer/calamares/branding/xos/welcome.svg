@@ -1,26 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3840 2160" preserveAspectRatio="xMidYMid slice">
+  <!-- X-OS default wallpaper (dark). Original artwork. One accent hue (X-OS teal), neutral charcoal. -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0B0D1A"/><stop offset="1" stop-color="#05060C"/>
+      <stop offset="0" stop-color="#101215"/><stop offset="1" stop-color="#08090B"/>
     </linearGradient>
-    <radialGradient id="l1" cx=".3" cy=".35" r=".55">
-      <stop offset="0" stop-color="#5B6CFF" stop-opacity=".55"/><stop offset="1" stop-color="#5B6CFF" stop-opacity="0"/>
+    <radialGradient id="glow" cx=".68" cy=".62" r=".46">
+      <stop offset="0" stop-color="#2BC4B0" stop-opacity=".16"/><stop offset=".55" stop-color="#2BC4B0" stop-opacity=".04"/>
+      <stop offset="1" stop-color="#2BC4B0" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="l2" cx=".75" cy=".6" r=".5">
-      <stop offset="0" stop-color="#B05CFF" stop-opacity=".42"/><stop offset="1" stop-color="#B05CFF" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="l3" cx=".55" cy=".95" r=".45">
-      <stop offset="0" stop-color="#2FD3FF" stop-opacity=".30"/><stop offset="1" stop-color="#2FD3FF" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#7CE0FF" stop-opacity="0"/><stop offset=".45" stop-color="#8E9BFF" stop-opacity=".55"/>
-      <stop offset="1" stop-color="#D08CFF" stop-opacity="0"/>
+    <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".00"/><stop offset=".45" stop-color="#C9D1D6" stop-opacity=".10"/>
+      <stop offset=".7" stop-color="#2BC4B0" stop-opacity=".14"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#2BC4B0" stop-opacity="0"/>
     </linearGradient>
   </defs>
   <rect width="3840" height="2160" fill="url(#bg)"/>
-  <rect width="3840" height="2160" fill="url(#l1)"/>
-  <rect width="3840" height="2160" fill="url(#l2)"/>
-  <rect width="3840" height="2160" fill="url(#l3)"/>
-  <path d="M-200 1500C700 1100 1300 1750 2100 1350S3300 900 4100 1200" fill="none" stroke="url(#ribbon)" stroke-width="90" stroke-linecap="round" opacity=".55"/>
-  <path d="M-200 1600C800 1250 1350 1850 2150 1460S3350 1020 4100 1330" fill="none" stroke="url(#ribbon)" stroke-width="18" opacity=".7"/>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  <path d="M-300 1880 C 600 1500, 1500 1250, 2300 1330 S 3600 1600, 4200 1050 L 4200 1250 C 3500 1820, 2600 1560, 2150 1530 S 700 1700, -300 2160 Z" fill="url(#ribbon)"/>
+  <path d="M-300 1880 C 600 1500, 1500 1250, 2300 1330 S 3600 1600, 4200 1050" fill="none" stroke="url(#edge)" stroke-width="3"/>
 </svg>
