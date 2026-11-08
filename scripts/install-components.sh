@@ -27,6 +27,7 @@ inst 0755 "$SRC/compatibility/wine/xos-compat-setup"   usr/sbin/xos-compat-setup
 for u in "$SRC"/lib/systemd/*.service; do inst 0644 "$u" "lib/systemd/system/$(basename "$u")"; done
 
 inst 0644 "$SRC/compatibility/database/apps.json"      usr/share/xos/compat/apps.json
+inst 0644 "$SRC/ui/theme/tokens.json"                  usr/share/xos/theme/tokens.json
 for d in "$SRC"/documentation/*.md; do [[ -e "$d" ]] && inst 0644 "$d" "usr/share/doc/xos/$(basename "$d")"; done
 
 # Branding assets (logo, wallpapers) - all variants.

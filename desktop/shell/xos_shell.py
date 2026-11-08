@@ -37,6 +37,7 @@ from PySide6.QtSvg import QSvgRenderer  # noqa: E402
 
 from xos import shellstatus as ss  # noqa: E402
 from xos import windows as W  # noqa: E402
+from xos import desktoparea  # noqa: E402
 
 ICON_DIRS = [Path("/usr/share/xos/icons/xos"), HERE.parents[1] / "icons/xos"]
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "xos/shell.json"
@@ -415,6 +416,40 @@ DEMO_WINDOWS = {"windows": [
 ], "active": "0b5c7e1a-2222-4a2b-9c3d-bbbbbbbbbbbb"}
 
 
+class DesktopArea(QObject):
+    """Tells plasmashell which part of each screen is free for desktop icons (screen minus
+    menu bar and dock), and repeats it when screens change or plasmashell (re)starts."""
+
+    def __init__(self, app):
+        super().__init__(app)
+        from PySide6.QtDBus import QDBusConnection, QDBusServiceWatcher
+        self.app = app
+        self.bus = QDBusConnection.sessionBus()
+        self.top, self.bottom = desktoparea.bar_sizes()
+        self.watch = QDBusServiceWatcher(desktoparea.SERVICE, self.bus,
+                                         QDBusServiceWatcher.WatchModeFlag.WatchForRegistration, self)
+        self.watch.serviceRegistered.connect(lambda _n: QTimer.singleShot(1500, self.report))
+        app.screenAdded.connect(self._track)
+        for sc in app.screens():
+            self._track(sc)
+        QTimer.singleShot(2000, self.report)
+
+    def _track(self, screen):
+        screen.geometryChanged.connect(lambda _g: self.report())
+        QTimer.singleShot(500, self.report)
+
+    def report(self):
+        from PySide6.QtCore import QRect
+        from PySide6.QtDBus import QDBusMessage
+        for sc in self.app.screens():
+            g = sc.geometry()
+            x, y, w, h = desktoparea.available_rect(g.x(), g.y(), g.width(), g.height(), self.top, self.bottom)
+            msg = QDBusMessage.createMethodCall(desktoparea.SERVICE, desktoparea.PATH, desktoparea.IFACE,
+                                                "setAvailableScreenRect")
+            msg.setArguments([self.bus.baseService(), sc.name(), QRect(x, y, w, h)])
+            self.bus.asyncCall(msg)
+
+
 def _keep_dock_input_region(app) -> None:
     """Limit the dock surface's input region to the visible dock (the window is taller to
     leave room for the launch droplet; the transparent band must not swallow clicks).
@@ -492,6 +527,10 @@ def main() -> int:
         return 1
     if not a.preview:
         _keep_dock_input_region(app)
+        try:
+            app._xos_area = DesktopArea(app)     # keep desktop icons clear of menu bar + dock
+        except Exception as e:                   # never take the shell down for this
+            print(f"xos-shell: desktop area not reported: {e}", file=sys.stderr)
     if a.smoke and not a.preview:
         QTimer.singleShot(int(a.smoke * 1000), app.quit)
     if a.preview:
