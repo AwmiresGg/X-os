@@ -21,17 +21,28 @@ from pathlib import Path
 
 UUID_RE = re.compile(r"^\{?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}?$")
 
-# Apps that have an X-OS icon (symbolic glyph name under icons/xos/symbolic/apps).
+# System apps: these show the full-colour X-OS icon (icons/xos/apps/xos-<name>.svg).
+# Every other app keeps its own icon (no X-OS tile behind it).
 XOS_ICONS = {
-    "org.kde.dolphin": "files", "org.kde.konsole": "terminal", "firefox-esr": "browser",
-    "firefox": "browser", "google-chrome": "browser", "org.kde.kwrite": "text-editor",
-    "org.kde.kate": "text-editor", "systemsettings": "settings", "org.kde.systemsettings": "settings",
-    "org.kde.okular": "pdf-viewer", "org.kde.gwenview": "photos", "org.kde.haruna": "video",
-    "org.kde.ark": "archive", "org.kde.spectacle": "screenshot", "org.kde.kcalc": "calculator",
+    "org.kde.dolphin": "files", "org.kde.konsole": "terminal",
+    "systemsettings": "settings", "org.kde.systemsettings": "settings", "xos-settings": "settings",
     "org.kde.plasma-systemmonitor": "system-monitor", "org.kde.partitionmanager": "disk-manager",
-    "org.kde.kinfocenter": "device-manager", "xos-setup": "install", "xos-store": "store",
-    "calamares": "install",
+    "org.kde.kinfocenter": "device-manager", "xos-setup": "install", "calamares": "install",
+    "xos-store": "store", "xos-updates": "updates", "xos-security": "security", "xos-this-pc": "this-pc",
+    "xos-windows-app": "windows-apps",
 }
+
+ICON_DIRS = [Path(__file__).resolve().parents[3] / "icons/xos/apps", Path("/usr/share/xos/icons/xos/apps")]
+
+
+def system_icon(name: str) -> str:
+    """Absolute path of the full-colour X-OS icon <name>, or "" when it is not installed."""
+    for d in ICON_DIRS:
+        p = d / f"xos-{name}.svg"
+        if p.is_file():
+            return str(p)
+    return ""
+
 
 # Window app ids that belong to another app's desktop entry (Calamares reports its reverse-DNS id).
 APP_ALIASES = {"io.calamares.calamares": "calamares"}
@@ -121,8 +132,9 @@ class AppRegistry:
         if app_id not in self._cache:
             self._cache[app_id] = self._load(app_id)
         info = self._cache[app_id]
+        xi = XOS_ICONS.get(app_id, "")
         return info or AppInfo(app_id, XOS_NAMES.get(app_id) or app_id.split(".")[-1].replace("-", " ").title() or "Application",
-                               icon="application-x-executable", xos_icon=XOS_ICONS.get(app_id, ""))
+                               icon=system_icon(xi) or "application-x-executable", xos_icon=xi)
 
     def _load(self, app_id: str) -> AppInfo | None:
         for d in self.dirs:
@@ -136,8 +148,9 @@ class AppRegistry:
                 if not cp.has_section("Desktop Entry"):
                     continue
                 e = cp["Desktop Entry"]
-                return AppInfo(app_id, XOS_NAMES.get(app_id, e.get("Name", app_id)), e.get("Icon", ""), e.get("Exec", ""),
-                               XOS_ICONS.get(app_id, ""))
+                xi = XOS_ICONS.get(app_id, "")
+                return AppInfo(app_id, XOS_NAMES.get(app_id, e.get("Name", app_id)),
+                               system_icon(xi) or e.get("Icon", ""), e.get("Exec", ""), xi)
         return None
 
 

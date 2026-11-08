@@ -278,7 +278,8 @@
       "keywords": [
         "security",
         "status"
-      ]
+      ],
+      "tile": "apps/xos-security.svg"
     },
     "chevron-left": {
       "category": "actions",
@@ -403,7 +404,8 @@
         "empty",
         "places",
         "trash"
-      ]
+      ],
+      "tile": "apps/xos-trash-empty.svg"
     },
     "trash-full": {
       "category": "places",
@@ -412,7 +414,8 @@
         "full",
         "places",
         "trash"
-      ]
+      ],
+      "tile": "apps/xos-trash-full.svg"
     },
     "downloads": {
       "category": "places",
@@ -616,6 +619,16 @@
         "install"
       ],
       "tile": "apps/xos-install.svg"
+    },
+    "this-pc": {
+      "category": "apps",
+      "file": "symbolic/apps/this-pc.svg",
+      "keywords": [
+        "apps",
+        "pc",
+        "this"
+      ],
+      "tile": "apps/xos-this-pc.svg"
     }
   }
 }

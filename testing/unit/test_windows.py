@@ -41,7 +41,12 @@ class RegistryAndDockTests(unittest.TestCase):
 
     def test_registry(self):
         a = self.reg.get("org.kde.dolphin.desktop")
-        self.assertEqual((a.name, a.icon, a.xos_icon), ("Dolphin", "system-file-manager", "files"))
+        # system app: full-colour X-OS icon
+        self.assertEqual((a.name, a.xos_icon), ("Dolphin", "files"))
+        self.assertTrue(a.icon.endswith("icons/xos/apps/xos-files.svg"), a.icon)
+        # any other app keeps its own icon, no X-OS glyph
+        f = self.reg.get("firefox-esr")
+        self.assertEqual((f.icon, f.xos_icon), ("firefox-esr", ""))
         unknown = self.reg.get("com.example.thing")
         self.assertEqual(unknown.name, "Thing")
 

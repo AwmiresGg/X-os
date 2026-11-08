@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-for p in ("/usr/lib/xos/python", str(HERE.parents[1] / "lib/python")):
+for p in (str(HERE.parents[1] / "lib/python"), "/usr/lib/xos/python"):   # source tree first
     if Path(p, "xos").is_dir():
         sys.path.insert(0, p)
         break
@@ -350,6 +350,11 @@ class Windows(QObject):
         self._run_kwin_script(path, name)
         QTimer.singleShot(1500, lambda: (self.scripting.call("unloadScript", name), Path(path).unlink(missing_ok=True)))
 
+    @Slot(str, result=str)
+    def systemIcon(self, name):
+        """Path of a full-colour X-OS icon (dock trash etc.); a theme name when not installed."""
+        return W.system_icon(name) or ("user-trash-full" if name == "trash-full" else "user-trash")
+
     @Slot(str)
     def activateApp(self, app_id):
         """Dock click: launch if not running, focus if in background, minimize if focused."""
@@ -503,6 +508,15 @@ def main() -> int:
     app.setApplicationName("xos-shell")
     app.setDesktopFileName("xos-shell")
     app.setQuitOnLastWindowClosed(False)
+    # App icons come from the icon theme: make sure one is set and the standard XDG and
+    # Flatpak icon directories are searched even outside a Plasma session.
+    home = Path.home()
+    extra = [str(home / ".local/share/icons"), str(home / ".local/share/flatpak/exports/share/icons"),
+             "/var/lib/flatpak/exports/share/icons", "/usr/local/share/icons", "/usr/share/icons"]
+    QIcon.setThemeSearchPaths(list(dict.fromkeys(QIcon.themeSearchPaths() + [p for p in extra if Path(p).is_dir()])))
+    if not QIcon.themeName() or QIcon.themeName() == "hicolor":
+        QIcon.setThemeName("breeze-dark")
+    QIcon.setFallbackThemeName("breeze")
 
     settings = Settings(persist=not a.preview)
     if a.theme:
@@ -516,8 +530,9 @@ def main() -> int:
     engine.addImageProvider("xicon", IconProvider("xicon"))
     engine.addImageProvider("appicon", IconProvider("appicon"))
     qml = HERE / "qml"
-    engine.addImportPath(str(HERE.parents[1] / "ui/qml"))
+    # addImportPath prepends: the source tree's modules (added last) win over installed ones
     engine.addImportPath("/usr/share/xos/qml")
+    engine.addImportPath(str(HERE.parents[1] / "ui/qml"))
     wayland = QGuiApplication.platformName() == "wayland"
     engine.addImportPath(str(qml / "platform" / ("wayland" if wayland and not a.preview else "fallback")))
     engine.setInitialProperties({"settings": settings, "status": status, "windows": wins,

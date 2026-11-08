@@ -212,30 +212,18 @@ Item {
             Keys.onSpacePressed: activate()
             Keys.onMenuPressed: if (!isTrash) dock.contextMenu(app, x + width / 2)
 
-            // tile: X-OS apps are drawn from the theme (squircle + glyph) so they follow
-            // dark/light; other apps use their own icon. Hidden while the circle is over it (the
-            // circle carries the glyph, so the slot never shows a second copy).
-            Rectangle {
-                anchors.fill: parent
-                visible: slot.isTrash || (!!slot.app && slot.app.glyph !== "")
-                opacity: slot.isTrash ? 1 : slot.tileOpacity
-                radius: dock.iconSize * 0.24
-                color: Theme.surface2
-                border.color: Theme.borderStrong
-                Glyph {
-                    anchors.centerIn: parent
-                    size: dock.iconSize * 0.56
-                    name: slot.isTrash ? (dock.trashFull ? "trash-full" : "trash-empty") : slot.app.glyph
-                    tint: slot.hovered ? Theme.accent : Theme.text
-                }
-            }
+            // Icon: system apps show their full-colour X-OS icon, every other app its own icon,
+            // with no tile behind it. Hidden while the floating circle is over it (the circle
+            // carries the app's symbol, so the slot never shows a second copy).
             Image {
                 anchors.fill: parent
-                visible: !slot.isTrash && !!slot.app && slot.app.glyph === ""
-                source: visible ? "image://appicon/" + slot.app.icon : ""
+                visible: slot.isTrash || !!slot.app
+                source: slot.isTrash ? "image://appicon/" + dock.windows.systemIcon(dock.trashFull ? "trash-full" : "trash-empty")
+                      : (slot.app ? "image://appicon/" + slot.app.icon : "")
                 sourceSize: Qt.size(dock.iconSize * 2, dock.iconSize * 2)
                 opacity: slot.isTrash ? 1 : slot.tileOpacity
                 smooth: true
+                mipmap: true
             }
             // running indicator (static dot — no pulsing)
             Rectangle {
