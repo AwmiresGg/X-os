@@ -49,6 +49,7 @@ for d in symbolic apps brand; do
     [[ -d "$SRC/icons/xos/$d" ]] && cp -r "$SRC/icons/xos/$d" "$DEST/usr/share/xos/icons/xos/"
 done
 inst 0644 "$SRC/build/tmpfiles/xos.conf" usr/lib/tmpfiles.d/xos.conf
+inst 0644 "$SRC/build/modprobe/xos-wifi-quirks.conf" etc/modprobe.d/xos-wifi-quirks.conf
 # Boot experience: GRUB theme (installed systems) and Plymouth splash
 rm -rf "$DEST/usr/share/grub/themes/xos" "$DEST/usr/share/plymouth/themes/xos"
 mkdir -p "$DEST/usr/share/grub/themes" "$DEST/usr/share/plymouth/themes"

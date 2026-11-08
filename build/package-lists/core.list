@@ -82,6 +82,7 @@ lvm2
 
 # networking
 network-manager
+rfkill
 # DNS: NetworkManager hands DNS servers to systemd-resolved; its package owns the
 # /etc/resolv.conf -> stub-resolv.conf link that build.sh restores (without it, no DNS).
 systemd-resolved
