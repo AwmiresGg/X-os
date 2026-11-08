@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=This PC
+Comment=Drives and devices on this computer
+Exec=xos-settings --page this-pc
+Icon=/usr/share/xos/icons/xos/apps/xos-this-pc.svg
+Categories=System;FileTools;
+Keywords=this pc;computer;my computer;drives;disks;usb;
+StartupWMClass=xos-this-pc

@@ -50,8 +50,8 @@ APP_ALIASES = {"io.calamares.calamares": "calamares"}
 # Names X-OS shows instead of the upstream desktop entry's (the entry itself is not edited).
 XOS_NAMES = {"calamares": "Install X-OS", "xos-setup": "Install X-OS"}
 
-DEFAULT_PINNED = ["org.kde.dolphin", "firefox-esr", "org.kde.konsole", "org.kde.kwrite",
-                  "org.kde.gwenview", "org.kde.haruna", "org.kde.kcalc", "systemsettings"]
+DEFAULT_PINNED = ["org.kde.dolphin", "xos-this-pc", "firefox-esr", "org.kde.konsole", "org.kde.kwrite",
+                  "org.kde.gwenview", "org.kde.haruna", "org.kde.kcalc", "xos-settings"]
 
 
 @dataclass

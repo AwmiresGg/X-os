@@ -349,6 +349,14 @@
         "lock"
       ]
     },
+    "eject": {
+      "category": "actions",
+      "file": "symbolic/actions/eject.svg",
+      "keywords": [
+        "actions",
+        "eject"
+      ]
+    },
     "window-minimize": {
       "category": "window",
       "file": "symbolic/window/window-minimize.svg",
@@ -422,6 +430,23 @@
       "file": "symbolic/places/downloads.svg",
       "keywords": [
         "downloads",
+        "places"
+      ]
+    },
+    "usb-drive": {
+      "category": "places",
+      "file": "symbolic/places/usb-drive.svg",
+      "keywords": [
+        "drive",
+        "places",
+        "usb"
+      ]
+    },
+    "disc": {
+      "category": "places",
+      "file": "symbolic/places/disc.svg",
+      "keywords": [
+        "disc",
         "places"
       ]
     },

@@ -25,6 +25,9 @@ inst 0755 "$SRC/lib/xos-profile-boot"                  usr/lib/xos/profile-boot
 inst 0755 "$SRC/lib/xos-live-session"                 usr/lib/xos/live-session
 inst 0755 "$SRC/compatibility/wine/xos-compat-setup"   usr/sbin/xos-compat-setup
 for u in "$SRC"/lib/systemd/*.service; do inst 0644 "$u" "lib/systemd/system/$(basename "$u")"; done
+for u in "$SRC"/lib/systemd/user/*; do inst 0644 "$u" "usr/lib/systemd/user/$(basename "$u")"; done
+inst 0755 "$SRC/lib/xos-admin"                        usr/libexec/xos/xos-admin
+inst 0644 "$SRC/lib/polkit/org.xos.admin.policy"      usr/share/polkit-1/actions/org.xos.admin.policy
 
 inst 0644 "$SRC/compatibility/database/apps.json"      usr/share/xos/compat/apps.json
 inst 0644 "$SRC/ui/theme/tokens.json"                  usr/share/xos/theme/tokens.json
@@ -63,6 +66,15 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     inst 0644 "$SRC/installer/desktop/xos-setup.desktop"            usr/share/applications/xos-setup.desktop
     inst 0644 "$SRC/installer/desktop/xos-setup-live-autostart.desktop" etc/xdg/autostart/xos-setup-live.desktop
     inst 0644 "$SRC/desktop/autostart/xos-setup-user.desktop"        etc/xdg/autostart/xos-setup-user.desktop
+    # X-OS Settings (Tweaks, Updates, Security, This PC) + its root helper (pkexec/polkit)
+    rm -rf "$DEST/usr/share/xos/settings"
+    mkdir -p "$DEST/usr/share/xos/settings"
+    cp -r "$SRC/desktop/settings/qml" "$SRC/desktop/settings/xos_settings.py" "$DEST/usr/share/xos/settings/"
+    printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/settings/xos_settings.py "$@"\n' > "$DEST/usr/bin/xos-settings"
+    chmod 0755 "$DEST/usr/bin/xos-settings"
+    for f in "$SRC"/desktop/settings/applications/*.desktop; do
+        inst 0644 "$f" "usr/share/applications/$(basename "$f")"
+    done
     # X-OS shell (menu bar + dock) replaces the Plasma panel.
     rm -rf "$DEST/usr/share/xos/shell"
     mkdir -p "$DEST/usr/share/xos/shell"

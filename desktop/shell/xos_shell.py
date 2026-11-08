@@ -377,10 +377,14 @@ class Windows(QObject):
     @Slot(str)
     def openUrl(self, target):
         """Open a settings module / folder / URL with the desktop's handler."""
-        allowed = target.startswith(("systemsettings", "kcm_", "trash:/", "file://", "https://"))
+        allowed = target.startswith(("systemsettings", "kcm_", "trash:/", "file://", "https://", "xos-settings:"))
         if not allowed:
             return
-        if target.startswith(("systemsettings", "kcm_")):
+        if target.startswith("xos-settings:"):
+            page = target.split(":", 1)[1]
+            if page in ("tweaks", "updates", "security", "this-pc", "about"):
+                QProcess.startDetached("xos-settings", ["--page", page])
+        elif target.startswith(("systemsettings", "kcm_")):
             QProcess.startDetached("systemsettings", [target.split(":", 1)[1]] if ":" in target else [])
         else:
             QProcess.startDetached("xdg-open", [target])

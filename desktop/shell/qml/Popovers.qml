@@ -50,8 +50,11 @@ Item {
             Column_ {
                 id: menuCol
                 visible: confirm === ""
-                MenuRow { text: "About X-OS"; onTriggered: { root.windows.openUrl("systemsettings:kcm_about-distro"); root.close() } }
-                MenuRow { text: "System Settings…"; onTriggered: { root.windows.openUrl("systemsettings"); root.close() } }
+                MenuRow { text: "About X-OS"; onTriggered: { root.windows.openUrl("xos-settings:about"); root.close() } }
+                MenuRow { separator: true }
+                MenuRow { text: "System Settings…"; onTriggered: { root.windows.openUrl("xos-settings:tweaks"); root.close() } }
+                MenuRow { text: "Software Update…"; onTriggered: { root.windows.openUrl("xos-settings:updates"); root.close() } }
+                MenuRow { text: "This PC"; onTriggered: { root.windows.openUrl("xos-settings:this-pc"); root.close() } }
                 MenuRow { separator: true }
                 MenuRow { text: "Force Quit…"; detail: "click a window"; onTriggered: { root.windows.forceQuit(); root.close() } }
                 MenuRow { separator: true }

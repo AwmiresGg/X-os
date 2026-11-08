@@ -76,3 +76,14 @@ kde-config-sddm
 qml6-module-org-kde-layershell
 python3-pyside6.qtsvg
 python3-pyside6.qtdbus
+
+# X-OS Settings: Tweaks (power profiles), Updates (PackageKit, notifications),
+# Security (ClamAV antivirus; real-time protection off by default), folder picker
+power-profiles-daemon
+packagekit
+packagekit-tools
+libnotify-bin
+clamav
+clamav-freshclam
+clamav-daemon
+qml6-module-qtquick-dialogs
