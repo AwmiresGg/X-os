@@ -132,6 +132,10 @@ locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8
 EOF
     in_chroot apt-get install -y --no-install-recommends "${pkgs[@]}"
     in_chroot apt-get -y full-upgrade
+    # systemd-resolved's postinst may have replaced resolv.conf with its (not running here)
+    # stub; later steps still need the build host's DNS inside the chroot.
+    rm -f "$CHROOT/etc/resolv.conf"
+    cp /etc/resolv.conf "$CHROOT/etc/resolv.conf"
 
     log "configure: installing X-OS components"
     XOS_VARIANT="$XOS_VARIANT" "$XOS_ROOT/scripts/install-components.sh" "$CHROOT"
@@ -155,7 +159,15 @@ EOF
     in_chroot apt-get clean
     rm -rf "$CHROOT"/var/lib/apt/lists/* "$CHROOT"/tmp/* "$CHROOT"/var/tmp/*
     rm -f "$CHROOT/usr/sbin/policy-rc.d" "$CHROOT/etc/resolv.conf"
-    ln -sf ../run/systemd/resolve/stub-resolv.conf "$CHROOT/etc/resolv.conf" 2>/dev/null || true
+    # DNS: point at systemd-resolved's stub only if systemd-resolved is in the image. A link
+    # to it without the service leaves the system online but unable to resolve any name;
+    # otherwise ship a plain file, which NetworkManager then writes itself.
+    if [[ -x "$CHROOT/usr/lib/systemd/systemd-resolved" ]]; then
+        ln -sf ../run/systemd/resolve/stub-resolv.conf "$CHROOT/etc/resolv.conf"
+    else
+        log "configure: WARNING systemd-resolved missing; NetworkManager will manage /etc/resolv.conf"
+        : > "$CHROOT/etc/resolv.conf"
+    fi
     # Machine identity must be generated per boot / per install, never shipped.
     : > "$CHROOT/etc/machine-id"
     rm -f "$CHROOT/var/lib/dbus/machine-id" "$CHROOT"/etc/ssh/ssh_host_*

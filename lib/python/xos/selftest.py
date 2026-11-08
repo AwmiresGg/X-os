@@ -108,6 +108,24 @@ def check_network_manager():
     return "FAIL", "NetworkManager running but not online: " + "; ".join(devs.splitlines())
 
 
+def check_dns_config(resolv: Path = Path("/etc/resolv.conf")):
+    """Name resolution is configured: /etc/resolv.conf exists (a symlink must not dangle) and
+    lists a nameserver. A dangling link to systemd-resolved's stub once left installed
+    systems online by IP but unable to resolve any name ("Server Not Found")."""
+    if not resolv.exists():
+        target = os.readlink(resolv) if resolv.is_symlink() else "missing"
+        return "FAIL", f"{resolv} -> {target} does not exist: no DNS"
+    servers = [l.split()[1] for l in resolv.read_text().splitlines()
+               if l.startswith("nameserver") and len(l.split()) > 1]
+    if not servers:
+        return "FAIL", f"{resolv} lists no nameserver"
+    if "127.0.0.53" in servers:
+        rc, out = _sh("systemctl", "is-active", "systemd-resolved.service")
+        if out != "active":
+            return "FAIL", f"resolv.conf points at systemd-resolved, which is {out}"
+    return "PASS", "nameservers: " + ", ".join(servers)
+
+
 URL_FWCFG = Path("/sys/firmware/qemu_fw_cfg/by_name/opt/org.x-os.selftest-url/raw")
 
 
@@ -212,6 +230,7 @@ def run(mode: str = "report", out_dir: Path = Path("/var/log")) -> dict:
         "live-medium": check_live_medium,
         "live-user": check_live_user,
         "network-manager": check_network_manager,
+        "dns": check_dns_config,
         "connectivity": check_connectivity,
         "firewall": check_firewall,
         "secure-boot": check_secure_boot,

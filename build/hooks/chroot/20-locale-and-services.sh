@@ -8,6 +8,7 @@ update-locale LANG=en_US.UTF-8
 
 # Essential services. Security services (firewall) are on in every profile.
 systemctl enable NetworkManager.service || true
+systemctl enable systemd-resolved.service
 systemctl enable systemd-timesyncd.service || true
 systemctl enable bluetooth.service 2>/dev/null || true
 systemctl enable xos-selftest.service

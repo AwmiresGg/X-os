@@ -93,6 +93,43 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertIn("Autologin failed", detail)
 
 
+class DnsConfigTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self.tmp = tempfile.TemporaryDirectory()
+        self.d = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_dangling_symlink_fails(self):
+        # the shipped bug: link to systemd-resolved's stub without systemd-resolved
+        link = self.d / "resolv.conf"
+        link.symlink_to(self.d / "run/systemd/resolve/stub-resolv.conf")
+        st, detail = selftest.check_dns_config(link)
+        self.assertEqual(st, "FAIL")
+        self.assertIn("does not exist", detail)
+
+    def test_no_nameserver_fails(self):
+        f = self.d / "resolv.conf"
+        f.write_text("# empty\n")
+        self.assertEqual(selftest.check_dns_config(f)[0], "FAIL")
+
+    def test_plain_nameserver_passes(self):
+        f = self.d / "resolv.conf"
+        f.write_text("nameserver 192.168.1.1\n")
+        self.assertEqual(selftest.check_dns_config(f), ("PASS", "nameservers: 192.168.1.1"))
+
+    def test_stub_requires_resolved_running(self):
+        f = self.d / "resolv.conf"
+        f.write_text("nameserver 127.0.0.53\noptions edns0\n")
+        with mock.patch.object(selftest, "_sh", return_value=(3, "inactive")):
+            self.assertEqual(selftest.check_dns_config(f)[0], "FAIL")
+        with mock.patch.object(selftest, "_sh", return_value=(0, "active")):
+            self.assertEqual(selftest.check_dns_config(f)[0], "PASS")
+
+
 class SecureBootTests(unittest.TestCase):
     def test_states(self):
         import tempfile
