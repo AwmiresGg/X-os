@@ -1,0 +1,11 @@
+[Unit]
+Description=X-OS: daily update check
+
+[Timer]
+OnStartupSec=15min
+OnUnitActiveSec=1d
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
