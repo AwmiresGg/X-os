@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Security
+Comment=Virus protection, firewall and Secure Boot
+Exec=xos-settings --page security
+Icon=/usr/share/xos/icons/xos/apps/xos-security.svg
+Categories=System;Security;
+Keywords=antivirus;virus;scan;defender;firewall;malware;
+StartupWMClass=xos-security

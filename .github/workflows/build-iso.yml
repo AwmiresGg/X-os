@@ -1,6 +1,7 @@
 name: build-iso
-# Builds the X-OS desktop live ISO on a GitHub runner and attaches it to the run as a
-# downloadable artifact (Actions tab -> this run -> Artifacts). Nothing is published elsewhere.
+# Builds the X-OS desktop live ISO on a GitHub runner and attaches it to the run as an
+# artifact. Builds of main are also published as the "dev-latest" pre-release, so the README
+# can link a download URL that never changes and always serves the newest main build.
 on:
   workflow_dispatch:
   push:
@@ -21,6 +22,9 @@ on:
 concurrency:
   group: build-iso-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: write          # publish the dev-latest release (main only)
 
 jobs:
   iso:
@@ -59,3 +63,14 @@ jobs:
             releases/out/*.sha256
           compression-level: 0
           retention-days: 30
+
+      - name: Publish as dev-latest release (main only)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete dev-latest --yes --cleanup-tag || true
+          gh release create dev-latest releases/out/*.iso releases/out/*.sha256 \
+            --prerelease --target "$GITHUB_SHA" \
+            --title "X-OS development build (latest main)" \
+            --notes "Built automatically from main at ${GITHUB_SHA::7}. Development build: back up your files before installing. What works: documentation/STATUS.md"

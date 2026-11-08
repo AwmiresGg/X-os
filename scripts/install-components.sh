@@ -25,8 +25,12 @@ inst 0755 "$SRC/lib/xos-profile-boot"                  usr/lib/xos/profile-boot
 inst 0755 "$SRC/lib/xos-live-session"                 usr/lib/xos/live-session
 inst 0755 "$SRC/compatibility/wine/xos-compat-setup"   usr/sbin/xos-compat-setup
 for u in "$SRC"/lib/systemd/*.service; do inst 0644 "$u" "lib/systemd/system/$(basename "$u")"; done
+for u in "$SRC"/lib/systemd/user/*; do inst 0644 "$u" "usr/lib/systemd/user/$(basename "$u")"; done
+inst 0755 "$SRC/lib/xos-admin"                        usr/libexec/xos/xos-admin
+inst 0644 "$SRC/lib/polkit/org.xos.admin.policy"      usr/share/polkit-1/actions/org.xos.admin.policy
 
 inst 0644 "$SRC/compatibility/database/apps.json"      usr/share/xos/compat/apps.json
+inst 0644 "$SRC/ui/theme/tokens.json"                  usr/share/xos/theme/tokens.json
 for d in "$SRC"/documentation/*.md; do [[ -e "$d" ]] && inst 0644 "$d" "usr/share/doc/xos/$(basename "$d")"; done
 
 # Branding assets (logo, wallpapers) - all variants.
@@ -35,13 +39,22 @@ for w in dark light; do
     inst 0644 "$SRC/themes/liquid-glass/wallpapers/x-os-$w.svg" "usr/share/wallpapers/X-OS/x-os-$w.svg"
 done
 # Design-system QML module (XOS.Theme) and the icon family.
-rm -rf "$DEST/usr/share/xos/qml" "$DEST/usr/share/xos/icons/xos"
+# (keeps XOS/Effects: that plugin is compiled inside the image by hook 30-native, not copied)
+find "$DEST/usr/share/xos/qml" -mindepth 1 -maxdepth 2 ! -path '*/XOS' ! -path '*/XOS/Effects' \
+    -exec rm -rf {} + 2>/dev/null || true
+rm -rf "$DEST/usr/share/xos/icons/xos"
 mkdir -p "$DEST/usr/share/xos/qml" "$DEST/usr/share/xos/icons/xos"
 cp -r "$SRC/ui/qml/." "$DEST/usr/share/xos/qml/"
 for d in symbolic apps brand; do
     [[ -d "$SRC/icons/xos/$d" ]] && cp -r "$SRC/icons/xos/$d" "$DEST/usr/share/xos/icons/xos/"
 done
 inst 0644 "$SRC/build/tmpfiles/xos.conf" usr/lib/tmpfiles.d/xos.conf
+# Boot experience: GRUB theme (installed systems) and Plymouth splash
+rm -rf "$DEST/usr/share/grub/themes/xos" "$DEST/usr/share/plymouth/themes/xos"
+mkdir -p "$DEST/usr/share/grub/themes" "$DEST/usr/share/plymouth/themes"
+cp -r "$SRC/themes/boot/grub/xos" "$DEST/usr/share/grub/themes/xos"
+cp -r "$SRC/themes/boot/plymouth/xos" "$DEST/usr/share/plymouth/themes/xos"
+inst 0644 "$SRC/build/grub/10-xos.cfg" etc/default/grub.d/10-xos.cfg
 
 # Desktop variant: dock, setup wizard, installer.
 if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
@@ -53,6 +66,15 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     inst 0644 "$SRC/installer/desktop/xos-setup.desktop"            usr/share/applications/xos-setup.desktop
     inst 0644 "$SRC/installer/desktop/xos-setup-live-autostart.desktop" etc/xdg/autostart/xos-setup-live.desktop
     inst 0644 "$SRC/desktop/autostart/xos-setup-user.desktop"        etc/xdg/autostart/xos-setup-user.desktop
+    # X-OS Settings (Tweaks, Updates, Security, This PC) + its root helper (pkexec/polkit)
+    rm -rf "$DEST/usr/share/xos/settings"
+    mkdir -p "$DEST/usr/share/xos/settings"
+    cp -r "$SRC/desktop/settings/qml" "$SRC/desktop/settings/xos_settings.py" "$DEST/usr/share/xos/settings/"
+    printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/settings/xos_settings.py "$@"\n' > "$DEST/usr/bin/xos-settings"
+    chmod 0755 "$DEST/usr/bin/xos-settings"
+    for f in "$SRC"/desktop/settings/applications/*.desktop; do
+        inst 0644 "$f" "usr/share/applications/$(basename "$f")"
+    done
     # X-OS shell (menu bar + dock) replaces the Plasma panel.
     rm -rf "$DEST/usr/share/xos/shell"
     mkdir -p "$DEST/usr/share/xos/shell"
@@ -60,6 +82,18 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/shell/xos_shell.py "$@"\n' > "$DEST/usr/bin/xos-shell"
     chmod 0755 "$DEST/usr/bin/xos-shell"
     inst 0644 "$SRC/desktop/autostart/xos-shell.desktop" etc/xdg/autostart/xos-shell.desktop
+    # Windows app installer dialog: opens .exe/.msi/.bat/.msix files by default
+    rm -rf "$DEST/usr/share/xos/compat-gui"
+    mkdir -p "$DEST/usr/share/xos/compat-gui"
+    cp "$SRC/compatibility/gui/xos_windows_app.py" "$SRC/compatibility/gui/WindowsApp.qml" "$DEST/usr/share/xos/compat-gui/"
+    printf '#!/bin/sh\nexec /usr/bin/python3 /usr/share/xos/compat-gui/xos_windows_app.py "$@"\n' > "$DEST/usr/bin/xos-windows-app"
+    chmod 0755 "$DEST/usr/bin/xos-windows-app"
+    inst 0644 "$SRC/compatibility/gui/xos-windows-app.desktop" usr/share/applications/xos-windows-app.desktop
+    inst 0644 "$SRC/compatibility/gui/mimeapps.list" etc/xdg/mimeapps.list
+    # Login screen (SDDM theme) — selected in build/hooks/chroot/40-desktop-defaults.sh
+    rm -rf "$DEST/usr/share/sddm/themes/xos"
+    mkdir -p "$DEST/usr/share/sddm/themes"
+    cp -r "$SRC/themes/sddm/xos" "$DEST/usr/share/sddm/themes/xos"
     # Window decoration (KWin Aurorae themes XOS-Dark / XOS-Light)
     for t in "$SRC"/themes/decoration/*/; do
         n="$(basename "$t")"
@@ -71,6 +105,9 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     mkdir -p "$DEST/usr/share/plasma/look-and-feel"
     cp -r "$SRC/themes/plasma/look-and-feel/org.xos.desktop" "$DEST/usr/share/plasma/look-and-feel/"
     inst 0644 "$SRC/themes/plasma/kdeglobals" etc/xdg/kdeglobals
+    for c in "$SRC"/themes/plasma/color-schemes/*.colors; do
+        inst 0644 "$c" "usr/share/color-schemes/$(basename "$c")"
+    done
     # Native QML plugin sources; compiled inside the image by build/hooks/chroot/30-native.sh
     rm -rf "$DEST/usr/src/xos-native"
     mkdir -p "$DEST/usr/src/xos-native"

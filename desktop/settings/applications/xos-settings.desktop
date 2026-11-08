@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Settings
+Comment=Tweaks, updates, security, drives and more
+Exec=xos-settings --page tweaks
+Icon=/usr/share/xos/icons/xos/apps/xos-settings.svg
+Categories=Settings;System;
+Keywords=settings;preferences;tweaks;performance;gaming;mode;control panel;
+StartupWMClass=xos-settings

@@ -1,0 +1,40 @@
+#!/usr/bin/python3 -I
+# X-OS privileged helper, run through pkexec (policy: org.xos.admin). Every command and
+# argument is checked against a fixed list; nothing from the caller's environment is used.
+#   xos-admin tweaks <mode>          kernel settings for an X-OS Tweaks mode
+#   xos-admin realtime on|off        ClamAV real-time protection (clamd + clamonacc)
+#   xos-admin definitions            update ClamAV virus definitions now
+#   xos-admin firewall on|off        ufw
+import os
+import subprocess
+import sys
+
+sys.path.insert(0, "/usr/lib/xos/python")          # root-owned install only, never the caller's tree
+from xos import security, tweaks                  # noqa: E402
+
+
+def main(argv):
+    if os.geteuid() != 0:
+        print("xos-admin must run as root (through pkexec)", file=sys.stderr)
+        return 2
+    if len(argv) == 2 and argv[0] == "tweaks" and argv[1] in tweaks.MODES:
+        print("\n".join(tweaks.apply_system(argv[1])))
+        return 0
+    if len(argv) == 2 and argv[0] == "realtime" and argv[1] in ("on", "off"):
+        print("\n".join(security.set_realtime(argv[1] == "on")))
+        return 0
+    if argv == ["definitions"]:
+        ok, msg = security.update_definitions()
+        print(msg)
+        return 0 if ok else 1
+    if len(argv) == 2 and argv[0] == "firewall" and argv[1] in ("on", "off"):
+        r = subprocess.run(["ufw", "--force", "enable" if argv[1] == "on" else "disable"],
+                           capture_output=True, text=True)
+        print((r.stdout + r.stderr).strip())
+        return r.returncode
+    print("usage: xos-admin tweaks <mode> | realtime on|off | definitions | firewall on|off", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

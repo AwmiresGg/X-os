@@ -41,9 +41,21 @@ class RegistryAndDockTests(unittest.TestCase):
 
     def test_registry(self):
         a = self.reg.get("org.kde.dolphin.desktop")
-        self.assertEqual((a.name, a.icon, a.xos_icon), ("Dolphin", "system-file-manager", "files"))
+        # system app: full-colour X-OS icon
+        self.assertEqual((a.name, a.xos_icon), ("Dolphin", "files"))
+        self.assertTrue(a.icon.endswith("icons/xos/apps/xos-files.svg"), a.icon)
+        # any other app keeps its own icon, no X-OS glyph
+        f = self.reg.get("firefox-esr")
+        self.assertEqual((f.icon, f.xos_icon), ("firefox-esr", ""))
         unknown = self.reg.get("com.example.thing")
         self.assertEqual(unknown.name, "Thing")
+
+    def test_installer_is_named_and_iconed_as_x_os(self):
+        (Path(self.tmp.name) / "calamares.desktop").write_text(
+            "[Desktop Entry]\nName=Install System\nIcon=calamares\nExec=pkexec calamares\n")
+        reg = W.AppRegistry([Path(self.tmp.name)])
+        a = reg.get(W.normalize_app_id("io.calamares.calamares"))
+        self.assertEqual((a.id, a.name, a.xos_icon), ("calamares", "Install X-OS", "install"))
 
     def test_dock_groups_windows_per_app_and_keeps_pinned_order(self):
         wins = [W.Window(A, "Home", "org.kde.dolphin"), W.Window(C, "Docs", "org.kde.dolphin"),

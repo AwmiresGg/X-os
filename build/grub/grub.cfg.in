@@ -1,4 +1,6 @@
 # X-OS live medium boot menu (generated from build/grub/grub.cfg.in)
+# Labels are plain ASCII: the font built into the signed GRUB, which draws the menu under
+# Secure Boot, has no dashes or bullets.
 # Booting this medium never modifies internal disks. Installation is a separate,
 # explicit action inside the live session.
 
@@ -10,43 +12,64 @@ serial --unit=0 --speed=115200
 terminal_input console serial
 terminal_output console serial
 
+# X-OS graphical menu. Under Secure Boot the signed GRUB runs in lockdown mode, which refuses
+# to load fonts from disk (the Inter fonts), but Debian's signed GRUB has a font built in: the
+# theme then draws with that one. If no font can be loaded at all, the X-OS coloured text menu
+# below is used - silently.
+set menu_color_normal=light-gray/black
+set menu_color_highlight=black/cyan
+set xos_theme=$prefix/themes/xos
+set xos_font=n
+if [ "$lockdown" != "y" ] && loadfont $xos_theme/inter-18.pf2 ; then
+    loadfont $xos_theme/inter-13.pf2
+    loadfont $xos_theme/inter-semibold-28.pf2
+    set xos_font=y
+elif loadfont unicode ; then
+    set xos_font=y
+fi
+if [ "$xos_font" = "y" ] ; then
+    insmod all_video
+    insmod gfxterm
+    insmod png
+    set gfxmode=auto
+    terminal_output gfxterm serial
+    set theme=$xos_theme/theme.txt
+fi
+
 insmod all_video
 insmod part_gpt
 insmod part_msdos
 insmod iso9660
 
-set menu_color_normal=light-gray/black
-set menu_color_highlight=white/blue
-
 set xos_live="boot=live components live-config.username=xos live-config.hostname=x-os"
 
-menuentry "X-OS @VERSION@ (@VARIANT@) - Try without installing" --id live {
+menuentry "Try X-OS without installing" --id live {
     linux /live/vmlinuz $xos_live quiet splash
     initrd /live/initrd.img
 }
 
-menuentry "X-OS - Try without installing (LITE profile, low-memory PCs)" --id live-lite {
+menuentry "Try X-OS in Lite mode (older PCs)" --id live-lite {
     linux /live/vmlinuz $xos_live xos.profile=lite quiet splash
     initrd /live/initrd.img
 }
 
-menuentry "X-OS - Safe graphics (nomodeset)" --id live-safe {
+menuentry "Try X-OS with safe graphics" --id live-safe {
     linux /live/vmlinuz $xos_live nomodeset xos.profile=lite
     initrd /live/initrd.img
 }
 
-menuentry "X-OS - Load into RAM (remove the USB stick after boot)" --id live-toram {
+menuentry "Run X-OS from memory" --id live-toram {
     linux /live/vmlinuz $xos_live toram quiet splash
     initrd /live/initrd.img
 }
 
-menuentry "X-OS - Hardware self-test (prints a compatibility report)" --id selftest {
+menuentry "Check this computer (self-test)" --id selftest {
     linux /live/vmlinuz $xos_live xos.selftest=1 console=tty0 console=ttyS0,115200
     initrd /live/initrd.img
 }
 
 if [ "$grub_platform" = "efi" ]; then
-    menuentry "UEFI firmware settings" --id uefi-setup {
+    menuentry "Firmware settings (UEFI)" --id uefi-setup {
         fwsetup
     }
 fi

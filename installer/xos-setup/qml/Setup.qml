@@ -96,7 +96,7 @@ ApplicationWindow {
 
     readonly property color fg: theme === "light" ? "#15171A" : "#ECEEF1"
     readonly property color fgDim: theme === "light" ? "#555C66" : "#9AA1AB"
-    readonly property color accent: "#2BC4B0"
+    readonly property color accent: "#7A8CFF"
 
     component Glass: Rectangle {
         radius: 22
@@ -115,7 +115,7 @@ ApplicationWindow {
         implicitHeight: 52
         radius: 14
         readonly property bool light: win.theme === "light"
-        color: selected ? Qt.rgba(0.17, 0.77, 0.69, light ? 0.20 : 0.28)
+        color: selected ? Qt.rgba(0.478, 0.549, 1.0, light ? 0.20 : 0.28)
                         : (ma.containsMouse ? (light ? Qt.rgba(0, 0, 0, 0.07) : Qt.rgba(1, 1, 1, 0.08))
                                             : (light ? Qt.rgba(0, 0, 0, 0.035) : Qt.rgba(1, 1, 1, 0.03)))
         border.color: selected ? win.accent : (light ? Qt.rgba(0, 0, 0, 0.10) : Qt.rgba(1, 1, 1, 0.08))
@@ -136,9 +136,9 @@ ApplicationWindow {
         contentItem: Label { text: pb.text; color: "white"; font.pixelSize: 15; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
         background: Rectangle {
             implicitWidth: 140; implicitHeight: 44; radius: 22
-            color: pb.enabled ? "#17524C" : "#22262B"
+            color: pb.enabled ? "#2E3566" : "#22262B"
             border.width: 1
-            border.color: pb.enabled ? "#2BC4B0" : "transparent"
+            border.color: pb.enabled ? "#7A8CFF" : "transparent"
             opacity: pb.down ? 0.8 : 1
         }
     }
@@ -177,7 +177,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Rectangle {
                             width: 26; height: 26; radius: 13
-                            color: index < win.page ? win.accent : (index === win.page ? Qt.rgba(0.17, 0.77, 0.69, 0.35) : "transparent")
+                            color: index < win.page ? win.accent : (index === win.page ? Qt.rgba(0.478, 0.549, 1.0, 0.35) : "transparent")
                             border.color: index <= win.page ? win.accent : Qt.rgba(1, 1, 1, 0.2)
                             Label { anchors.centerIn: parent; text: index < win.page ? "✓" : (index + 1); color: win.fg; font.pixelSize: 12 }
                         }

@@ -1,0 +1,8 @@
+[Unit]
+Description=X-OS: check for updates (never installs anything)
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/xos-updates check --notify
+Nice=10

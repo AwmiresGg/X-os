@@ -1,51 +1,76 @@
 // Slides shown while X-OS installs.
+// Calamares' stock Slide is inset (5 % / 20 % margins) and the view behind it clears to white,
+// so every slide here is full-bleed on the installer's own background.
 import QtQuick
 import calamares.slideshow 1.0
 
 Presentation {
     id: presentation
     function nextSlide() { presentation.goToNextSlide() }
-    Timer { interval: 9000; running: presentation.activatedInCalamares; repeat: true; onTriggered: presentation.nextSlide() }
+    Timer { interval: 8000; running: presentation.activatedInCalamares; repeat: true; onTriggered: presentation.nextSlide() }
 
-    Slide {
-        Rectangle { anchors.fill: parent; color: "#0B0D1A" }
-        Image { anchors.fill: parent; source: "welcome.svg"; fillMode: Image.PreserveAspectCrop; opacity: 0.6 }
+    component XSlide: Slide {
+        id: s
+        property string heading: ""
+        property string body: ""
+        property string glyph: "logo.svg"
+        x: 0; y: 0
+        width: presentation.width
+        height: presentation.height
+
+        Rectangle { anchors.fill: parent; color: "#141517"; radius: 16; clip: true
+            Image {
+                anchors.fill: parent
+                anchors.margins: 1
+                source: "file:///usr/share/wallpapers/X-OS/x-os-dark.svg"
+                fillMode: Image.PreserveAspectCrop
+                sourceSize: Qt.size(width, height)
+                opacity: 0.9
+            }
+        }
+        Rectangle { anchors.fill: parent; color: "transparent"; radius: 16; border.color: Qt.rgba(1, 1, 1, 0.07) }
         Column {
-            anchors.centerIn: parent; spacing: 14; width: parent.width * 0.8
-            Text { text: "Welcome to X-OS"; color: "#EEF0FF"; font.pixelSize: 30; font.weight: Font.DemiBold; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-            Text { text: "Beyond Windows. Beyond macOS."; color: "#B8BED8"; font.pixelSize: 17; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
+            anchors.centerIn: parent
+            width: parent.width * 0.74
+            spacing: 14
+            Image {
+                anchors.horizontalCenter: parent.horizontalCenter
+                source: s.glyph
+                width: 72; height: 72
+                sourceSize: Qt.size(144, 144)
+            }
+            Item { width: 1; height: 4 }
+            Text {
+                text: s.heading
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+                color: "#EDEEF0"
+                font.family: "Inter"
+                font.pixelSize: 30
+                font.weight: Font.DemiBold
+            }
+            Text {
+                text: s.body
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+                lineHeight: 1.15
+                color: "#A0A4AC"
+                font.family: "Inter"
+                font.pixelSize: 17
+            }
         }
     }
 
-    Slide {
-        Rectangle { anchors.fill: parent; color: "#0B0D1A" }
-        Image { anchors.fill: parent; source: "welcome.svg"; fillMode: Image.PreserveAspectCrop; opacity: 0.6 }
-        Column {
-            anchors.centerIn: parent; spacing: 14; width: parent.width * 0.8
-            Text { text: "Your browsers are on the way"; color: "#EEF0FF"; font.pixelSize: 30; font.weight: Font.DemiBold; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-            Text { text: "Firefox and Chrome are downloaded from Mozilla's and Google's signed servers."; color: "#B8BED8"; font.pixelSize: 17; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-        }
-    }
+    // backdrop behind the slides (not a Slide, so Presentation leaves it alone)
+    Rectangle { anchors.fill: parent; color: "#1A1B1E"; z: -1 }
 
-    Slide {
-        Rectangle { anchors.fill: parent; color: "#0B0D1A" }
-        Image { anchors.fill: parent; source: "welcome.svg"; fillMode: Image.PreserveAspectCrop; opacity: 0.6 }
-        Column {
-            anchors.centerIn: parent; spacing: 14; width: parent.width * 0.8
-            Text { text: "Windows apps"; color: "#EEF0FF"; font.pixelSize: 30; font.weight: Font.DemiBold; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-            Text { text: "Open a .exe or .msi file and X-OS shows whether it can run it before anything is installed."; color: "#B8BED8"; font.pixelSize: 17; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-        }
-    }
-
-    Slide {
-        Rectangle { anchors.fill: parent; color: "#0B0D1A" }
-        Image { anchors.fill: parent; source: "welcome.svg"; fillMode: Image.PreserveAspectCrop; opacity: 0.6 }
-        Column {
-            anchors.centerIn: parent; spacing: 14; width: parent.width * 0.8
-            Text { text: "Switch keyboards"; color: "#EEF0FF"; font.pixelSize: 30; font.weight: Font.DemiBold; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-            Text { text: "Press Alt + Shift to switch between your keyboard layouts."; color: "#B8BED8"; font.pixelSize: 17; width: parent.width; horizontalAlignment: Text.AlignHCenter; wrapMode: Text.Wrap }
-        }
-    }
+    XSlide { heading: "Welcome to X-OS"; body: "Beyond Windows. Beyond macOS." }
+    XSlide { heading: "Your apps, your way"; body: "Firefox is ready. Chrome and other browsers download from their makers' signed servers." }
+    XSlide { heading: "Windows programs"; body: "Double-click a .exe or .msi file: X-OS tells you how well it runs before anything is installed." }
+    XSlide { heading: "Designed to stay calm"; body: "A thin menu bar on top, a floating dock below, and Control Center for everything else." }
+    XSlide { heading: "Two keyboards, one shortcut"; body: "Press Alt + Shift to switch between your keyboard layouts." }
 
     function onActivate() { presentation.currentSlide = 0 }
     function onLeave() { }

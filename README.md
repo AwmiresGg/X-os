@@ -8,25 +8,35 @@ language and Signature Dock, one Control Center for the whole system, a Windows
 Compatibility Engine (Wine/Proton), a unified app store, performance profiles
 for old and new PCs, and a safety-first installer and recovery story.
 
-> **Status: DEVELOPMENT.** The core live ISO builds and boots in virtual machines.
-> There is no desktop image, no installer and no physical-hardware testing yet.
-> **Do not install X-OS on a computer you depend on.** See
+> **Status: DEVELOPMENT.** The desktop live ISO and installer work end to end in virtual
+> machines (Secure Boot included) and have been installed on one real laptop.
+> **Back up your files before installing X-OS on a computer you depend on.** See
 > [documentation/STATUS.md](documentation/STATUS.md) for exactly what works.
 
-![X-OS shell: menu bar, dock and Control Center (offscreen render, demo data)](documentation/images/shell-dark-control-center.png)
+## Download
+
+**[⬇ Download the latest X-OS ISO (desktop, amd64)](https://github.com/AwmiresGg/X-os/releases/download/dev-latest/x-os-0.1.0-dev-desktop-amd64.iso)**
+· [checksum](https://github.com/AwmiresGg/X-os/releases/download/dev-latest/x-os-0.1.0-dev-desktop-amd64.iso.sha256)
+· [release page](https://github.com/AwmiresGg/X-os/releases/tag/dev-latest)
+
+This link always points to the newest build of `main` (rebuilt automatically on every
+change). Write it to a USB stick (Rufus / balenaEtcher / `dd`), boot from it, choose
+*Try X-OS without installing*, then *Install X-OS…* from the setup screen.
+
+![X-OS dock: system apps with X-OS icons, other apps with their own](documentation/images/dock-icons.png)
 
 ## Try it
 
-**فارسی:** [documentation/TRY-X-OS.fa.md](documentation/TRY-X-OS.fa.md) — download the ISO from the
-[build-iso workflow](https://github.com/AwmiresGg/X-os/actions/workflows/build-iso.yml) (Artifacts), then try it in
-VirtualBox (EFI on, 4 GB RAM) or from a USB stick with *Try without installing*.
+**فارسی:** [documentation/TRY-X-OS.fa.md](documentation/TRY-X-OS.fa.md) — download the ISO with the
+link above, then try it in VirtualBox (EFI on, 4 GB RAM) or from a USB stick with
+*Try X-OS without installing*.
 
 ## Quick start (developers)
 
 ```bash
 sudo scripts/setup-build-host.sh          # build dependencies (Debian/Ubuntu host)
 scripts/run-tests.sh                      # unit tests + static checks
-sudo build/build.sh                       # -> releases/out/x-os-<ver>-core-amd64.iso
+XOS_VARIANT=desktop sudo -E build/build.sh # -> releases/out/x-os-<ver>-desktop-amd64.iso
 sudo testing/vm/boot_test.py releases/out/x-os-0.1.0-dev-core-amd64.iso --firmware uefi
 ```
 

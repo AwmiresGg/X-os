@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+# X-OS updates from the command line / the daily timer.
+#   xos-updates check [--notify] [--json]
+import json, os, shutil, signal, subprocess, sys
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+here = os.path.dirname(os.path.realpath(__file__))
+for p in ("/usr/lib/xos/python", os.path.join(here, "..", "lib", "python")):
+    if os.path.isdir(os.path.join(p, "xos")):
+        sys.path.insert(0, p)
+        break
+from xos import updates  # noqa: E402
+
+args = sys.argv[1:]
+if not args or args[0] != "check":
+    print("usage: xos-updates check [--notify] [--json]", file=sys.stderr)
+    sys.exit(2)
+res = updates.check()
+if "--json" in args:
+    print(json.dumps(res, indent=2))
+else:
+    print(updates.summary(res["updates"]))
+    for e in res["errors"]:
+        print("warning:", e)
+if "--notify" in args and res["updates"] and shutil.which("notify-send"):
+    subprocess.run(["notify-send", "-a", "X-OS", "-i", "system-software-update",
+                    "Updates available", updates.summary(res["updates"]) + " Open X-OS Settings > Updates."])

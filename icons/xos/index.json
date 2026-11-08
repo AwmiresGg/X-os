@@ -278,7 +278,8 @@
       "keywords": [
         "security",
         "status"
-      ]
+      ],
+      "tile": "apps/xos-security.svg"
     },
     "chevron-left": {
       "category": "actions",
@@ -348,6 +349,14 @@
         "lock"
       ]
     },
+    "eject": {
+      "category": "actions",
+      "file": "symbolic/actions/eject.svg",
+      "keywords": [
+        "actions",
+        "eject"
+      ]
+    },
     "window-minimize": {
       "category": "window",
       "file": "symbolic/window/window-minimize.svg",
@@ -403,7 +412,8 @@
         "empty",
         "places",
         "trash"
-      ]
+      ],
+      "tile": "apps/xos-trash-empty.svg"
     },
     "trash-full": {
       "category": "places",
@@ -412,13 +422,31 @@
         "full",
         "places",
         "trash"
-      ]
+      ],
+      "tile": "apps/xos-trash-full.svg"
     },
     "downloads": {
       "category": "places",
       "file": "symbolic/places/downloads.svg",
       "keywords": [
         "downloads",
+        "places"
+      ]
+    },
+    "usb-drive": {
+      "category": "places",
+      "file": "symbolic/places/usb-drive.svg",
+      "keywords": [
+        "drive",
+        "places",
+        "usb"
+      ]
+    },
+    "disc": {
+      "category": "places",
+      "file": "symbolic/places/disc.svg",
+      "keywords": [
+        "disc",
         "places"
       ]
     },
@@ -607,6 +635,25 @@
         "updates"
       ],
       "tile": "apps/xos-updates.svg"
+    },
+    "install": {
+      "category": "apps",
+      "file": "symbolic/apps/install.svg",
+      "keywords": [
+        "apps",
+        "install"
+      ],
+      "tile": "apps/xos-install.svg"
+    },
+    "this-pc": {
+      "category": "apps",
+      "file": "symbolic/apps/this-pc.svg",
+      "keywords": [
+        "apps",
+        "pc",
+        "this"
+      ],
+      "tile": "apps/xos-this-pc.svg"
     }
   }
 }

@@ -1,10 +1,15 @@
 #!/bin/sh
 # Installs the X-OS Windows compatibility layer from Debian's signed repositories.
 # Explicit, user-initiated action (adds the i386 architecture for 32-bit Windows programs).
+#   xos-compat-setup          interactive
+#   xos-compat-setup --yes    no prompt (used by the "Windows app" dialog after the user agreed)
 set -eu
 [ "$(id -u)" -eq 0 ] || { echo "run as root: sudo xos-compat-setup" >&2; exit 1; }
 echo "This installs: wine (64- and 32-bit), winetricks, Wine fonts, Vulkan drivers (for DXVK)."
-printf "Continue? [y/N] "; read -r ans; [ "$ans" = y ] || [ "$ans" = Y ] || exit 1
+if [ "${1:-}" != "--yes" ]; then
+    printf "Continue? [y/N] "; read -r ans; [ "$ans" = y ] || [ "$ans" = Y ] || exit 1
+fi
+export DEBIAN_FRONTEND=noninteractive
 dpkg --add-architecture i386
 apt-get update
 apt-get install -y wine wine64 wine32:i386 winetricks fonts-wine mesa-vulkan-drivers mesa-vulkan-drivers:i386 cabextract

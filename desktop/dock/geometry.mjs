@@ -297,7 +297,7 @@ function easeInOutCubic(u) {
  *   goo      true while the outline comes from the field (neck / pinch-off / float)
  *   notchT   cradle opening under the descending droplet
  *   accent   accent-circle opacity (fades in as the droplet arrives)
- *   tile     opacity of the app's tile left in the bar (ends at the normal "active" 0.25)
+ *   tile     opacity of the app's tile left in the bar (ends hidden, like any active app)
  *   oldT     closing progress of the previous app's cradle (1 = still open)
  */
 export const LAUNCH = Object.freeze({ peakAt: 0.6, kFadeStart: 0.5, kFadeEnd: 0.64, gooEnd: 0.66 });
@@ -319,7 +319,7 @@ export function launchState(p, o = DEFAULTS) {
         // the cradle opens ahead of the falling droplet (fully open at p = gooEnd + 0.16)
         notchT: smoothstep((p - LAUNCH.gooEnd) / 0.16),
         accent: smoothstep((p - 0.8) / 0.2),
-        tile: 0.25 + 0.75 * (1 - smoothstep(p / 0.15)),
+        tile: 1 - smoothstep(p / 0.15),
         oldT: 1 - smoothstep(p / 0.3),
     };
 }

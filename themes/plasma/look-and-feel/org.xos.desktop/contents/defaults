@@ -2,7 +2,7 @@
 widgetStyle=Breeze
 
 [kdeglobals][General]
-ColorScheme=BreezeDark
+ColorScheme=XOSDark
 
 [plasmarc][Theme]
 name=breeze-dark

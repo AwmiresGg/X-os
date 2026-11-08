@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Software Update
+Comment=Update X-OS and your apps
+Exec=xos-settings --page updates
+Icon=/usr/share/xos/icons/xos/apps/xos-updates.svg
+Categories=System;
+Keywords=update;upgrade;windows update;patch;
+StartupWMClass=xos-updates

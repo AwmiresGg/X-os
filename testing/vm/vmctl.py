@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Interactive control of a running X-OS test VM (for exploratory GUI testing).
 
-    vmctl.py start ISO [--disk-gb 30] [--memory 4096] [--name main]
+    vmctl.py start ISO [--disk-gb 30] [--memory 4096] [--name main] [--secure-boot] [--nvme]
     vmctl.py shot OUT.png            screenshot
     vmctl.py click X Y               left click at screen pixel (1280x800 default)
     vmctl.py key ctrl+alt+f2         key chord (QEMU qcodes)
@@ -54,6 +54,8 @@ def main() -> int:
     s.add_argument("--keep-disk", action="store_true", help="reuse the existing disk image (boot an install)")
     s.add_argument("--boot-disk", action="store_true", help="boot from the virtual disk instead of the ISO")
     s.add_argument("--secure-boot", action="store_true", help="OVMF with Microsoft keys, Secure Boot enforced")
+    s.add_argument("--nvme", action="store_true",
+                   help="attach the disk as NVMe (non-rotational: exercises installer SSD code paths)")
     sub.add_parser("shot").add_argument("out")
     c = sub.add_parser("click")
     c.add_argument("x", type=int)
@@ -81,7 +83,9 @@ def main() -> int:
                *(["-global", "driver=cfi.pflash01,property=secure,value=on"] if a.secure_boot else []),
                "-drive", f"if=pflash,format=raw,readonly=on,file={code}",
                "-drive", f"if=pflash,format=raw,file={vars_fd}",
-               "-drive", f"file={disk},if=none,id=hd0,format=qcow2", "-device", "virtio-blk-pci,drive=hd0,bootindex=1",
+               "-drive", f"file={disk},if=none,id=hd0,format=qcow2",
+               "-device", ("nvme,serial=xosvm0001,drive=hd0,bootindex=1" if a.nvme
+                           else "virtio-blk-pci,drive=hd0,bootindex=1"),
                "-nic", "user,model=virtio-net-pci,restrict=on", "-device", "virtio-rng-pci",
                "-usb", "-device", "usb-tablet", "-serial", f"file:{st / 'serial.log'}",
                "-pidfile", str(st / "qemu.pid"), "-daemonize"]

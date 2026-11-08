@@ -19,8 +19,8 @@ Dark is the default. One accent. Solid colours first; translucency only for floa
 | `text` | `#ECEEF1` | `#15171A` | primary text, glyphs |
 | `textDim` | `#9AA1AB` | `#555C66` | secondary |
 | `textFaint` | `#5E6570` | `#8A919B` | disabled, placeholders |
-| **`accent`** | **`#2BC4B0`** | **`#0F8F80`** | focus rings, hover glyph tint, indicators, selection |
-| `accentDeep` | `#17524C` | `#CFEFEA` | active circle fill, selected rows |
+| **`accent`** | **`#7A8CFF`** | **`#4A5FE0`** | focus rings, hover glyph tint, indicators, selection |
+| `accentDeep` | `#2E3566` | `#DDE2FF` | active circle fill, selected rows |
 | `accentGlow` | accent @ 35 % | accent @ 25 % | the only "neon": focus glow, active circle rim |
 | `warning` / `danger` / `success` | `#E5B567` / `#E5636B` / `#5FC48A` | darker variants | **semantic states only** (never decoration) |
 

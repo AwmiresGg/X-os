@@ -3,98 +3,259 @@
   "notice": "Ratings are X-OS starting points derived from public community reports (WineHQ AppDB, ProtonDB). 'verified_on_xos' is false until an X-OS test run is recorded in testing/compat-results/. Where an official native Linux version exists, X-OS recommends it instead of the Windows build.",
   "apps": [
     {
-      "id": "notepad-plus-plus", "name": "Notepad++", "category": "productivity",
-      "installer_patterns": ["npp\\..*\\.installer(\\.x64)?\\.exe"],
-      "rating": "gold", "verified_on_xos": false, "runner": "wine", "windows_version": "win10",
-      "win64": true, "dependencies": [], "dxvk": false, "known_issues": []
+      "id": "notepad-plus-plus",
+      "name": "Notepad++",
+      "category": "productivity",
+      "installer_patterns": [
+        "npp\\..*\\.installer(\\.x64)?\\.exe"
+      ],
+      "rating": "gold",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "windows_version": "win10",
+      "win64": true,
+      "dependencies": [],
+      "dxvk": false,
+      "known_issues": [],
+      "silent_args": "/S"
     },
     {
-      "id": "7-zip", "name": "7-Zip", "category": "utilities",
-      "installer_patterns": ["7z\\d+(-x64)?\\.(exe|msi)"],
-      "rating": "gold", "verified_on_xos": false, "runner": "wine", "win64": true,
-      "dependencies": [], "dxvk": false,
-      "native_alternative": {"kind": "deb", "package": "7zip", "note": "Native 7-Zip is preinstalled (7z command, Ark GUI)."},
-      "known_issues": []
+      "id": "7-zip",
+      "name": "7-Zip",
+      "category": "utilities",
+      "installer_patterns": [
+        "7z\\d+(-x64)?\\.(exe|msi)"
+      ],
+      "rating": "gold",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "win64": true,
+      "dependencies": [],
+      "dxvk": false,
+      "native_alternative": {
+        "kind": "deb",
+        "package": "7zip",
+        "note": "Native 7-Zip is preinstalled (7z command, Ark GUI)."
+      },
+      "known_issues": [],
+      "silent_args": "/S"
     },
     {
-      "id": "office-2016", "name": "Microsoft Office 2016 (32-bit, retail/volume installer)", "category": "productivity",
-      "installer_patterns": ["setup\\.exe"], "match_requires_hash": true,
-      "rating": "bronze", "verified_on_xos": false, "runner": "wine", "windows_version": "win7",
-      "win64": false, "dependencies": ["corefonts", "msxml6", "riched20"], "dxvk": false,
-      "known_issues": ["Office 365 / Microsoft 365 Click-to-Run installers are not supported.",
-                       "Activation, OneDrive integration and some add-ins do not work.",
-                       "Web alternative: Microsoft 365 for the web as an installed web app."]
+      "id": "office-2016",
+      "name": "Microsoft Office 2016 (32-bit, retail/volume installer)",
+      "category": "productivity",
+      "installer_patterns": [
+        "setup\\.exe"
+      ],
+      "match_requires_hash": true,
+      "rating": "bronze",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "windows_version": "win7",
+      "win64": false,
+      "dependencies": [
+        "corefonts",
+        "msxml6",
+        "riched20"
+      ],
+      "dxvk": false,
+      "known_issues": [
+        "Office 365 / Microsoft 365 Click-to-Run installers are not supported.",
+        "Activation, OneDrive integration and some add-ins do not work.",
+        "Web alternative: Microsoft 365 for the web as an installed web app."
+      ],
+      "win32": true
     },
     {
-      "id": "photoshop-cs6", "name": "Adobe Photoshop CS6", "category": "creative",
-      "installer_patterns": ["photoshop_13.*\\.exe"],
-      "rating": "silver", "verified_on_xos": false, "runner": "wine", "windows_version": "win7",
-      "win64": true, "dependencies": ["vcrun2010", "msxml6", "atmlib", "gdiplus"], "dxvk": false,
-      "known_issues": ["GPU acceleration features are unavailable.", "A legitimately licensed copy is required."]
+      "id": "photoshop-cs6",
+      "name": "Adobe Photoshop CS6",
+      "category": "creative",
+      "installer_patterns": [
+        "photoshop_13.*\\.exe"
+      ],
+      "rating": "silver",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "windows_version": "win7",
+      "win64": true,
+      "dependencies": [
+        "vcrun2010",
+        "msxml6",
+        "atmlib",
+        "gdiplus"
+      ],
+      "dxvk": false,
+      "known_issues": [
+        "GPU acceleration features are unavailable.",
+        "A legitimately licensed copy is required."
+      ]
     },
     {
-      "id": "adobe-creative-cloud", "name": "Adobe Creative Cloud (Photoshop/Illustrator/Premiere Pro/After Effects 2020+)", "category": "creative",
-      "installer_patterns": ["creative_?cloud.*\\.exe", ".*_set-up\\.exe"],
-      "rating": "unsupported", "verified_on_xos": false, "runner": "wine",
-      "known_issues": ["The Creative Cloud installer and licensing service do not run under Wine.",
-                       "Premiere Pro and After Effects require GPU APIs Wine does not provide.",
-                       "Native alternatives: Krita, GIMP, Inkscape, Kdenlive, DaVinci Resolve (Linux build)."]
+      "id": "adobe-creative-cloud",
+      "name": "Adobe Creative Cloud (Photoshop/Illustrator/Premiere Pro/After Effects 2020+)",
+      "category": "creative",
+      "installer_patterns": [
+        "creative_?cloud.*\\.exe",
+        ".*_set-up\\.exe"
+      ],
+      "rating": "unsupported",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "known_issues": [
+        "The Creative Cloud installer and licensing service do not run under Wine.",
+        "Premiere Pro and After Effects require GPU APIs Wine does not provide.",
+        "Native alternatives: Krita, GIMP, Inkscape, Kdenlive, DaVinci Resolve (Linux build)."
+      ]
     },
     {
-      "id": "autocad", "name": "Autodesk AutoCAD (2018+)", "category": "creative",
-      "installer_patterns": ["autocad.*\\.exe"],
-      "rating": "unsupported", "verified_on_xos": false, "runner": "wine",
-      "known_issues": ["Installer depends on .NET and licensing components that fail under Wine.",
-                       "Alternatives: FreeCAD, LibreCAD, BricsCAD (has an official Linux build)."]
+      "id": "autocad",
+      "name": "Autodesk AutoCAD (2018+)",
+      "category": "creative",
+      "installer_patterns": [
+        "autocad.*\\.exe"
+      ],
+      "rating": "unsupported",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "known_issues": [
+        "Installer depends on .NET and licensing components that fail under Wine.",
+        "Alternatives: FreeCAD, LibreCAD, BricsCAD (has an official Linux build)."
+      ]
     },
     {
-      "id": "google-chrome-win", "name": "Google Chrome (Windows installer)", "category": "browser",
-      "installer_patterns": ["chromesetup\\.exe", "googlechromestandaloneenterprise(64)?\\.msi"],
-      "rating": "bronze", "verified_on_xos": false, "runner": "wine",
-      "native_alternative": {"kind": "deb", "source": "dl.google.com/linux/chrome/deb", "note": "Official Google Chrome for Linux; X-Store installs it from Google's signed repository."},
-      "known_issues": ["The Windows build runs sandboxed poorly under Wine; use the official Linux build."]
+      "id": "google-chrome-win",
+      "name": "Google Chrome (Windows installer)",
+      "category": "browser",
+      "installer_patterns": [
+        "chromesetup\\.exe",
+        "googlechromestandaloneenterprise(64)?\\.msi"
+      ],
+      "rating": "bronze",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "native_alternative": {
+        "kind": "deb",
+        "source": "dl.google.com/linux/chrome/deb",
+        "note": "Official Google Chrome for Linux; X-Store installs it from Google's signed repository."
+      },
+      "known_issues": [
+        "The Windows build runs sandboxed poorly under Wine; use the official Linux build."
+      ]
     },
     {
-      "id": "discord-win", "name": "Discord (Windows installer)", "category": "communication",
-      "installer_patterns": ["discordsetup\\.exe"],
-      "rating": "bronze", "verified_on_xos": false, "runner": "wine",
-      "native_alternative": {"kind": "deb", "source": "discord.com/api/download?platform=linux&format=deb", "note": "Official Discord for Linux."},
-      "known_issues": ["Use the official Linux build."]
+      "id": "discord-win",
+      "name": "Discord (Windows installer)",
+      "category": "communication",
+      "installer_patterns": [
+        "discordsetup\\.exe"
+      ],
+      "rating": "bronze",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "native_alternative": {
+        "kind": "deb",
+        "source": "discord.com/api/download?platform=linux&format=deb",
+        "note": "Official Discord for Linux."
+      },
+      "known_issues": [
+        "Use the official Linux build."
+      ]
     },
     {
-      "id": "telegram-win", "name": "Telegram Desktop (Windows installer)", "category": "communication",
-      "installer_patterns": ["tsetup.*\\.exe"],
-      "rating": "silver", "verified_on_xos": false, "runner": "wine",
-      "native_alternative": {"kind": "flatpak", "ref": "org.telegram.desktop", "note": "Official Telegram Desktop (Flathub, published by Telegram)."},
-      "known_issues": ["Use the official Linux build for notifications and file integration."]
+      "id": "telegram-win",
+      "name": "Telegram Desktop (Windows installer)",
+      "category": "communication",
+      "installer_patterns": [
+        "tsetup.*\\.exe"
+      ],
+      "rating": "silver",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "native_alternative": {
+        "kind": "flatpak",
+        "ref": "org.telegram.desktop",
+        "note": "Official Telegram Desktop (Flathub, published by Telegram)."
+      },
+      "known_issues": [
+        "Use the official Linux build for notifications and file integration."
+      ]
     },
     {
-      "id": "spotify-win", "name": "Spotify (Windows installer)", "category": "multimedia",
-      "installer_patterns": ["spotifysetup\\.exe"],
-      "rating": "bronze", "verified_on_xos": false, "runner": "wine",
-      "native_alternative": {"kind": "deb", "source": "repository.spotify.com", "note": "Official Spotify for Linux."},
-      "known_issues": ["Use the official Linux build."]
+      "id": "spotify-win",
+      "name": "Spotify (Windows installer)",
+      "category": "multimedia",
+      "installer_patterns": [
+        "spotifysetup\\.exe"
+      ],
+      "rating": "bronze",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "native_alternative": {
+        "kind": "deb",
+        "source": "repository.spotify.com",
+        "note": "Official Spotify for Linux."
+      },
+      "known_issues": [
+        "Use the official Linux build."
+      ]
     },
     {
-      "id": "steam-win", "name": "Steam (Windows installer)", "category": "games",
-      "installer_patterns": ["steamsetup\\.exe"],
-      "rating": "bronze", "verified_on_xos": false, "runner": "wine",
-      "native_alternative": {"kind": "deb", "package": "steam-installer", "note": "Native Steam with Proton runs Windows games; use it instead."},
-      "known_issues": ["Run Windows games through native Steam + Proton."]
+      "id": "steam-win",
+      "name": "Steam (Windows installer)",
+      "category": "games",
+      "installer_patterns": [
+        "steamsetup\\.exe"
+      ],
+      "rating": "bronze",
+      "verified_on_xos": false,
+      "runner": "wine",
+      "native_alternative": {
+        "kind": "deb",
+        "package": "steam-installer",
+        "note": "Native Steam with Proton runs Windows games; use it instead."
+      },
+      "known_issues": [
+        "Run Windows games through native Steam + Proton."
+      ]
     },
     {
-      "id": "epic-games-launcher", "name": "Epic Games Launcher", "category": "games",
-      "installer_patterns": ["epicinstaller.*\\.msi"],
-      "rating": "silver", "verified_on_xos": false, "runner": "proton", "win64": true,
-      "dependencies": [], "dxvk": true, "vkd3d": true,
-      "native_alternative": {"kind": "flatpak", "ref": "com.heroicgameslauncher.hgl", "note": "Heroic Games Launcher (open-source, unofficial) accesses an Epic library."},
-      "known_issues": ["Games with kernel anti-cheat will not run.", "Launcher UI can be slow."]
+      "id": "epic-games-launcher",
+      "name": "Epic Games Launcher",
+      "category": "games",
+      "installer_patterns": [
+        "epicinstaller.*\\.msi"
+      ],
+      "rating": "silver",
+      "verified_on_xos": false,
+      "runner": "proton",
+      "win64": true,
+      "dependencies": [],
+      "dxvk": true,
+      "vkd3d": true,
+      "native_alternative": {
+        "kind": "flatpak",
+        "ref": "com.heroicgameslauncher.hgl",
+        "note": "Heroic Games Launcher (open-source, unofficial) accesses an Epic library."
+      },
+      "known_issues": [
+        "Games with kernel anti-cheat will not run.",
+        "Launcher UI can be slow."
+      ]
     },
     {
-      "id": "valorant", "name": "VALORANT", "category": "games",
-      "installer_patterns": ["install valorant.*\\.exe", "valorant.*installer.*\\.exe"],
-      "rating": "unsupported", "verified_on_xos": false, "runner": "proton",
-      "known_issues": ["Riot Vanguard is a Windows kernel driver; it cannot run on Linux."]
+      "id": "valorant",
+      "name": "VALORANT",
+      "category": "games",
+      "installer_patterns": [
+        "install valorant.*\\.exe",
+        "valorant.*installer.*\\.exe"
+      ],
+      "rating": "unsupported",
+      "verified_on_xos": false,
+      "runner": "proton",
+      "known_issues": [
+        "Riot Vanguard is a Windows kernel driver; it cannot run on Linux."
+      ]
     }
   ]
 }

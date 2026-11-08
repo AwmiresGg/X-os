@@ -1,57 +1,75 @@
 # X-OS Implementation Status
 
-Last updated: 2026-11-07 · Build: `x-os-0.1.0-dev-core-amd64.iso`
-(sha256 `bc14a68bf9747d35f6e6d5b2db27ce9a19e1a5332ecd5542e349de1fc6bba10b`) ·
-Release state: **INTERNAL TESTING** (see `releases/STATE.md`)
+Last updated: 2026-11-07 · Build: `x-os-0.1.0-dev-desktop-amd64.iso` (1.5 GB,
+sha256 `d571878df693b573f61c36d8ad30ca464841326e56b6418116ed9ab79fc1a18d`, built locally;
+CI builds the same recipe as the `x-os-desktop-iso` artifact) ·
+Release state: **INTERNAL TESTING** (see `releases/STATE.md`, `RELEASE-GATES.md`)
 
-Test levels: **U** unit tested · **I** integration tested · **VM** VM tested ·
-**HW** physical hardware tested · **—** not tested.
+Test levels: **U** unit tested · **R** rendered offscreen with the image's own Qt ·
+**VM** tested in a virtual machine (QEMU, software emulation) · **HW** physical hardware ·
+**—** not tested.
+
+## End-to-end install (VM, Secure Boot enforced)
+
+Run on 2026-11-07 with OVMF + Microsoft keys, Secure Boot **on** for every step, 30 GiB
+blank virtual disk, no network:
+
+| Step | Result | Evidence |
+|---|---|---|
+| Live boot menu (signed GRUB in lockdown, X-OS theme with GRUB's built-in font) | pass | `images/vm-boot-menu-secure-boot.png` |
+| Same menu without Secure Boot (Inter fonts) | pass | `images/vm-boot-menu.png` |
+| Live session → X-OS Setup (language, keyboard + Persian, Wi-Fi page, appearance, apps) | pass | — |
+| Installer: welcome, location, keyboard, erase disk, user, summary, confirmation dialog | pass | `images/vm-installer-welcome.png`, `images/vm-installer-partitions.png` |
+| Installation (unpack, bootloader with shim + signed GRUB, users) + slideshow | pass (~12 min under emulation) | `images/vm-installer-slides.png` |
+| Finish page with "Restart now" | pass | — |
+| Installed system: X-OS boot menu under Secure Boot | pass | `images/vm-installed-boot-menu-secure-boot.png` |
+| Installed system: X-OS splash (Plymouth) | pass | `images/vm-installed-splash.png` |
+| Installed system: X-OS login screen, session "X-OS", password login | pass | `images/vm-installed-login.png` |
+| Installed system: X-OS desktop (menu bar + dock), terminal works, user has sudo | pass | `images/vm-installed-desktop.png` |
+
+The installer sidebar/navigation QML is also rendered offscreen against mock Calamares
+objects (`testing/installer/render_calamares_panels.py`, `images/installer-panels-render.png`).
 
 ## Works today
 
 | Feature | Level | Evidence |
 |---|---|---|
-| Reproducible ISO build pipeline (Debian 13, core variant), re-runnable stages | VM | `build/build.sh`; built 3× this session |
-| Hybrid ISO boots on **UEFI** (OVMF) and **BIOS** (SeaBIOS) | VM | `testing/results/*-{bios,uefi}-*.json` |
-| **Secure Boot**: Microsoft-signed shim → Debian-signed GRUB → signed kernel; boots with Secure Boot enforced (OVMF + Microsoft keys) | VM | `testing/results/*-uefi-sb-*.json` |
-| Live session at **2 GiB** and **4 GiB** RAM | VM | same |
-| systemd reaches `running`, no failed units | VM | self-test `systemd` |
-| NetworkManager: wired DHCP, online | VM | self-test `network-manager`, `connectivity` (isolated network) |
-| Firewall (ufw) active by default, deny incoming | VM | self-test `firewall` |
-| Disk tools present: parted, mkfs.{ext4,ntfs,exfat,btrfs,xfs,vfat}, cryptsetup, smartctl, udisks2 | VM | self-test `disk-tools` |
-| Clean shutdown (`systemctl poweroff`) | VM | `clean_poweroff: true` |
-| Hardware discovery `xos-hwprobe` (PCI/USB/input/disk/net/battery, missing driver detection) | U, VM | `testing/unit/test_hardware.py`; 11 devices found in VM, 0 false problems |
-| Performance profiles `xos-profile` (recommend/apply) | U, VM (recommend) | `ProfileTests`; live boot applies LITE in VM |
-| Windows installer detection + plan `xos-compat detect/plan` | U | `testing/unit/test_compat.py` (synthetic files) |
-| Boot self-test `xos-selftest` | U, VM | `test_selftest.py`; runs in every VM test |
-| Signature Dock geometry engine | U | `testing/unit/dock.test.mjs` (9 tests) |
-| Signature Dock QML component (GPU + software render paths) | rendered offscreen | `documentation/images/dock-preview-*.png` |
+| Reproducible ISO build pipeline (Debian 13, core + desktop variants), re-runnable stages | VM | `build/build.sh`; CI workflow `build-iso.yml` |
+| Hybrid ISO boots on UEFI, BIOS and UEFI with Secure Boot enforced | VM | `testing/results/*-{bios,uefi,uefi-sb}-*.json` |
+| Live session (Plasma 6 Wayland + X-OS shell: menu bar, dock, Control Center) | VM | `images/vm-live-session-shell.png`, `images/vm-control-center.png` |
+| Dock launch "droplet" animation and floating active circle | U, VM | `testing/unit/dock.test.mjs` (18 tests), `images/vm-dock-launch-konsole.png` |
+| Window controls (X-OS Aurorae decoration) | VM | `images/vm-window-controls.png` |
+| X-OS Setup wizard (language, keyboard, Wi-Fi, appearance, browsers) | U, VM | `testing/unit/test_setup.py` |
+| Installer (Calamares with X-OS branding, QML sidebar/navigation, slides) | R, VM | section above |
+| Boot menu theme (live + installed), Plymouth splash, login screen | U, VM | `testing/unit/test_boot_experience.py`, section above |
+| Windows apps: detection, rating, plan; real 7-Zip `.exe` and `.msi` installs | U, VM | `testing/unit/test_compat.py`; VM run with Wine 10 |
+| Hardware discovery `xos-hwprobe`, performance profiles `xos-profile` | U, VM | `test_hardware.py`, `test_profiles` |
+| Boot self-test `xos-selftest` (systemd, network, firewall, live user, desktop session, Secure Boot) | U, VM | `test_selftest.py` |
+| Firewall (ufw) on by default, deny incoming | VM | self-test `firewall` |
 
 ## Implemented but NOT yet tested end-to-end
 
-* `xos-compat install` (runs Wine, winetricks, installer) — needs Wine in a VM with real installers.
-* `xos-compat-setup` (installs Wine from Debian).
-* `xos-profile apply` effects on KWin/zram on a desktop system.
-* GRUB entries other than the default (LITE, safe graphics, toram, self-test, UEFI setup).
-
-## Not started
-
-Desktop ISO, top bar, launcher, notifications, Control Center UI, Disk Manager
-write operations, Bluetooth/VPN/Audio/Display managers, File Manager theming,
-X-Store, Gaming, Security Center, snapshots/recovery, AI assistant, installer,
-Plymouth/GRUB theme. See `ROADMAP.md`.
+* Installing next to Windows (dual boot, "Install alongside" / os-prober entry): the
+  installer offers it, but only blank virtual disks were used. **Back up first.**
+* Disk encryption option in the installer.
+* Downloading Chrome during/after install (needs network; fingerprints are pinned).
+* GRUB entries other than the default (Lite, safe graphics, from memory, self-test).
+* `xos-profile apply` effects on a desktop system.
 
 ## Never tested (needs a person with hardware)
 
 Everything at level **HW**: Wi-Fi, Bluetooth, audio, real GPUs, touchpads,
-sleep/wake, batteries, brightness, USB boot. The development environment has
-no physical hardware and no KVM (see `ENVIRONMENT.md`).
+sleep/wake, batteries, brightness, booting from a real USB stick, real firmware
+Secure Boot implementations. The development environment has no physical hardware
+and no KVM (see `ENVIRONMENT.md`).
 
 ## Known issues
 
 | Severity | Issue |
 |---|---|
-| Medium | Dock hand-over: rising circle overlaps the notch shoulder by a few px for ~100 ms. |
 | Medium | Builds are not bit-reproducible (mirror moves; no SOURCE_DATE_EPOCH). |
-| Low | Boot menu is text-only; no boot splash. |
+| Low | Between the splash and the login screen the screen is briefly black with a text cursor (long under emulation). Handing the splash to SDDM (`plymouth quit --retain-splash` + `Conflicts=plymouth-quit`) hung the boot in a VM test, so it is not used. |
+| Low | Under Secure Boot the boot menu uses GRUB's built-in font instead of Inter (lockdown refuses to load fonts from disk). |
+| Low | The installer's time-zone map and keyboard preview are Calamares' own widgets and do not follow the dark theme. |
+| Low | Calamares paints partition names in black, so the partition legend sits on a light strip. |
 | Info | VM timings come from software emulation (TCG) and are not performance data. |

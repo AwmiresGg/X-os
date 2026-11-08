@@ -21,11 +21,9 @@ Relogin=false
 CONF
 
 mkdir -p /etc/xdg
-cat > /etc/xdg/kscreenlockerrc <<CONF
-[Daemon]
-Autolock=false
-LockOnResume=false
-CONF
+# edit keys, do not overwrite: the file also holds the X-OS lock-screen wallpaper
+kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Daemon --key Autolock false
+kwriteconfig6 --file /etc/xdg/kscreenlockerrc --group Daemon --key LockOnResume false
 
 # Never dim, blank or suspend the live session: a laptop going to sleep in the
 # middle of an installation must not happen. (Installed systems keep defaults.)

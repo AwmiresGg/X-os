@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-for p in ("/usr/lib/xos/python", str(HERE.parents[1] / "lib/python")):
+for p in (str(HERE.parents[1] / "lib/python"), "/usr/lib/xos/python"):   # source tree first
     if Path(p, "xos").is_dir():
         sys.path.insert(0, p)
         break
@@ -37,6 +37,7 @@ from PySide6.QtSvg import QSvgRenderer  # noqa: E402
 
 from xos import shellstatus as ss  # noqa: E402
 from xos import windows as W  # noqa: E402
+from xos import desktoparea  # noqa: E402
 
 ICON_DIRS = [Path("/usr/share/xos/icons/xos"), HERE.parents[1] / "icons/xos"]
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "xos/shell.json"
@@ -349,6 +350,11 @@ class Windows(QObject):
         self._run_kwin_script(path, name)
         QTimer.singleShot(1500, lambda: (self.scripting.call("unloadScript", name), Path(path).unlink(missing_ok=True)))
 
+    @Slot(str, result=str)
+    def systemIcon(self, name):
+        """Path of a full-colour X-OS icon (dock trash etc.); a theme name when not installed."""
+        return W.system_icon(name) or ("user-trash-full" if name == "trash-full" else "user-trash")
+
     @Slot(str)
     def activateApp(self, app_id):
         """Dock click: launch if not running, focus if in background, minimize if focused."""
@@ -371,10 +377,14 @@ class Windows(QObject):
     @Slot(str)
     def openUrl(self, target):
         """Open a settings module / folder / URL with the desktop's handler."""
-        allowed = target.startswith(("systemsettings", "kcm_", "trash:/", "file://", "https://"))
+        allowed = target.startswith(("systemsettings", "kcm_", "trash:/", "file://", "https://", "xos-settings:"))
         if not allowed:
             return
-        if target.startswith(("systemsettings", "kcm_")):
+        if target.startswith("xos-settings:"):
+            page = target.split(":", 1)[1]
+            if page in ("tweaks", "updates", "security", "this-pc", "about"):
+                QProcess.startDetached("xos-settings", ["--page", page])
+        elif target.startswith(("systemsettings", "kcm_")):
             QProcess.startDetached("systemsettings", [target.split(":", 1)[1]] if ":" in target else [])
         else:
             QProcess.startDetached("xdg-open", [target])
@@ -413,6 +423,40 @@ DEMO_WINDOWS = {"windows": [
     {"id": "0b5c7e1a-2222-4a2b-9c3d-bbbbbbbbbbbb", "caption": "X-OS — Mozilla Firefox", "appId": "firefox-esr"},
     {"id": "0b5c7e1a-3333-4a2b-9c3d-cccccccccccc", "caption": "~ : bash — Konsole", "appId": "org.kde.konsole"},
 ], "active": "0b5c7e1a-2222-4a2b-9c3d-bbbbbbbbbbbb"}
+
+
+class DesktopArea(QObject):
+    """Tells plasmashell which part of each screen is free for desktop icons (screen minus
+    menu bar and dock), and repeats it when screens change or plasmashell (re)starts."""
+
+    def __init__(self, app):
+        super().__init__(app)
+        from PySide6.QtDBus import QDBusConnection, QDBusServiceWatcher
+        self.app = app
+        self.bus = QDBusConnection.sessionBus()
+        self.top, self.bottom = desktoparea.bar_sizes()
+        self.watch = QDBusServiceWatcher(desktoparea.SERVICE, self.bus,
+                                         QDBusServiceWatcher.WatchModeFlag.WatchForRegistration, self)
+        self.watch.serviceRegistered.connect(lambda _n: QTimer.singleShot(1500, self.report))
+        app.screenAdded.connect(self._track)
+        for sc in app.screens():
+            self._track(sc)
+        QTimer.singleShot(2000, self.report)
+
+    def _track(self, screen):
+        screen.geometryChanged.connect(lambda _g: self.report())
+        QTimer.singleShot(500, self.report)
+
+    def report(self):
+        from PySide6.QtCore import QRect
+        from PySide6.QtDBus import QDBusMessage
+        for sc in self.app.screens():
+            g = sc.geometry()
+            x, y, w, h = desktoparea.available_rect(g.x(), g.y(), g.width(), g.height(), self.top, self.bottom)
+            msg = QDBusMessage.createMethodCall(desktoparea.SERVICE, desktoparea.PATH, desktoparea.IFACE,
+                                                "setAvailableScreenRect")
+            msg.setArguments([self.bus.baseService(), sc.name(), QRect(x, y, w, h)])
+            self.bus.asyncCall(msg)
 
 
 def _keep_dock_input_region(app) -> None:
@@ -468,6 +512,15 @@ def main() -> int:
     app.setApplicationName("xos-shell")
     app.setDesktopFileName("xos-shell")
     app.setQuitOnLastWindowClosed(False)
+    # App icons come from the icon theme: make sure one is set and the standard XDG and
+    # Flatpak icon directories are searched even outside a Plasma session.
+    home = Path.home()
+    extra = [str(home / ".local/share/icons"), str(home / ".local/share/flatpak/exports/share/icons"),
+             "/var/lib/flatpak/exports/share/icons", "/usr/local/share/icons", "/usr/share/icons"]
+    QIcon.setThemeSearchPaths(list(dict.fromkeys(QIcon.themeSearchPaths() + [p for p in extra if Path(p).is_dir()])))
+    if not QIcon.themeName() or QIcon.themeName() == "hicolor":
+        QIcon.setThemeName("breeze-dark")
+    QIcon.setFallbackThemeName("breeze")
 
     settings = Settings(persist=not a.preview)
     if a.theme:
@@ -481,8 +534,9 @@ def main() -> int:
     engine.addImageProvider("xicon", IconProvider("xicon"))
     engine.addImageProvider("appicon", IconProvider("appicon"))
     qml = HERE / "qml"
-    engine.addImportPath(str(HERE.parents[1] / "ui/qml"))
+    # addImportPath prepends: the source tree's modules (added last) win over installed ones
     engine.addImportPath("/usr/share/xos/qml")
+    engine.addImportPath(str(HERE.parents[1] / "ui/qml"))
     wayland = QGuiApplication.platformName() == "wayland"
     engine.addImportPath(str(qml / "platform" / ("wayland" if wayland and not a.preview else "fallback")))
     engine.setInitialProperties({"settings": settings, "status": status, "windows": wins,
@@ -492,6 +546,10 @@ def main() -> int:
         return 1
     if not a.preview:
         _keep_dock_input_region(app)
+        try:
+            app._xos_area = DesktopArea(app)     # keep desktop icons clear of menu bar + dock
+        except Exception as e:                   # never take the shell down for this
+            print(f"xos-shell: desktop area not reported: {e}", file=sys.stderr)
     if a.smoke and not a.preview:
         QTimer.singleShot(int(a.smoke * 1000), app.quit)
     if a.preview:

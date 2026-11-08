@@ -25,25 +25,63 @@ STROKE = 1.75
 HEAD = (f'<svg xmlns="{SVGNS}" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" '
         f'stroke-width="{STROKE}" stroke-linecap="round" stroke-linejoin="round">')
 
-TILE = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">'
-        '<defs><linearGradient id="h" x1="0" y1="0" x2="0" y2="1">'
-        '<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.06"/>'
-        '<stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>'
-        '<rect x="2.5" y="2.5" width="59" height="59" rx="15" fill="#22262B" stroke="#FFFFFF" stroke-opacity="0.16"/>'
-        '<rect x="3" y="3" width="58" height="58" rx="14.5" fill="url(#h)"/>'
-        # glyph scaled 24 -> 32 px; stroke kept at 1.75 in glyph units (renders 2.33 px at 64)
-        '<g transform="translate(16 16) scale(1.3333)" fill="none" stroke="#ECEEF1" stroke-width="1.75" '
-        'stroke-linecap="round" stroke-linejoin="round">{body}</g></svg>')
+# Full-colour app icons (system apps only use them in the dock; other apps keep their own
+# icon). A superellipse ("squircle") tile with a vertical gradient, a soft top sheen and a
+# white symbol. PALETTE: name -> (top, bottom[, symbol colour]).
+PALETTE = {
+    "files": ("#86B8FF", "#3F6FE8"), "terminal": ("#41454D", "#17181B"),
+    "settings": ("#A3A8B2", "#5A5F69"), "control-center": ("#959DB0", "#4E5566"),
+    "install": ("#A3B0FF", "#5B5BD6"), "store": ("#C7A2FF", "#7B5CF0"),
+    "updates": ("#86D6FF", "#3A8EEA"), "security": ("#FFC978", "#E8873A"),
+    "this-pc": ("#AEB9CC", "#5F6B85"), "system-monitor": ("#FFA88A", "#E2604A"),
+    "disk-manager": ("#BCC1CB", "#6B717C"), "device-manager": ("#A9B4C8", "#5B6681"),
+    "windows-apps": ("#9FD0FF", "#4A7BE0"),
+    "trash-empty": ("#F2F3F6", "#C3C7CF", "#3A3D44"), "trash-full": ("#F2F3F6", "#C3C7CF", "#3A3D44"),
+}
+DEFAULT_TILE = ("#9AA2B1", "#555C6A")
+# glyphs outside the "apps" category that also get a full-colour tile
+EXTRA_TILES = ("security", "trash-empty", "trash-full")
+
+
+def _squircle(cx=32.0, cy=32.0, r=28.0, n=5.0, steps=72) -> str:
+    import math
+    pts = []
+    for i in range(steps):
+        t = 2 * math.pi * i / steps
+        c, s_ = math.cos(t), math.sin(t)
+        x = cx + r * math.copysign(abs(c) ** (2 / n), c)
+        y = cy + r * math.copysign(abs(s_) ** (2 / n), s_)
+        pts.append(f"{x:.2f} {y:.2f}")
+    return "M" + " L".join(pts) + "Z"
+
+
+SQUIRCLE = _squircle()
+
+
+def tile_svg(body: str, name: str = "") -> str:
+    top, bottom, *fg = PALETTE.get(name, DEFAULT_TILE)
+    fg = fg[0] if fg else "#FFFFFF"
+    glyph = body.replace('class="fill"', f'fill="{fg}" stroke="none"')
+    shade = body.replace('class="fill"', 'fill="#000000" stroke="none"')
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><defs>'
+        f'<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{top}"/>'
+        f'<stop offset="1" stop-color="{bottom}"/></linearGradient>'
+        '<linearGradient id="sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.30"/>'
+        '<stop offset="0.48" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>'
+        f'<path d="{SQUIRCLE}" fill="url(#bg)"/><path d="{SQUIRCLE}" fill="url(#sh)"/>'
+        f'<path d="{SQUIRCLE}" fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="0.8"/>'
+        # soft shadow under the symbol, then the symbol (24 -> 36 px, centred)
+        '<g transform="translate(14 15) scale(1.5)" fill="none" stroke="#000000" stroke-opacity="0.16" '
+        f'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">{shade}</g>'
+        f'<g transform="translate(14 14) scale(1.5)" fill="none" stroke="{fg}" stroke-width="1.9" '
+        f'stroke-linecap="round" stroke-linejoin="round">{glyph}</g></svg>\n')
 
 
 def glyph_svg(body: str) -> str:
     # class="fill" marks small solid details: currentColor fill, no stroke
     body = body.replace('class="fill"', 'fill="currentColor" stroke="none"')
     return HEAD + body + "</svg>\n"
-
-
-def tile_svg(body: str) -> str:
-    return TILE.format(body=body.replace('class="fill"', 'fill="#ECEEF1" stroke="none"')) + "\n"
 
 
 _NUM = re.compile(r"-?\d*\.?\d+(?:e-?\d+)?")
@@ -142,9 +180,9 @@ def build(write: bool = True) -> tuple[dict, list[str]]:
             index[name] = {"category": cat, "file": rel,
                            "keywords": sorted(set(name.split("-")) | {cat})}
             files = {OUT / rel: svg}
-            if cat == "apps":
+            if cat == "apps" or name in EXTRA_TILES:
                 index[name]["tile"] = f"apps/xos-{name}.svg"
-                files[OUT / "apps" / f"xos-{name}.svg"] = tile_svg(body)
+                files[OUT / "apps" / f"xos-{name}.svg"] = tile_svg(body, name)
             for path, text in files.items():
                 if write:
                     path.parent.mkdir(parents=True, exist_ok=True)

@@ -5,15 +5,15 @@ welcomeExpandingLogo: true
 windowExpanding: normal
 windowSize: 1024px,680px
 windowPlacement: center
-sidebar: widget
-navigation: widget
+sidebar: qml
+navigation: qml
 
 strings:
     productName:         "X-OS"
     shortProductName:    "X-OS"
     version:             "0.1.0-dev"
     shortVersion:        "0.1"
-    versionedName:       "X-OS 0.1 (development build)"
+    versionedName:       "X-OS 0.1"
     shortVersionedName:  "X-OS 0.1"
     bootloaderEntryName: "X-OS"
     productUrl:          "https://github.com/AwmiresGg/X-os"
@@ -25,11 +25,12 @@ images:
     productIcon:         "logo.svg"
     productWelcome:      "welcome.svg"
 
+stylesheet:              "stylesheet.qss"
 slideshow:               "show.qml"
 slideshowAPI:            2
 
 style:
-   SidebarBackground:        "#121417"
-   SidebarText:              "#EEF0FF"
+   SidebarBackground:        "#1A1B1E"
+   SidebarText:              "#A0A4AC"
    SidebarTextCurrent:       "#FFFFFF"
-   SidebarBackgroundCurrent: "#17524C"
+   SidebarBackgroundCurrent: "#2E3566"
