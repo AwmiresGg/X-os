@@ -1,3 +1,4 @@
+import json
 """X-OS window decoration (Aurorae): generated files in sync and structurally valid."""
 import configparser
 import re
@@ -44,11 +45,12 @@ class DecorationTests(unittest.TestCase):
         svg = (THEMES / "XOS-Dark/close.svg").read_text()
         rest = re.search(r'<g id="active-center">(.*?)</g>', svg).group(1)
         hover = re.search(r'<g id="hover-center">(.*?)</g>', svg).group(1)
-        self.assertIn("#3A3F46", rest)          # neutral dot, no colour at rest
-        self.assertIn("#E5636B", hover)         # danger colour only on hover
+        tok = json.loads((ROOT / "ui/theme/tokens.json").read_text())["color"]["dark"]
+        self.assertIn("#3B3E44", rest)          # neutral dot, no colour at rest
+        self.assertIn(tok["danger"], hover)     # danger colour only on hover
         self.assertIn("<path", hover)           # glyph appears on hover
         self.assertNotIn("<path", rest)
-        self.assertIn("#2BC4B0", (THEMES / "XOS-Dark/maximize.svg").read_text())   # X-OS accent
+        self.assertIn(tok["accent"], (THEMES / "XOS-Dark/maximize.svg").read_text())   # X-OS accent
 
     def test_defaults_put_buttons_on_the_left(self):
         hook = (ROOT / "build/hooks/chroot/40-desktop-defaults.sh").read_text()

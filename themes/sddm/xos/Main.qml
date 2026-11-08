@@ -7,14 +7,14 @@ Rectangle {
     id: root
     width: 1280
     height: 800
-    color: "#0B0C0E"
+    color: "#141517"
 
     // ------------------------------------------------------------------ tokens (XOS.Theme dark)
-    readonly property color cText: "#ECEEF1"
-    readonly property color cDim: "#9AA1AB"
-    readonly property color cFaint: "#5E6570"
-    readonly property color cAccent: "#2BC4B0"
-    readonly property color cAccentDeep: "#17524C"
+    readonly property color cText: "#EDEEF0"
+    readonly property color cDim: "#A0A4AC"
+    readonly property color cFaint: "#6A6E77"
+    readonly property color cAccent: "#7A8CFF"
+    readonly property color cAccentDeep: "#2E3566"
     readonly property color cDanger: "#E5636B"
     readonly property color cGlass: Qt.rgba(0.094, 0.106, 0.122, 0.72)
     readonly property color cRim: Qt.rgba(1, 1, 1, 0.16)
@@ -105,7 +105,7 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             width: 96; height: 96; radius: 48
             color: root.cAccentDeep
-            border.color: Qt.rgba(0.17, 0.77, 0.69, 0.45)
+            border.color: Qt.rgba(0.478, 0.549, 1.0, 0.45)
             border.width: 1
             clip: true
             Image {
@@ -175,7 +175,7 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     text: root.busy ? "…" : "→"
-                    color: goMouse.containsMouse ? "#0B0C0E" : root.cText
+                    color: goMouse.containsMouse ? "#141517" : root.cText
                     font.pixelSize: 18
                     font.family: root.ui
                 }

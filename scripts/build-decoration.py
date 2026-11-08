@@ -36,14 +36,14 @@ def palette(mode: str) -> dict:
     return {
         "title": rgb(c["surface1"]),
         "titleInactive": rgb(c["surface0"]),
-        "edge": "#2A2E34" if dark else "#D5D9DE",          # 1 px window outline
+        "edge": "#2F3136" if dark else "#D5D7DC",          # 1 px window outline
         "highlight": "#FFFFFF",
         "highlightOpacity": 0.06 if dark else 0.9,
-        "dot": "#3A3F46" if dark else "#C9CED4",            # quiet resting state
-        "ring": "#3A3F46" if dark else "#BDC3CA",
+        "dot": "#3B3E44" if dark else "#C9CBD1",            # quiet resting state
+        "ring": "#3B3E44" if dark else "#BDBFC6",
         "close": rgb(c["danger"]) if dark else "#E0555E",
         "minimize": rgb(c["warning"]) if dark else "#E2A93B",
-        "maximize": rgb(c["accent"]) if dark else "#1FA896",
+        "maximize": rgb(c["accent"]),
         "glyph": "#14161A",
         "text": rgb(c["text"]),
         "textInactive": rgb(c["textFaint"]),

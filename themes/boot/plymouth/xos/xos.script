@@ -1,9 +1,9 @@
 # X-OS boot splash (Plymouth script theme).
 # Logo + three dots that brighten in turn; a password field for encrypted disks;
-# status messages at the bottom. Colours: bg #0B0C0E, text #ECEEF1, accent #2BC4B0.
+# status messages at the bottom. Colours: bg #141517, text #EDEEF0, accent #7A8CFF.
 
-Window.SetBackgroundTopColor(0.043, 0.047, 0.055);
-Window.SetBackgroundBottomColor(0.043, 0.047, 0.055);
+Window.SetBackgroundTopColor(0.078, 0.082, 0.090);
+Window.SetBackgroundBottomColor(0.078, 0.082, 0.090);
 W = Window.GetWidth();
 H = Window.GetHeight();
 

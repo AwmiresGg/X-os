@@ -92,6 +92,9 @@ if [[ "${XOS_VARIANT:-core}" == desktop ]]; then
     mkdir -p "$DEST/usr/share/plasma/look-and-feel"
     cp -r "$SRC/themes/plasma/look-and-feel/org.xos.desktop" "$DEST/usr/share/plasma/look-and-feel/"
     inst 0644 "$SRC/themes/plasma/kdeglobals" etc/xdg/kdeglobals
+    for c in "$SRC"/themes/plasma/color-schemes/*.colors; do
+        inst 0644 "$c" "usr/share/color-schemes/$(basename "$c")"
+    done
     # Native QML plugin sources; compiled inside the image by build/hooks/chroot/30-native.sh
     rm -rf "$DEST/usr/src/xos-native"
     mkdir -p "$DEST/usr/src/xos-native"

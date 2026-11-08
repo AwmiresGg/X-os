@@ -8,7 +8,7 @@ import io.calamares.core 1.0
 
 Rectangle {
     id: nav
-    color: "#121417"
+    color: "#1A1B1E"
     implicitHeight: 72
     height: 72
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
@@ -27,17 +27,17 @@ Rectangle {
         radius: 20
         opacity: enabled ? 1 : 0.4
         color: !enabled ? "transparent"
-             : primary ? (mouse.pressed ? "#1E6A62" : mouse.containsMouse ? "#1D635C" : "#17524C")
-             : (mouse.pressed ? "#181B1F" : mouse.containsMouse ? "#22262B" : "transparent")
+             : primary ? (mouse.pressed ? "#3A4380" : mouse.containsMouse ? "#363F7A" : "#2E3566")
+             : (mouse.pressed ? "#212226" : mouse.containsMouse ? "#2A2C31" : "transparent")
         border.width: quiet ? 0 : (activeFocus ? 2 : 1)
-        border.color: primary || activeFocus ? "#2BC4B0" : Qt.rgba(1, 1, 1, 0.18)
+        border.color: primary || activeFocus ? "#7A8CFF" : Qt.rgba(1, 1, 1, 0.18)
         activeFocusOnTab: enabled
         Behavior on color { ColorAnimation { duration: 120 } }
         Text {
             id: txt
             anchors.centerIn: parent
             text: pill.label.replace("&", "")
-            color: pill.quiet ? "#9AA1AB" : "#ECEEF1"
+            color: pill.quiet ? "#A0A4AC" : "#EDEEF0"
             font.family: nav.ui
             font.pixelSize: 14
             font.weight: pill.primary ? Font.DemiBold : Font.Medium

@@ -19,7 +19,7 @@ GRUB = ROOT / "themes/boot/grub/xos"
 PLY = ROOT / "themes/boot/plymouth/xos"
 WALL = ROOT / "themes/liquid-glass/wallpapers/x-os-dark.svg"
 LOGO = ROOT / "icons/xos/brand/x-os-logo.svg"
-ACCENT, ACCENT_DEEP = QColor("#2BC4B0"), QColor("#17524C")
+ACCENT, ACCENT_DEEP = QColor("#7A8CFF"), QColor("#2E3566")
 
 
 def image(w, h):
@@ -89,7 +89,7 @@ def main() -> int:
     svg(LOGO, 128, 128).save(str(PLY / "logo.png"))
     dot(8, QColor(255, 255, 255, 60)).save(str(PLY / "dot.png"))
     dot(8, ACCENT).save(str(PLY / "dot-on.png"))
-    dot(10, QColor("#ECEEF1")).save(str(PLY / "bullet.png"))
+    dot(10, QColor("#EDEEF0")).save(str(PLY / "bullet.png"))
     rounded(320, 44, 22, QColor(24, 27, 31, 235), QColor(255, 255, 255, 41)).save(str(PLY / "entry.png"))
     print("boot assets written")
     return 0

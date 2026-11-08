@@ -123,7 +123,7 @@ def keyboard_session_commands(c: Choices) -> list[list[str]]:
 
 def appearance_commands(c: Choices) -> list[list[str]]:
     """Per-user commands that apply theme + wallpaper in a Plasma session."""
-    scheme = {"dark": "BreezeDark", "light": "BreezeLight", "auto": "BreezeDark"}[c.theme]
+    scheme = {"dark": "XOSDark", "light": "XOSLight", "auto": "XOSDark"}[c.theme]
     deco = "__aurorae__svg__XOS-Light" if c.theme == "light" else "__aurorae__svg__XOS-Dark"
     return [
         ["plasma-apply-colorscheme", scheme],

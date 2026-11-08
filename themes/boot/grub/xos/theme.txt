@@ -2,7 +2,7 @@
 title-text: ""
 desktop-image: "background.png"
 desktop-image-scale-method: "crop"
-desktop-color: "#0B0C0E"
+desktop-color: "#141517"
 terminal-font: "Inter Regular 13"
 terminal-left: "10%"
 terminal-top: "10%"
@@ -24,7 +24,7 @@ terminal-height: "80%"
     align = "center"
     text = "X-OS"
     font = "Inter SemiBold 28"
-    color = "#ECEEF1"
+    color = "#EDEEF0"
 }
 + boot_menu {
     left = 50%-360
@@ -33,7 +33,7 @@ terminal-height: "80%"
     height = 50%
     item_font = "Inter Regular 18"
     selected_item_font = "Inter Regular 18"
-    item_color = "#9AA1AB"
+    item_color = "#A0A4AC"
     selected_item_color = "#FFFFFF"
     # The selection pixmap's 14 px borders are drawn OUTSIDE the item box, so the spacing
     # must be >= 2 x 14 or the highlight covers the neighbouring rows.
@@ -54,7 +54,7 @@ terminal-height: "80%"
     height = 24
     align = "center"
     font = "Inter Regular 13"
-    color = "#9AA1AB"
+    color = "#A0A4AC"
     text = "Starting in %d s"
 }
 + label {
@@ -64,6 +64,6 @@ terminal-height: "80%"
     height = 24
     align = "center"
     font = "Inter Regular 13"
-    color = "#5E6570"
+    color = "#6A6E77"
     text = "Up/Down: choose      Enter: start      e: edit"
 }

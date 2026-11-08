@@ -305,7 +305,7 @@ DECORATION = {True: "__aurorae__svg__XOS-Dark", False: "__aurorae__svg__XOS-Ligh
 
 def set_appearance(dark: bool) -> bool:
     """Colour scheme + matching X-OS window decoration, applied live."""
-    ok = _run(["plasma-apply-colorscheme", "BreezeDark" if dark else "BreezeLight"], timeout=15)[0] == 0
+    ok = _run(["plasma-apply-colorscheme", "XOSDark" if dark else "XOSLight"], timeout=15)[0] == 0
     _run(["kwriteconfig6", "--file", "kwinrc", "--group", "org.kde.kdecoration2", "--key", "theme", DECORATION[dark]])
     _run(["dbus-send", "--session", "--type=method_call", "--dest=org.kde.KWin", "/KWin", "org.kde.KWin.reconfigure"])
     return ok

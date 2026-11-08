@@ -1,11 +1,11 @@
-/* X-OS installer (Calamares) — X-OS design tokens (dark). One accent: #2BC4B0. */
+/* X-OS installer (Calamares) — X-OS design tokens (dark). One accent: #7A8CFF. */
 
 QWidget {
-    background-color: #121417;
-    color: #ECEEF1;
+    background-color: #1A1B1E;
+    color: #EDEEF0;
     font-family: "Inter", "Vazirmatn", sans-serif;
     font-size: 10.5pt;
-    selection-background-color: #17524C;
+    selection-background-color: #2E3566;
     selection-color: #FFFFFF;
 }
 QLabel { background: transparent; }
@@ -17,52 +17,52 @@ QPushButton {
     padding: 7px 20px;
     min-height: 20px;
 }
-QPushButton:hover { background-color: #22262B; }
-QPushButton:pressed { background-color: #181B1F; }
-QPushButton:focus { border: 2px solid #2BC4B0; }
-QPushButton:disabled { color: #5E6570; border-color: rgba(255, 255, 255, 0.08); }
+QPushButton:hover { background-color: #2A2C31; }
+QPushButton:pressed { background-color: #212226; }
+QPushButton:focus { border: 2px solid #7A8CFF; }
+QPushButton:disabled { color: #6A6E77; border-color: rgba(255, 255, 255, 0.08); }
 QPushButton:default {
-    background-color: #17524C;
-    border: 1px solid #2BC4B0;
+    background-color: #2E3566;
+    border: 1px solid #7A8CFF;
     font-weight: 600;
 }
 
 QLineEdit, QSpinBox, QPlainTextEdit, QTextEdit, QTextBrowser {
-    background-color: #181B1F;
+    background-color: #212226;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     padding: 6px 10px;
 }
-QLineEdit:focus, QPlainTextEdit:focus { border: 2px solid #2BC4B0; }
+QLineEdit:focus, QPlainTextEdit:focus { border: 2px solid #7A8CFF; }
 
 QComboBox {
-    background-color: #181B1F;
+    background-color: #212226;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     padding: 6px 12px;
 }
-QComboBox:focus { border: 2px solid #2BC4B0; }
+QComboBox:focus { border: 2px solid #7A8CFF; }
 QComboBox::drop-down { border: none; width: 26px; }
 QComboBox QAbstractItemView {
-    background-color: #181B1F;
+    background-color: #212226;
     border: 1px solid rgba(255, 255, 255, 0.16);
-    selection-background-color: #17524C;
+    selection-background-color: #2E3566;
     outline: 0;
 }
 
 QListView, QTreeView, QTableView {
-    background-color: #181B1F;
-    alternate-background-color: #1C1F24;
+    background-color: #212226;
+    alternate-background-color: #25262A;
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 12px;
     outline: 0;
 }
 QListView::item, QTreeView::item { padding: 5px 8px; border-radius: 6px; }
-QListView::item:hover, QTreeView::item:hover { background-color: #22262B; }
-QListView::item:selected, QTreeView::item:selected { background-color: #17524C; color: #FFFFFF; }
+QListView::item:hover, QTreeView::item:hover { background-color: #2A2C31; }
+QListView::item:selected, QTreeView::item:selected { background-color: #2E3566; color: #FFFFFF; }
 QHeaderView::section {
-    background-color: #181B1F;
-    color: #9AA1AB;
+    background-color: #212226;
+    color: #A0A4AC;
     border: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.10);
     padding: 6px;
@@ -72,28 +72,28 @@ QRadioButton, QCheckBox { spacing: 10px; background: transparent; }
 QRadioButton::indicator, QCheckBox::indicator {
     width: 16px; height: 16px;
     border: 1px solid rgba(255, 255, 255, 0.30);
-    background-color: #181B1F;
+    background-color: #212226;
 }
 QRadioButton::indicator { border-radius: 9px; }
 QCheckBox::indicator { border-radius: 5px; }
 QRadioButton::indicator:checked, QCheckBox::indicator:checked {
-    background-color: #2BC4B0;
-    border: 1px solid #2BC4B0;
+    background-color: #7A8CFF;
+    border: 1px solid #7A8CFF;
 }
 /* Calamares applies this stylesheet application-wide, so images use absolute paths. */
 QCheckBox::indicator:checked { image: url(/etc/calamares/branding/xos/check.svg); }
 QRadioButton::indicator:checked { image: url(/etc/calamares/branding/xos/radio.svg); }
-QRadioButton::indicator:focus, QCheckBox::indicator:focus { border: 2px solid #2BC4B0; }
+QRadioButton::indicator:focus, QCheckBox::indicator:focus { border: 2px solid #7A8CFF; }
 
 QProgressBar {
-    background-color: #22262B;
+    background-color: #2A2C31;
     border: none;
     border-radius: 4px;
     height: 8px;
     text-align: center;
     color: transparent;
 }
-QProgressBar::chunk { background-color: #2BC4B0; border-radius: 4px; }
+QProgressBar::chunk { background-color: #7A8CFF; border-radius: 4px; }
 
 QScrollBar:vertical { background: transparent; width: 10px; margin: 2px; }
 QScrollBar::handle:vertical { background: rgba(255, 255, 255, 0.18); border-radius: 4px; min-height: 30px; }
@@ -103,13 +103,13 @@ QScrollBar::handle:horizontal { background: rgba(255, 255, 255, 0.18); border-ra
 QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page { background: none; border: none; }
 
 QToolTip {
-    background-color: #181B1F;
-    color: #ECEEF1;
+    background-color: #212226;
+    color: #EDEEF0;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 6px;
     padding: 4px 8px;
 }
-QMessageBox { background-color: #181B1F; }
+QMessageBox { background-color: #212226; }
 
 /* Partition legend: Calamares paints partition names with a hard-coded black pen and details
    in Qt::gray (PartitionLabelsView.cpp), so on the dark theme they were unreadable. Its

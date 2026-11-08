@@ -18,7 +18,7 @@ Presentation {
         width: presentation.width
         height: presentation.height
 
-        Rectangle { anchors.fill: parent; color: "#0B0C0E"; radius: 16; clip: true
+        Rectangle { anchors.fill: parent; color: "#141517"; radius: 16; clip: true
             Image {
                 anchors.fill: parent
                 anchors.margins: 1
@@ -45,7 +45,7 @@ Presentation {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
-                color: "#ECEEF1"
+                color: "#EDEEF0"
                 font.family: "Inter"
                 font.pixelSize: 30
                 font.weight: Font.DemiBold
@@ -56,7 +56,7 @@ Presentation {
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
                 lineHeight: 1.15
-                color: "#9AA1AB"
+                color: "#A0A4AC"
                 font.family: "Inter"
                 font.pixelSize: 17
             }
@@ -64,7 +64,7 @@ Presentation {
     }
 
     // backdrop behind the slides (not a Slide, so Presentation leaves it alone)
-    Rectangle { anchors.fill: parent; color: "#121417"; z: -1 }
+    Rectangle { anchors.fill: parent; color: "#1A1B1E"; z: -1 }
 
     XSlide { heading: "Welcome to X-OS"; body: "Beyond Windows. Beyond macOS." }
     XSlide { heading: "Your apps, your way"; body: "Firefox is ready. Chrome and other browsers download from their makers' signed servers." }

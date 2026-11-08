@@ -8,15 +8,15 @@ import io.calamares.core 1.0
 
 Rectangle {
     id: side
-    color: "#121417"
+    color: "#1A1B1E"
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
-    readonly property color cText: "#ECEEF1"
-    readonly property color cDim: "#9AA1AB"
-    readonly property color cFaint: "#5E6570"
-    readonly property color cAccent: "#2BC4B0"
-    readonly property color cAccentDeep: "#17524C"
+    readonly property color cText: "#EDEEF0"
+    readonly property color cDim: "#A0A4AC"
+    readonly property color cFaint: "#6A6E77"
+    readonly property color cAccent: "#7A8CFF"
+    readonly property color cAccentDeep: "#2E3566"
     readonly property string ui: "Inter"
 
     Rectangle {
@@ -25,7 +25,7 @@ Rectangle {
         anchors.margins: 14
         anchors.rightMargin: 4
         radius: 18
-        color: "#181B1F"
+        color: "#212226"
         border.color: Qt.rgba(1, 1, 1, 0.07)
 
         Column {
@@ -80,7 +80,7 @@ Rectangle {
                     Rectangle {
                         anchors.fill: parent
                         radius: 10
-                        color: step.current ? Qt.rgba(0.17, 0.77, 0.69, 0.10) : "transparent"
+                        color: step.current ? Qt.rgba(0.478, 0.549, 1.0, 0.10) : "transparent"
                     }
                     Rectangle {            // step number / check
                         id: dot
@@ -94,7 +94,7 @@ Rectangle {
                         Text {
                             anchors.centerIn: parent
                             text: step.done ? "✓" : (step.index + 1)
-                            color: step.done ? "#0B0C0E" : step.current ? side.cText : side.cDim
+                            color: step.done ? "#141517" : step.current ? side.cText : side.cDim
                             font.family: side.ui
                             font.pixelSize: step.done ? 12 : 11
                             font.weight: Font.DemiBold
